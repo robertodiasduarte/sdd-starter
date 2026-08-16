@@ -24,14 +24,15 @@ Para outros agentes, copie as quatro pastas (`sdd-brainstorm`, `sdd-define`, `sd
 
 ### ChatGPT / agentes baseados em OpenAI
 
-O ChatGPT não instala skills — você entrega os arquivos da skill como material de consulta. Dois caminhos comuns:
+O ChatGPT instala skills nativamente (planos Business, Enterprise e Edu):
 
-- **Projeto (um por fase)**: crie um Projeto, abra **Sources → Add sources** e envie os arquivos da skill (principalmente o `SKILL.md` e a pasta `references/`). Nas instruções do projeto, escreva: *"Siga o SKILL.md que está nos arquivos deste projeto."*
-- **GPT personalizado (um por fase, planos pagos)**: em **Meus GPTs → Criar → Configurar**, envie os arquivos da skill em **Conhecimento** e, no campo **Instruções**, escreva: *"Siga o SKILL.md anexado como seu procedimento."*
+1. Abra **Configurações → Habilidades** (ou `chatgpt.com/admin/skills`).
+2. Clique no **+** e arraste cada `.zip` da [última Release](../../../releases/latest) — sem descompactar.
+3. Defina o acesso e repita para as 4 skills. Depois acione pelo nome (`sdd-brainstorm`, `sdd-define`…).
 
-Depois comece a conversa com o prompt da fase (veja a [seção 2](#2-rode-seu-primeiro-fluxo)).
+**Sem acesso à administração?** Crie um Projeto, envie os arquivos da skill (principalmente `SKILL.md` e `references/`) e, nas instruções do projeto, escreva: *"Siga o SKILL.md que está nos arquivos deste projeto."*
 
-Cada skill também traz um `agents/openai.yaml` com display name e, em algumas fases, um `default_prompt` — útil para plataformas de agente que leem esse formato. Plataformas que aceitam upload de skill podem usar o zip da [última Release](../../../releases/latest).
+Cada skill também traz um `agents/openai.yaml` com display name e, em algumas fases, um `default_prompt` — usado por plataformas de agente que leem esse formato.
 
 Menus mudam entre versões dos produtos — se os caminhos acima não baterem com a sua tela, a regra que não muda é: **entregue ao agente os arquivos da skill e mande-o seguir o `SKILL.md`**, que é onde o método está.
 
