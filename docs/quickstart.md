@@ -24,12 +24,16 @@ For other agents, copy the four folders (`sdd-brainstorm`, `sdd-define`, `sdd-de
 
 ### ChatGPT / OpenAI-based agents
 
-Each skill ships an `agents/openai.yaml` with a display name and a ready-made default prompt. Two common setups:
+ChatGPT has no skill installer — you hand it the skill's files as reference material. Two common setups:
 
-- **Custom GPT / Project**: attach the skill's files (`SKILL.md`, `references/`, `assets/`) as knowledge and paste the `default_prompt` from `agents/openai.yaml` as the starting instruction.
-- **Agent platforms that accept skill uploads**: upload the per-skill zip from the [latest Release](../../../releases/latest).
+- **Project (one per phase)**: create a Project, open **Sources → Add sources** and upload the skill's files (mainly `SKILL.md` and `references/`). In the project instructions, write: *"Follow the SKILL.md in this project's files."*
+- **Custom GPT (one per phase, paid plans)**: in **My GPTs → Create → Configure**, upload the skill's files under **Knowledge**, and in **Instructions** write: *"Follow the attached SKILL.md as your procedure."*
 
-Menus change between product versions — if the paths above don't match your UI, the rule of thumb is: give the agent the skill folder's files and tell it to follow `SKILL.md`.
+Then start the conversation with the phase prompt (see [section 2](#2-run-your-first-flow)).
+
+Each skill also ships an `agents/openai.yaml` with a display name and, for some phases, a `default_prompt` — useful for agent platforms that read that format. Platforms that accept skill uploads can take the per-skill zip from the [latest Release](../../../releases/latest).
+
+Menus change between product versions — if the paths above don't match your UI, the rule that doesn't change is: **give the agent the skill's files and tell it to follow `SKILL.md`**, which is where the method lives.
 
 ## 2. Run your first flow
 

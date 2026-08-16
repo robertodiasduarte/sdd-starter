@@ -24,12 +24,16 @@ Para outros agentes, copie as quatro pastas (`sdd-brainstorm`, `sdd-define`, `sd
 
 ### ChatGPT / agentes baseados em OpenAI
 
-Cada skill traz um `agents/openai.yaml` com display name e um prompt inicial pronto. Dois caminhos comuns:
+O ChatGPT não instala skills — você entrega os arquivos da skill como material de consulta. Dois caminhos comuns:
 
-- **GPT personalizado / Projeto**: anexe os arquivos da skill (`SKILL.md`, `references/`, `assets/`) como conhecimento e cole o `default_prompt` do `agents/openai.yaml` como instrução inicial.
-- **Plataformas de agente que aceitam upload de skill**: suba o zip da skill baixado da [última Release](../../../releases/latest).
+- **Projeto (um por fase)**: crie um Projeto, abra **Sources → Add sources** e envie os arquivos da skill (principalmente o `SKILL.md` e a pasta `references/`). Nas instruções do projeto, escreva: *"Siga o SKILL.md que está nos arquivos deste projeto."*
+- **GPT personalizado (um por fase, planos pagos)**: em **Meus GPTs → Criar → Configurar**, envie os arquivos da skill em **Conhecimento** e, no campo **Instruções**, escreva: *"Siga o SKILL.md anexado como seu procedimento."*
 
-Menus mudam entre versões dos produtos — se os caminhos acima não baterem com a sua tela, a regra geral é: entregue ao agente os arquivos da pasta da skill e mande-o seguir o `SKILL.md`.
+Depois comece a conversa com o prompt da fase (veja a [seção 2](#2-rode-seu-primeiro-fluxo)).
+
+Cada skill também traz um `agents/openai.yaml` com display name e, em algumas fases, um `default_prompt` — útil para plataformas de agente que leem esse formato. Plataformas que aceitam upload de skill podem usar o zip da [última Release](../../../releases/latest).
+
+Menus mudam entre versões dos produtos — se os caminhos acima não baterem com a sua tela, a regra que não muda é: **entregue ao agente os arquivos da skill e mande-o seguir o `SKILL.md`**, que é onde o método está.
 
 ## 2. Rode seu primeiro fluxo
 
