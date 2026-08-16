@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Build by RDD"
+  short_description: "Implementa Brainstorm + Define + Design e valida o Build."
+  default_prompt: "Use a skill sdd-build com os arquivos de Brainstorm, Define e Design enviados e com acesso ao projeto. Recomende o modo de execução, implemente somente o File Manifest, execute verificações e o Verify Gate e gere o BUILD_REPORT final."

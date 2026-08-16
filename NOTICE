@@ -1,0 +1,12 @@
+SDD Starter
+Copyright (c) 2026 Roberto Dias Duarte
+
+This project builds on concepts and workflow structure from AgentSpec,
+by Luan Moreno Maciel (https://github.com/luanmorenommaciel/agentspec),
+licensed under the MIT License. The phase-based SDD flow (Brainstorm,
+Define, Design, Build), the use of EARS-style acceptance tests, and the
+Verify Gate concept are derived from that lineage, simplified and adapted
+for beginner-friendly, agent-agnostic use.
+
+SDD Starter is the beginner-oriented sibling of SpecGate
+(https://github.com/robertodiasduarte/specgate), by the same author.

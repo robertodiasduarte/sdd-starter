@@ -1,0 +1,14 @@
+interface:
+  display_name: SDD Design by RDD
+  short_description: "Transforma Brainstorm + Define em DESIGN t\xE9cnico pronto para\
+    \ Build."
+  default_prompt: "Use a skill sdd-design com os arquivos de Brainstorm e Define enviados.\
+    \ Fa\xE7a somente as clarifica\xE7\xF5es t\xE9cnicas necess\xE1rias e gere o DESIGN\
+    \ Markdown final pronto para o SDD Build by RDD."
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

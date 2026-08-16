@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Define by RDD"
+  short_description: "Transforma um Brainstorm SDD em um DEFINE verificável."
+  default_prompt: "Use a skill sdd-define para transformar o arquivo de Brainstorm enviado em um DEFINE formal, fazendo apenas as clarificações necessárias e entregando o arquivo Markdown final."
