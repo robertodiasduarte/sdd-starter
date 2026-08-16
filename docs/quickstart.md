@@ -33,18 +33,60 @@ Menus change between product versions — if the paths above don't match your UI
 
 ## 2. Run your first flow
 
-Start a conversation and say, for example:
+The flow is the same in every tool. In each phase you **run a skill, get a document, and review it before moving on**.
 
-> Use the **sdd-brainstorm** skill. I want to build a personal expense tracker for macOS.
+> **The rule of the method:** never move to the next phase with a document you haven't read.
+> Fixing a sentence now costs minutes; fixing it after the AI has written the app costs hours.
 
-The agent will interview you (one question at a time), compare 2–3 approaches, and produce `BRAINSTORM_EXPENSE_TRACKER.md`. Then chain the phases, always handing the previous artifact to the next skill:
+### Phase 1 — Brainstorm: sharpen the idea
 
-1. **Brainstorm** → produces `BRAINSTORM_*.md`
-2. **Define** (give it the Brainstorm) → produces `DEFINE_*.md`
-3. **Design** (give it Brainstorm + Define) → produces `DESIGN_*.md`
-4. **Build** (give it all three, in an agent with write access to your project) → real code + `BUILD_REPORT_*.md`
+```text
+Use the sdd-brainstorm skill. I want to build [your idea — e.g. a personal expense tracker].
+```
 
-Each artifact ends with a **Next Step** line telling you exactly which skill to run next.
+The agent interviews you (one question at a time), compares 2–3 approaches, and produces `BRAINSTORM_*.md`.
+
+**Review before moving on:** is the idea described the way you meant it? Anything missing? Ask for the fix now.
+
+### Phase 2 — Define: what the app must do
+
+```text
+Use the sdd-define skill. Write the project definition from the brainstorm document.
+```
+
+More questions (take your time), then `DEFINE_*.md` with the acceptance tests.
+
+**Review before moving on:** is everything you expect there? Anything you don't want? Fix it before Design.
+
+### Phase 3 — Design: the technical plan
+
+This is where you declare **where the solution will run** — it decides the tool you use in Build:
+
+| You want… | Write in the prompt | In Build, use |
+|---|---|---|
+| A website or web system | web application (SaaS) | Claude Code or Codex |
+| An app without coding | Lovable application | Lovable connected to Claude or ChatGPT |
+| A Windows program | Windows executable (.exe) | Claude Code or Codex |
+| A Mac program | macOS application | Claude Code or Codex |
+
+```text
+Use the sdd-design skill. Design the project based on the brainstorm and define documents.
+The application will use the [pick from the table above] architecture.
+```
+
+**Review before moving on:** this is the last cheap stop. After here, changes mean rewriting code.
+
+### Phase 4 — Build: the AI writes the app
+
+```text
+Use the sdd-build skill. Build the application based on the brainstorm, define and design documents.
+```
+
+Run it in the tool the table pointed to, handing over all three documents.
+
+**Review the result:** test the app and go back to the AI with anything that differs from the Design.
+
+Each artifact ends with a **Next Step** line telling you exactly which skill to run next. Keep the documents — each one is the input of the next phase and the record of what you decided.
 
 > **Note:** phases 1–3 work in any chat agent — no filesystem needed. Phase 4 (**Build**) requires an agent that can write code to your project (Claude Code, Codex, Cursor, Lovable, Base44, etc.).
 

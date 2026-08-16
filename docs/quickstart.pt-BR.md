@@ -33,18 +33,60 @@ Menus mudam entre versões dos produtos — se os caminhos acima não baterem co
 
 ## 2. Rode seu primeiro fluxo
 
-Comece uma conversa e diga, por exemplo:
+O caminho é o mesmo em qualquer ferramenta. Em cada fase você **aciona a skill, recebe um documento e o valida antes de seguir**.
 
-> Use a skill **sdd-brainstorm**. Quero construir um controle de despesas pessoais para macOS.
+> **A regra do método:** nunca siga para a próxima fase com um documento que você não leu.
+> Corrigir uma frase agora custa minutos; corrigir depois que a IA já escreveu o aplicativo custa horas.
 
-O agente vai te entrevistar (uma pergunta por vez), comparar 2–3 abordagens e produzir `BRAINSTORM_CONTROLE_DESPESAS.md`. Depois encadeie as fases, sempre entregando o artefato anterior à skill seguinte:
+### Fase 1 — Brainstorm: lapide a ideia
 
-1. **Brainstorm** → produz `BRAINSTORM_*.md`
-2. **Define** (entregue o Brainstorm) → produz `DEFINE_*.md`
-3. **Design** (entregue Brainstorm + Define) → produz `DESIGN_*.md`
-4. **Build** (entregue os três, num agente com acesso de escrita ao projeto) → código real + `BUILD_REPORT_*.md`
+```text
+Use a skill sdd-brainstorm. Quero construir [sua ideia — ex.: um controle de despesas pessoais].
+```
 
-Cada artefato termina com uma linha de **Next Step** dizendo exatamente qual skill rodar em seguida.
+O agente te entrevista (uma pergunta por vez), compara 2–3 abordagens e produz `BRAINSTORM_*.md`.
+
+**Valide antes de seguir:** a ideia está descrita como você pensou? Falta alguma coisa? Peça a correção agora.
+
+### Fase 2 — Define: o que o app precisa fazer
+
+```text
+Use a skill sdd-define. Elabore a definição do projeto a partir do documento de brainstorm.
+```
+
+Novas perguntas (responda com calma) e sai o `DEFINE_*.md`, com os testes de aceitação.
+
+**Valide antes de seguir:** está tudo que você espera? Tem algo sobrando? Corrija antes do Design.
+
+### Fase 3 — Design: o plano técnico
+
+Aqui você declara **onde a solução vai rodar** — é o que decide a ferramenta da fase seguinte:
+
+| Você quer… | Escreva no prompt | No Build, use |
+|---|---|---|
+| Um site ou sistema web | aplicativo web (SaaS) | Claude Code ou Codex |
+| Um app sem programar | aplicativo Lovable | Lovable conectado ao Claude ou ChatGPT |
+| Um programa de Windows | executável (.exe) para Windows | Claude Code ou Codex |
+| Um programa de Mac | aplicativo para macOS | Claude Code ou Codex |
+
+```text
+Use a skill sdd-design. Elabore o design do projeto com base nos documentos de brainstorm e define.
+A aplicação utilizará a arquitetura [escolha na tabela acima].
+```
+
+**Valide antes de seguir:** é a última parada barata. Depois daqui, mudança significa reescrever código.
+
+### Fase 4 — Build: a IA escreve o aplicativo
+
+```text
+Use a skill sdd-build. Construa a aplicação com base nos documentos de brainstorm, define e design.
+```
+
+Rode na ferramenta que a tabela indicou, entregando os três documentos.
+
+**Valide o resultado:** teste o app e volte à IA com o que estiver diferente do combinado no Design.
+
+Cada artefato termina com uma linha de **Next Step** dizendo exatamente qual skill rodar em seguida. Guarde os documentos — cada um é a entrada da fase seguinte e o registro do que você decidiu.
 
 > **Nota:** as fases 1–3 funcionam em qualquer agente de chat — sem filesystem. A fase 4 (**Build**) exige um agente que escreva código no seu projeto (Claude Code, Codex, Cursor, Lovable, Base44, etc.).
 
