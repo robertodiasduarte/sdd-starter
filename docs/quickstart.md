@@ -2,7 +2,7 @@
 
 > 🇧🇷 [Versão em Português](quickstart.pt-BR.md)
 
-Get the four SDD skills into your agent and run your first flow.
+Get the SDD skills into your agent and run your first flow.
 
 ## 1. Install the skills
 
@@ -15,7 +15,7 @@ cp -R sdd-starter/skills/* ~/.claude/skills/        # user-level, available ever
 cp -R sdd-starter/skills/* your-project/.claude/skills/
 ```
 
-For other agents, copy the four folders (`sdd-brainstorm`, `sdd-define`, `sdd-design`, `sdd-build`) into whatever directory your agent reads skills/instructions from, keeping each folder intact.
+For other agents, copy the skill folders (`sdd-brainstorm`, `sdd-define`, `sdd-design`, `sdd-build`, `sdd-handoff`, `sdd-kb`) into whatever directory your agent reads skills/instructions from, keeping each folder intact.
 
 ### claude.ai (web)
 

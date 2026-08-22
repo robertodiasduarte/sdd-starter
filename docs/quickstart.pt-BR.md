@@ -2,7 +2,7 @@
 
 > 🇺🇸 [English version](quickstart.md) (canônica)
 
-Coloque as quatro skills SDD no seu agente e rode seu primeiro fluxo.
+Coloque as skills SDD no seu agente e rode seu primeiro fluxo.
 
 ## 1. Instale as skills
 
@@ -15,7 +15,7 @@ cp -R sdd-starter/skills/* ~/.claude/skills/        # nível de usuário, vale e
 cp -R sdd-starter/skills/* seu-projeto/.claude/skills/
 ```
 
-Para outros agentes, copie as quatro pastas (`sdd-brainstorm`, `sdd-define`, `sdd-design`, `sdd-build`) para o diretório de onde seu agente lê skills/instruções, mantendo cada pasta intacta.
+Para outros agentes, copie as pastas das skills (`sdd-brainstorm`, `sdd-define`, `sdd-design`, `sdd-build`, `sdd-handoff`, `sdd-kb`) para o diretório de onde seu agente lê skills/instruções, mantendo cada pasta intacta.
 
 ### claude.ai (web)
 

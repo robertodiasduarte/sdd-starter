@@ -98,7 +98,7 @@ def main():
             if data:
                 fail(errors, "Complete build cannot contain blocker rows")
 
-        expected_tail = "## Next Step\n\nFluxo SDD concluído. Revise o BUILD_REPORT e publique conforme o processo de release do seu projeto."
+        expected_tail = "## Next Step\n\nExecute o **SDD Handoff by RDD**."
         pos = text.find("## Next Step")
         if pos < 0:
             fail(errors, "Complete build requires Next Step")

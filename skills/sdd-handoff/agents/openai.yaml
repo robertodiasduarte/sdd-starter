@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Handoff by RDD"
+  short_description: "Fecha o ciclo de trabalho e prepara a retomada na próxima sessão."
+  default_prompt: "Use a skill sdd-handoff para registrar o que foi feito nesta sessão, o que ficou pendente e os próximos passos, e gerar o prompt de retomada para a próxima sessão."

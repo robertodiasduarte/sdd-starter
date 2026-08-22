@@ -187,4 +187,4 @@
 
 ## Next Step
 
-Fluxo SDD concluído. Revise o BUILD_REPORT e publique conforme o processo de release do seu projeto.
+Execute o **SDD Handoff by RDD**.

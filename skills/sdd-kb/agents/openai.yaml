@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD KB by RDD"
+  short_description: "Organiza o que você sabe numa base de conhecimento que a IA consulta."
+  default_prompt: "Use a skill sdd-kb para transformar o que eu sei sobre um domínio em uma base de conhecimento consultável, separando conceitos de receitas e registrando o domínio no índice."

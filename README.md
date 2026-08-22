@@ -4,17 +4,17 @@
 
 > 🇺🇸 **English version below** — click "English version" at the end of this page.
 
-O SDD Starter é um conjunto de quatro **skills** portáteis que guiam qualquer agente de IA — Claude (claude.ai ou Claude Code), ChatGPT, Codex ou qualquer agente de código — por um fluxo simples de desenvolvimento guiado por especificação:
+O SDD Starter é um conjunto de **skills** portáteis que guiam qualquer agente de IA — Claude (claude.ai ou Claude Code), ChatGPT, Codex ou qualquer agente de código — por um fluxo simples de desenvolvimento guiado por especificação:
 
 ```
-💡 Brainstorm  →  📋 Define  →  📐 Design  →  🔨 Build
+💡 Brainstorm  →  📋 Define  →  📐 Design  →  🔨 Build  →  📄 Handoff
 ```
 
 Cada fase produz um artefato Markdown que alimenta a próxima. Você termina com requisitos de verdade, arquitetura de verdade e código funcionando — em vez de um prompt único e uma reza. As aplicações que você especificar podem mirar qualquer alvo que seu agente consiga construir: Windows, macOS, web, Lovable, Base44 e outros.
 
 Se você quer a versão avançada deste fluxo — com Verify Gate executável, contrato de exit codes e integração com CI — veja o projeto irmão **[SpecGate](https://github.com/robertodiasduarte/specgate)**. O SDD Starter é a rampa de entrada; o SpecGate é a rodovia.
 
-## As quatro skills
+## As skills
 
 | Skill | Fase | Entrada | Saída |
 |---|---|---|---|
@@ -22,6 +22,13 @@ Se você quer a versão avançada deste fluxo — com Verify Gate executável, c
 | [`sdd-define`](skills/sdd-define/) | Formalizar requisitos | O arquivo de Brainstorm | `DEFINE_{FEATURE}.md` (testes de aceitação EARS, Clarity Score, Verify Gate) |
 | [`sdd-design`](skills/sdd-design/) | Arquitetar a solução | Brainstorm + Define | `DESIGN_{FEATURE}.md` (arquitetura, ADRs, File Manifest) |
 | [`sdd-build`](skills/sdd-build/) | Implementar | Os três artefatos + projeto gravável | Código funcionando + `BUILD_REPORT_{FEATURE}.md` |
+| [`sdd-handoff`](skills/sdd-handoff/) | Fechar o ciclo | O trabalho da sessão | `HANDOFF_{FEATURE}.md` + prompt de retomada |
+
+E uma skill **complementar**, que não entra na sequência — ela alimenta qualquer fase:
+
+| Skill | Para quê | Entrada | Saída |
+|---|---|---|---|
+| [`sdd-kb`](skills/sdd-kb/) | Ensinar seu contexto à IA | O que você sabe sobre um domínio | Base de conhecimento consultável |
 
 Cada pasta de skill é autocontida: um `SKILL.md` com o procedimento completo, `references/` com os protocolos, `assets/` com os templates canônicos de saída e (quando aplicável) `scripts/` com um validador estrutural e `agents/openai.yaml` para agentes baseados em OpenAI.
 
@@ -56,17 +63,17 @@ MIT — veja [LICENSE](LICENSE). Este projeto se apoia em conceitos do **AgentSp
 
 > Skill content is currently written in **Brazilian Portuguese**; English skill versions are planned.
 
-SDD Starter is a set of four portable **skills** that guide any AI agent — Claude (claude.ai or Claude Code), ChatGPT, Codex, or any coding agent — through a simple Spec-Driven Development flow:
+SDD Starter is a set of portable **skills** that guide any AI agent — Claude (claude.ai or Claude Code), ChatGPT, Codex, or any coding agent — through a simple Spec-Driven Development flow:
 
 ```
-💡 Brainstorm  →  📋 Define  →  📐 Design  →  🔨 Build
+💡 Brainstorm  →  📋 Define  →  📐 Design  →  🔨 Build  →  📄 Handoff
 ```
 
 Each phase produces a Markdown artifact that feeds the next one. You end up with real requirements, a real architecture, and working code — instead of a one-shot prompt and a prayer. The apps you specify can target anything your agent can build: Windows, macOS, web, Lovable, Base44, and more.
 
 If you want the advanced version of this workflow — with an executable Verify Gate, exit-code contracts, and CI integration — see the sibling project **[SpecGate](https://github.com/robertodiasduarte/specgate)**. SDD Starter is the on-ramp; SpecGate is the highway.
 
-## The four skills
+## The skills
 
 | Skill | Phase | Input | Output |
 |---|---|---|---|
@@ -74,6 +81,13 @@ If you want the advanced version of this workflow — with an executable Verify 
 | [`sdd-define`](skills/sdd-define/) | Formalize requirements | The Brainstorm file | `DEFINE_{FEATURE}.md` (EARS acceptance tests, Clarity Score, Verify Gate) |
 | [`sdd-design`](skills/sdd-design/) | Architect the solution | Brainstorm + Define | `DESIGN_{FEATURE}.md` (architecture, ADRs, File Manifest) |
 | [`sdd-build`](skills/sdd-build/) | Implement | All three artifacts + writable project | Working code + `BUILD_REPORT_{FEATURE}.md` |
+| [`sdd-handoff`](skills/sdd-handoff/) | Close the cycle | The session's work | `HANDOFF_{FEATURE}.md` + resume prompt |
+
+Plus a **complementary** skill that is not part of the sequence — it feeds any phase:
+
+| Skill | Purpose | Input | Output |
+|---|---|---|---|
+| [`sdd-kb`](skills/sdd-kb/) | Teach the AI your context | What you know about a domain | A consultable knowledge base |
 
 Each skill folder is self-contained: a `SKILL.md` with the full procedure, `references/` with protocols, `assets/` with the canonical output templates, and (where applicable) `scripts/` with a structural validator and `agents/openai.yaml` for OpenAI-based agents.
 

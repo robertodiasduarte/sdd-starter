@@ -2,7 +2,7 @@
 
 > 🇧🇷 [Versão em Português](workflow.pt-BR.md)
 
-Spec-Driven Development (SDD) means the specification — not the prompt — drives the code. SDD Starter breaks that into four phases, each owned by one skill, each producing one Markdown artifact that feeds the next phase.
+Spec-Driven Development (SDD) means the specification — not the prompt — drives the code. SDD Starter breaks that into five phases, each owned by one skill, each producing one Markdown artifact that feeds the next phase. A sixth skill, `sdd-kb`, is complementary: it is not part of the sequence and feeds any phase.
 
 ```mermaid
 flowchart LR

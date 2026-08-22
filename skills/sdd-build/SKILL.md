@@ -24,7 +24,7 @@ Executar implementação real. Não tratar Build como geração de um documento 
 13. Perguntar sobre revisão externa pós-build quando o caso justificar e a capacidade existir.
 14. Gerar o BUILD_REPORT usando [assets/BUILD_REPORT_TEMPLATE.md](assets/BUILD_REPORT_TEMPLATE.md).
 15. Validar o relatório com `python scripts/validate_build_report.py <BUILD_REPORT.md>`.
-16. Encerrar um build completo somente com `Fluxo SDD concluído. Revise o BUILD_REPORT e publique conforme o processo de release do seu projeto.`
+16. Encerrar um build completo somente com `Execute o **SDD Handoff by RDD**.`
 
 Ler [references/build-protocol.md](references/build-protocol.md) no início da execução.
 Ler [references/execution-modes.md](references/execution-modes.md) ao selecionar o modo.
@@ -400,7 +400,7 @@ Antes de declarar Build completo:
 - [ ] Não há TODO/FIXME usado como implementação pendente.
 - [ ] BUILD_REPORT foi gerado pelo asset.
 - [ ] `validate_build_report.py` passa.
-- [ ] Next Step completo contém somente `Fluxo SDD concluído. Revise o BUILD_REPORT e publique conforme o processo de release do seu projeto.`
+- [ ] Next Step completo contém somente `Execute o **SDD Handoff by RDD**.`
 
 ## Handoff de Build completo
 
@@ -409,7 +409,7 @@ A última seção do BUILD_REPORT completo deve ser exatamente:
 ```markdown
 ## Next Step
 
-Fluxo SDD concluído. Revise o BUILD_REPORT e publique conforme o processo de release do seu projeto.
+Execute o **SDD Handoff by RDD**.
 ```
 
 Não acrescentar slash command, caminho, instrução de upload, menção a GPT/Skill ou tarefa paralela depois desse texto.
