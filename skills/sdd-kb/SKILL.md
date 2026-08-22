@@ -1,6 +1,6 @@
 ---
 name: sdd-kb
-description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Cria o índice do projeto na primeira vez e registra cada domínio novo. Use quando o usuário quiser ensinar seu contexto à IA, documentar um processo, organizar conhecimento disperso sobre uma ferramenta ou área, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
+description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Cria o índice do projeto na primeira vez e registra cada domínio novo. Recomendada antes de iniciar um fluxo SDD, para as fases seguintes partirem do terreno já mapeado. A revisão do conteúdo é sempre do profissional — a IA organiza e redige, mas quem responde pelo que fica registrado é quem tem a responsabilidade técnica. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais, instruções ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
 ---
 
 # SDD KB
@@ -16,12 +16,15 @@ Transformar o que você sabe sobre um domínio em material que qualquer IA consu
 5. Respeitar os limites de tamanho de cada tipo.
 6. Declarar a fonte de cada arquivo e marcar o que não foi verificado.
 7. **Registrar o domínio no índice** — passo obrigatório.
+8. **Pedir a revisão do profissional** — quem responde pelo conteúdo é ele, não a IA.
 
 Consultar [references/kb-protocol.md](references/kb-protocol.md) para a taxonomia e as regras, e [references/sourcing.md](references/sourcing.md) para procedência. Os moldes estão em `assets/`, e [assets/example-kb/](assets/example-kb/) é um KB completo de exemplo.
 
 ## Quando usar / Quando não usar
 
-Usar quando o usuário precisar que a IA conheça um contexto que ela não tem: o processo do escritório, as regras de um cliente, uma ferramenta que ele domina, um assunto que ele estuda. Usar também quando ele perceber que repete as mesmas explicações em toda conversa nova.
+Usar quando o usuário precisar que a IA conheça um contexto que ela não tem: leis, normas, manuais, instruções normativas, políticas internas, o processo do escritório, as regras de um cliente, uma ferramenta que ele domina. Usar também quando ele perceber que repete as mesmas explicações em toda conversa nova.
+
+**Recomendada antes de iniciar um fluxo SDD** — com a base pronta, as fases seguintes partem do terreno já mapeado em vez de reconstruí-lo a cada conversa. Não é pré-requisito: o método funciona sem ela.
 
 Não usar para documentar um projeto de software em construção — para isso existem os artefatos do fluxo SDD. Não usar para copiar documentação pública: o KB guarda o que **você aprendeu** sobre aquilo, principalmente o que a documentação não diz.
 
@@ -131,7 +134,27 @@ Se **não** houver filesystem acessível, entregar todos os arquivos no chat, em
 
 Nunca falhar em silêncio nem dar a entender que gravou.
 
-### 9. Mostrar como usar daqui em diante
+### 9. Fechar com a revisão do profissional (obrigatório)
+
+Antes de dar a base por pronta, deixar explícito que **a revisão do conteúdo é do usuário, não sua**:
+
+> Revise cada arquivo antes de usar esta base para valer. Eu organizei e redigi, mas quem
+> responde pelo que está escrito é você — principalmente onde há lei, norma, política ou
+> prazo. Confira o que ficou registrado e corrija o que não estiver fiel à fonte.
+
+Isso não é formalidade. Uma base de conhecimento é consultada **justamente quando a pessoa não
+sabe** — ou seja, no momento em que ela não tem como perceber que a informação está errada. Um
+erro aqui não fica isolado: é repetido com confiança, por você e pela IA, e passa a orientar
+decisões. Quando o domínio envolve norma ou obrigação, o custo do erro é do profissional.
+
+Apontar nominalmente os trechos que mais pedem conferência: números, prazos, valores, condições
+de aplicação de regra, e tudo que ficou marcado como não verificado (passo 6).
+
+Se o usuário disser que não vai revisar agora, registrar no `index.md` que a base está
+**pendente de revisão** — melhor uma base marcada como não conferida do que uma que aparenta
+autoridade que ainda não tem.
+
+### 10. Mostrar como usar daqui em diante
 
 Fechar dizendo, em duas ou três linhas, como o usuário passa a consultar isto: apontar a IA para a pasta do domínio no início da conversa, ou pedir que ela leia o `index.md` antes de responder sobre o assunto.
 
@@ -151,6 +174,8 @@ Antes de declarar concluído, verificar:
 - [ ] Nenhum dado de pessoa real, senha ou chave.
 - [ ] O domínio está registrado no índice.
 - [ ] Nenhum `{placeholder}` sobrou.
+- [ ] O usuário foi avisado de que a revisão do conteúdo é dele, com os trechos críticos apontados.
+- [ ] Base não revisada está marcada como pendente de revisão no `index.md`.
 - [ ] O usuário sabe como consultar o KB nas próximas conversas.
 
 Quando houver filesystem, o script [scripts/validate_kb.py](scripts/validate_kb.py) confere mecanicamente parte disso:

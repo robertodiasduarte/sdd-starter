@@ -3,6 +3,7 @@
 > **Do que trata:** o processo de fechamento contábil mensal dos clientes do escritório — ordem das etapas, prazos e o que trava o fechamento.
 > **Para quem:** quem executa ou revisa o fechamento e precisa saber o que vem antes do quê.
 > **Última revisão:** 2026-03-11
+> **Revisado por:** contador responsável pelo escritório (fictício — exemplo)
 
 ## Comece por aqui
 
