@@ -20,7 +20,7 @@ Installs the 6 skills into the project's `.claude/skills/`. Add `-g` to install 
 npx skills add robertodiasduarte/sdd-starter -a codex -y
 ```
 
-Same command, different engine: installs into the project's `.agents/skills/` — the folder Codex reads, alongside `~/.codex/skills/`. With `-g`, installs into `~/.codex/skills/`.
+Same command, different engine: installs into the project's `.agents/skills/` — the folder Codex reads, alongside `~/.codex/skills/`. With `-g`, installs into `~/.agents/skills/` and applies to every project (Codex reads that folder and `~/.codex/skills/` too).
 
 ### Both engines in the same project
 

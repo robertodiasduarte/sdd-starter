@@ -20,7 +20,7 @@ Instala as 6 skills em `.claude/skills/` do projeto onde você rodou. Para insta
 npx skills add robertodiasduarte/sdd-starter -a codex -y
 ```
 
-Mesmo comando, motor diferente: instala em `.agents/skills/` do projeto — a pasta que o Codex lê, junto com `~/.codex/skills/`. Com `-g`, instala em `~/.codex/skills/` e vale em todos os projetos.
+Mesmo comando, motor diferente: instala em `.agents/skills/` do projeto — a pasta que o Codex lê, junto com `~/.codex/skills/`. Com `-g`, instala em `~/.agents/skills/` e vale em todos os projetos (o Codex lê essa pasta e também `~/.codex/skills/`).
 
 ### Os dois no mesmo projeto
 
