@@ -36,7 +36,9 @@ Cada pasta de skill é autocontida: um `SKILL.md` com o procedimento completo, `
 
 Dois caminhos, dependendo do seu agente — instruções completas no [Quickstart](docs/quickstart.pt-BR.md):
 
-- **Claude Code, Codex ou qualquer agente com filesystem** — clone este repositório e copie as pastas de `skills/` para o diretório de skills do seu agente (ex.: `.claude/skills/`).
+- **Claude Code** — um comando: `npx skills add robertodiasduarte/sdd-starter -a claude-code -y` (instala em `.claude/skills/` do projeto; some `-g` para instalar em `~/.claude/skills/` e valer em todo projeto).
+- **Codex** — o mesmo comando trocando o motor: `npx skills add robertodiasduarte/sdd-starter -a codex -y` (instala em `.agents/skills/` do projeto; com `-g`, em `~/.codex/skills/`).
+- **Cursor, Kimi, Gemini CLI e outros** — mesmo comando com o nome do seu agente em `-a`. Sem Node.js, clone este repositório e copie as pastas de `skills/` para o diretório de skills do seu agente.
 - **claude.ai ou ChatGPT (web)** — baixe os `.zip` prontos, um por skill, anexados na [última Release](../../releases/latest) e faça o upload no seu agente.
 
 ## Documentação
@@ -95,7 +97,9 @@ Each skill folder is self-contained: a `SKILL.md` with the full procedure, `refe
 
 Two paths, depending on your agent — full instructions in the [Quickstart](docs/quickstart.md):
 
-- **Claude Code, Codex, or any filesystem agent** — clone this repo and copy the folders under `skills/` into your agent's skills directory (e.g. `.claude/skills/`).
+- **Claude Code** — one command: `npx skills add robertodiasduarte/sdd-starter -a claude-code -y` (installs into the project's `.claude/skills/`; add `-g` for `~/.claude/skills/`).
+- **Codex** — same command, different engine: `npx skills add robertodiasduarte/sdd-starter -a codex -y` (installs into the project's `.agents/skills/`; with `-g`, into `~/.codex/skills/`).
+- **Cursor, Kimi, Gemini CLI and others** — same command with your agent's name in `-a`. Without Node.js, clone this repo and copy the folders under `skills/` into your agent's skills directory.
 - **claude.ai or ChatGPT (web)** — download the ready-made per-skill `.zip` files attached to the [latest Release](../../releases/latest) and upload them to your agent.
 
 ## Documentation

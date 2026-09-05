@@ -108,7 +108,11 @@ def main():
         if re.search(pat, text, re.I):
             fail(errors, f"blocking placeholder/ambiguity detected: {pat}")
 
-    if "Ready for: `/build" in text or "/build .claude/" in text:
+    # O handoff legado e a linha "Ready for: `/build ...`" no lugar do Next Step canonico.
+    # NAO se caracteriza pelo caminho: `.claude/sdd/` e `sdd/` sao os dois caminhos validos
+    # (a skill grava em `sdd/`, ou em `.claude/sdd/` quando o projeto ja usa essa pasta).
+    # Citar qualquer um deles no CORPO do documento e legitimo.
+    if "Ready for: `/build" in text:
         fail(errors, "legacy /build handoff detected")
 
     metadata = section(text, "## Metadata", "## Architecture Overview")

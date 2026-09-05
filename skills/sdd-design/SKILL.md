@@ -357,8 +357,10 @@ O script valida estrutura e consistência básica; não substitui revisão arqui
 Nome padrão:
 `DESIGN_{FEATURE_NAME}.md`
 
+**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
+
 Se houver filesystem do projeto:
-- salvar no caminho apropriado ao contexto;
+- salvar como `sdd/DESIGN_{FEATURE_NAME}.md` (ou `.claude/sdd/DESIGN_{FEATURE_NAME}.md` quando essa pasta já existir);
 - não sobrescrever silenciosamente arquivo existente.
 
 Se não houver:

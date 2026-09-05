@@ -262,7 +262,9 @@ Corrigir falhas antes de declarar o documento pronto.
 Nome preferencial:
 `DEFINE_{FEATURE_NAME}.md`
 
-Se houver filesystem gravável, salvar no local apropriado ao contexto do usuário.
+**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
+
+Se houver filesystem gravável, salvar como `sdd/DEFINE_{FEATURE_NAME}.md` (ou `.claude/sdd/DEFINE_{FEATURE_NAME}.md` quando essa pasta já existir).
 
 Se não houver filesystem, entregar o Markdown completo como arquivo `.md` para download quando a plataforma permitir.
 

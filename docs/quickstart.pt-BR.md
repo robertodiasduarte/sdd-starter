@@ -6,16 +6,37 @@ Coloque as skills SDD no seu agente e rode seu primeiro fluxo.
 
 ## 1. Instale as skills
 
-### Claude Code (ou qualquer agente com filesystem: Codex CLI, Cursor, etc.)
+### Claude Code
 
 ```bash
-git clone https://github.com/robertodiasduarte/sdd-starter.git
-cp -R sdd-starter/skills/* ~/.claude/skills/        # nível de usuário, vale em todo lugar
-# ou, para um único projeto:
-cp -R sdd-starter/skills/* seu-projeto/.claude/skills/
+npx skills add robertodiasduarte/sdd-starter -a claude-code -y
 ```
 
-Para outros agentes, copie as pastas das skills (`sdd-brainstorm`, `sdd-define`, `sdd-design`, `sdd-build`, `sdd-handoff`, `sdd-kb`) para o diretório de onde seu agente lê skills/instruções, mantendo cada pasta intacta.
+Instala as 6 skills em `.claude/skills/` do projeto onde você rodou. Para instalar uma vez e valer em todos os projetos, acrescente `-g` (vai para `~/.claude/skills/`).
+
+### Codex
+
+```bash
+npx skills add robertodiasduarte/sdd-starter -a codex -y
+```
+
+Mesmo comando, motor diferente: instala em `.agents/skills/` do projeto — a pasta que o Codex lê, junto com `~/.codex/skills/`. Com `-g`, instala em `~/.codex/skills/` e vale em todos os projetos.
+
+### Os dois no mesmo projeto
+
+Se você alterna entre Claude Code e Codex no mesmo repositório, instale para os dois de uma vez:
+
+```bash
+npx skills add robertodiasduarte/sdd-starter -a claude-code,codex -y
+```
+
+Os documentos que as skills geram ficam em `sdd/`, uma pasta só, que os dois enxergam. Se o projeto já tiver `.claude/sdd/`, as skills continuam nela.
+
+### Outros agentes, ou sem Node.js
+
+O mesmo comando serve para Cursor, Kimi, Gemini CLI e mais de 70 agentes: troque o nome em `-a`. Sem Node.js instalado, baixe os `.zip` da última Release, descompacte e copie cada pasta de skill para o diretório de skills do seu agente, mantendo a pasta intacta.
+
+**Atualizar quando sair versão nova:** `npx skills update`.
 
 ### claude.ai (web)
 

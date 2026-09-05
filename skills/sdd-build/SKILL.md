@@ -372,8 +372,11 @@ Código:
 - nos paths do File Manifest.
 
 Relatório:
-- preferir `.claude/sdd/reports/BUILD_REPORT_{FEATURE}.md` quando o projeto seguir essa estrutura;
-- caso contrário, usar `BUILD_REPORT_{FEATURE}.md` no local apropriado.
+
+**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
+
+- gravar como `sdd/BUILD_REPORT_{FEATURE}.md`;
+- quando o projeto já usar `.claude/sdd/` (inclusive com `reports/`), seguir a estrutura existente.
 
 Não sobrescrever artefato histórico sem informar o usuário.
 

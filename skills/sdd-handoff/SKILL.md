@@ -106,11 +106,9 @@ Percorrer as quatro perguntas com o usuário e registrar o que foi conferido:
 
 ### 7. Entregar o documento
 
-Se houver filesystem de projeto gravável, salvar preferencialmente em:
+**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
 
-`.claude/sdd/features/HANDOFF_{FEATURE}.md`
-
-ou no caminho equivalente relativo à raiz do projeto, sem sobrescrever silenciosamente um arquivo existente — quando já existir handoff da mesma feature, atualizar seu conteúdo (passo 2).
+Se houver filesystem de projeto gravável, salvar como `sdd/HANDOFF_{FEATURE}.md` (ou `.claude/sdd/HANDOFF_{FEATURE}.md` quando essa pasta já existir), sem sobrescrever silenciosamente um arquivo existente — quando já existir handoff da mesma feature, atualizar seu conteúdo (passo 2).
 
 Se **não** houver filesystem acessível, entregar o Markdown completo no chat e fechar com estas três informações, nesta ordem:
 

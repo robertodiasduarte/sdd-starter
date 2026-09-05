@@ -6,14 +6,35 @@ Get the SDD skills into your agent and run your first flow.
 
 ## 1. Install the skills
 
-### Claude Code (or any filesystem-based agent: Codex CLI, Cursor, etc.)
+### Claude Code
 
 ```bash
-git clone https://github.com/robertodiasduarte/sdd-starter.git
-cp -R sdd-starter/skills/* ~/.claude/skills/        # user-level, available everywhere
-# or, for a single project:
-cp -R sdd-starter/skills/* your-project/.claude/skills/
+npx skills add robertodiasduarte/sdd-starter -a claude-code -y
 ```
+
+Installs the 6 skills into the project's `.claude/skills/`. Add `-g` to install once into `~/.claude/skills/` and have them everywhere.
+
+### Codex
+
+```bash
+npx skills add robertodiasduarte/sdd-starter -a codex -y
+```
+
+Same command, different engine: installs into the project's `.agents/skills/` — the folder Codex reads, alongside `~/.codex/skills/`. With `-g`, installs into `~/.codex/skills/`.
+
+### Both engines in the same project
+
+```bash
+npx skills add robertodiasduarte/sdd-starter -a claude-code,codex -y
+```
+
+The documents the skills produce live in `sdd/`, a single folder both engines can see. If the project already has `.claude/sdd/`, the skills keep using it.
+
+### Other agents, or no Node.js
+
+The same command serves Cursor, Kimi, Gemini CLI and 70+ agents: change the name in `-a`. Without Node.js, download the `.zip` files from the latest Release and copy each skill folder into your agent's skills directory, keeping the folder intact.
+
+**To update:** `npx skills update`.
 
 For other agents, copy the skill folders (`sdd-brainstorm`, `sdd-define`, `sdd-design`, `sdd-build`, `sdd-handoff`, `sdd-kb`) into whatever directory your agent reads skills/instructions from, keeping each folder intact.
 

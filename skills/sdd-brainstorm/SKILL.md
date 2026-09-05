@@ -164,11 +164,9 @@ Ao gerar o arquivo:
 
 O nome preferencial do arquivo final é `BRAINSTORM_{FEATURE_NAME}.md`, com `{FEATURE_NAME}` em formato legível e estável para o projeto.
 
-Se houver filesystem de projeto gravável, salvar preferencialmente em:
+**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
 
-`/.claude/sdd/features/BRAINSTORM_{FEATURE_NAME}.md`
-
-ou no caminho equivalente relativo à raiz do projeto, sem sobrescrever silenciosamente um arquivo existente.
+Se houver filesystem de projeto gravável, salvar como `sdd/BRAINSTORM_{FEATURE_NAME}.md` (ou `.claude/sdd/BRAINSTORM_{FEATURE_NAME}.md` quando essa pasta já existir), sem sobrescrever silenciosamente um arquivo existente.
 
 Se não houver filesystem acessível, entregar o Markdown completo em chat e indicar o nome sugerido do arquivo.
 
