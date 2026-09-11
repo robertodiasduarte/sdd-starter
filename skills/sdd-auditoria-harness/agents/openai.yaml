@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Auditoria de Harness by RDD"
+  short_description: "Inventaria o seu harness e aponta o que sobra, o que ninguém usa e o que derivou — sem apagar nada."
+  default_prompt: "Use a skill sdd-auditoria-harness para auditar o harness deste repositório em modo somente leitura: inventarie comandos, agentes, skills, hooks e scripts, meça referências e recência, e gere o relatório AUDITORIA_SDD com as recomendações — sem alterar nenhum arquivo."
