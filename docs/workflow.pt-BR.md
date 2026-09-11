@@ -2,7 +2,7 @@
 
 > 🇺🇸 [English version](workflow.md) (canônica)
 
-Spec-Driven Development (SDD) significa que a especificação — não o prompt — dirige o código. O SDD Starter quebra isso em cinco fases, cada uma dona de uma skill, cada uma produzindo um artefato Markdown que alimenta a fase seguinte. Uma sexta skill, `sdd-kb`, é complementar: ela não entra na sequência, alimenta qualquer fase.
+Spec-Driven Development (SDD) significa que a especificação — não o prompt — dirige o código. O SDD Starter quebra isso em cinco fases, cada uma dona de uma skill, cada uma produzindo um artefato Markdown que alimenta a fase seguinte. Duas skills complementares não entram na sequência: `sdd-kb` alimenta qualquer fase, e `sdd-prompt-builder` escreve o prompt de produção quando o app conversa com uma IA.
 
 ```mermaid
 flowchart LR

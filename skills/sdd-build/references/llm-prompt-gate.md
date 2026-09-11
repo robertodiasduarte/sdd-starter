@@ -42,7 +42,7 @@ Não reabrir provider/model/schema fechado.
 
 ## one-shot
 
-Quando a skill de prompt engineering configurada estiver disponível:
+Quando a skill de prompt engineering estiver disponível (`sdd-prompt-builder`, ou a que você tiver configurado):
 - compilar contrato + referências;
 - executá-la;
 - tratar o resultado como input intermediário;
@@ -52,6 +52,10 @@ Quando a skill de prompt engineering configurada estiver disponível:
 Se a skill não estiver disponível:
 - não inventar o prompt final;
 - bloquear o item afetado e pedir decisão/dependência ao usuário.
+
+⛔ Calibre o sinal de drift pelo código real do projeto: se as chamadas de LLM passam por um
+wrapper próprio, procurar só pelas assinaturas do SDK deixa o gate cego. Exclua arquivos de
+teste, ou o gate acusa a cada build e passa a ser ignorado.
 
 ## loop
 
