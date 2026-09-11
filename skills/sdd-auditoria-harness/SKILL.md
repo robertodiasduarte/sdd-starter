@@ -196,6 +196,13 @@ Antes de concluir:
 - **Dois documentos parecem duplicados, mas não há evidência suficiente de precedência** → `AMBÍGUO` somente se disputarem objetivamente o mesmo papel; caso contrário, “Dúvidas”.
 - **Path citado contém variável/glob** → resolva somente se houver contexto inequívoco; caso contrário, “Dúvidas”.
 - **Arquivo muito grande/binário** → inventarie, mas registre limitação de leitura.
+- **Repositório com milhares de artefatos de processo** → o cruzamento de referências do
+  `collect_evidence.py` é quadrático: cada item é procurado no corpo de todos os outros.
+  Medido: ~0,5 s para 27 itens; acima de ~5.000 arquivos em pastas como `sdd/` ou `reports/`
+  ele deixa de terminar em tempo útil. Nesse caso **não espere o script**: rode-o apontando
+  para um subdiretório por vez (por exemplo só `.claude/commands` e `.claude/agents`), ou
+  faça o inventário com `git ls-files` e meça referências com `git grep -c`. O script é um
+  acelerador opcional — a auditoria não depende dele.
 - **`REPORT_PATH` já existe** → não sobrescreva e não escolha silenciosamente outro nome.
 - **Comando necessário teria efeito colateral** → não execute; registre a limitação em “Dúvidas”.
 
