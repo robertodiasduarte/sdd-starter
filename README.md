@@ -51,9 +51,21 @@ Dois caminhos, dependendo do seu agente — instruções completas no [Quickstar
 
 As releases são curadas. Abra uma issue para discutir antes de enviar um PR — veja [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Verificar o que você baixou
+
+Cada Release publica um `SHA256SUMS.txt` junto dos zips. Para conferir que o arquivo é exatamente o que foi publicado aqui — sem alteração no caminho:
+
+```bash
+shasum -a 256 -c SHA256SUMS.txt     # macOS e Linux
+```
+
+Cada skill também declara a autoria no próprio `SKILL.md` (campo `metadata.author` e a linha de crédito no rodapé), então ela viaja junto com a pasta, mesmo instalada isoladamente.
+
 ## Licença e atribuição
 
-MIT — veja [LICENSE](LICENSE). Este projeto se apoia em conceitos do **AgentSpec** de Luan Moreno Maciel — veja [NOTICE](NOTICE).
+MIT — veja [LICENSE](LICENSE). Uso, cópia e modificação são livres; o que a licença exige é que o aviso de copyright e a atribuição sejam preservados na redistribuição.
+
+Autoria: **Roberto Dias Duarte**. Este projeto se apoia em conceitos do **AgentSpec** de Luan Moreno Maciel — veja [NOTICE](NOTICE).
 
 ---
 
