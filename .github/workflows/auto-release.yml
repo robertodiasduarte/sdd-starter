@@ -1,0 +1,55 @@
+name: Auto Release
+
+# Uma mudanca em skills/** publica sozinha a release seguinte, porque e a Release
+# que os alunos de claude.ai/ChatGPT baixam (releases/latest/download/<skill>.zip,
+# citado na pagina /sdd/ e no README). O `npx skills add` le o branch direto e nao
+# depende disto.
+#
+# ⛔ O bump e a publicacao moram no MESMO job de proposito. Uma tag empurrada pelo
+# GITHUB_TOKEN nao dispara outro workflow ("events triggered by the GITHUB_TOKEN
+# will not create a new workflow run" — docs.github.com/en/actions/how-tos/
+# write-workflows/choose-when-workflows-run/trigger-a-workflow), entao o desenho
+# "empurra a tag e deixa o release.yml publicar" criaria a tag e NUNCA publicaria,
+# sem erro no log. O release.yml segue servindo as tags manuais (minor/major).
+
+on:
+  push:
+    branches: [main]
+    paths: ['skills/**']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # o checkout raso nao traz tags, e o bump precisa da ultima
+
+      - name: Content safety gate
+        run: bash scripts/publish-check.sh
+
+      - name: Compute next patch tag
+        id: tag
+        run: |
+          set -euo pipefail
+          # -v:refname ordena por VERSAO (alfabetico poria v1.9.0 acima de v1.10.0).
+          latest="$(git tag -l 'v*' --sort=-v:refname | head -1)"
+          [ -n "$latest" ] || { echo "nenhuma tag v* encontrada"; exit 1; }
+          IFS=. read -r maj min pat <<< "${latest#v}"
+          echo "next=v${maj}.${min}.$((pat + 1))" >> "$GITHUB_OUTPUT"
+
+      - name: Build skill zips
+        run: bash scripts/package.sh
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.next }}
+          files: dist/*.zip
+          generate_release_notes: true
