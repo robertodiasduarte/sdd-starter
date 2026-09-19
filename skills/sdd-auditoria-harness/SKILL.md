@@ -1,6 +1,8 @@
 ---
 name: sdd-auditoria-harness
 description: "Audita read-only o harness SDD de um repositório para FAXINA E DERIVA: inventaria comandos, agentes, skills, hooks, settings e scripts, mede referências, recência, duplicação e deriva entre docs e código, e gera um único relatório AUDITORIA_SDD_<data>.md sem alterar nada. Invocar quando alguém disser \"o harness cresceu demais\", \"o que aqui ninguém usa\", \"os docs ainda batem com o código?\", ou pedir uma faxina do .claude/. ⚠️ Fronteira: esta skill pergunta O QUE SOBRA E O QUE DERIVOU (higiene). Para SEGURANÇA — easter egg, código malicioso, backdoor, exfiltração, unicode invisível em material de terceiro que você vai instalar — use a skill rdd-audita-harness. Excesso não é ameaça; as duas são read-only e se complementam."
+metadata:
+  author: Roberto Dias Duarte
 ---
 
 # Auditoria Read-Only do Harness SDD
@@ -217,3 +219,7 @@ Antes de concluir:
 ### Exemplo que deve virar dúvida
 
 Um agente tem zero referências de entrada e nenhuma menção recente em logs, mas sua descrição diz que só é usado no release anual. Não classifique como `NÃO UTILIZADO` com certeza; registre em “Dúvidas para o dono do repo”.
+
+---
+
+Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open

@@ -1,6 +1,8 @@
 ---
 name: sdd-prompt-builder
 description: "Gera, refina e otimiza prompts de produção para LLMs com contrato de saída explícito, critérios de completude, tratamento de contexto ausente e verificação concisa. Usar quando o usuário pedir para criar ou melhorar prompts destinados a runtime, ou quando um fluxo SDD design/build criar ou alterar system prompts, passes de pipeline, classificadores, sintetizadores, prompts em edge/worker/runtime, arquivos **/prompts/**, system prompts inline ou templates em _shared. Não usar para documentação humana, prompts internos de orquestração SDD, emails, notificações ou copy transacional de UI."
+metadata:
+  author: Roberto Dias Duarte
 ---
 
 # Prompt Builder
@@ -88,3 +90,7 @@ Pedido com cálculo:
 Resultado esperado:
 - Incluir `<formulas>` com `margem bruta = (receita - custo) ÷ receita`.
 - Definir fallback para receita ausente ou zero.
+
+---
+
+Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open

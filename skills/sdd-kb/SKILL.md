@@ -1,6 +1,8 @@
 ---
 name: sdd-kb
 description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Cria o índice do projeto na primeira vez e registra cada domínio novo. Recomendada antes de iniciar um fluxo SDD, para as fases seguintes partirem do terreno já mapeado. A revisão do conteúdo é sempre do profissional — a IA organiza e redige, mas quem responde pelo que fica registrado é quem tem a responsabilidade técnica. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais, instruções ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
+metadata:
+  author: Roberto Dias Duarte
 ---
 
 # SDD KB
@@ -222,3 +224,7 @@ Entregar os quatro arquivos no chat, identificados pelo caminho, com a estrutura
 ## Next Step
 
 Base de conhecimento criada. Aponte a IA para a pasta do domínio no início das próximas conversas sobre o assunto.
+
+---
+
+Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open

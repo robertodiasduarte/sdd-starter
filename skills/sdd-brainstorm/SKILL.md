@@ -1,6 +1,8 @@
 ---
 name: sdd-brainstorm
 description: "Conduz o brainstorm da Fase 0 de um fluxo SDD/AgentSpec por interação com o usuário: explora contexto, faz perguntas de descoberta uma por vez, coleta amostras, compara 2–3 abordagens, aplica YAGNI, valida incrementalmente e gera um BRAINSTORM pronto para a fase /define. Use para ideias vagas de software, automações, agentes, produtos ou features que ainda precisam de exploração antes de formalizar requisitos; também quando o usuário pedir para transformar uma conversa, problema ou notas iniciais em um brainstorm estruturado."
+metadata:
+  author: Roberto Dias Duarte
 ---
 
 # SDD Brainstorm
@@ -245,3 +247,7 @@ Questionar primeiro a necessidade, público e resultado esperado; depois compara
 `Tenho estas notas de reunião e alguns exemplos de entrada/saída. Faça o brainstorm.`
 
 Ler o material disponível, preservar fatos, conduzir as perguntas faltantes uma por vez e usar as amostras como grounding antes de propor abordagens.
+
+---
+
+Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
