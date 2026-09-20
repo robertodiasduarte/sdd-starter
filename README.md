@@ -24,12 +24,13 @@ Se você quer a versão avançada deste fluxo — com Verify Gate executável, c
 | [`sdd-build`](skills/sdd-build/) | Implementar | Os três artefatos + projeto gravável | Código funcionando + `BUILD_REPORT_{FEATURE}.md` |
 | [`sdd-handoff`](skills/sdd-handoff/) | Fechar o ciclo | O trabalho da sessão | `HANDOFF_{FEATURE}.md` + prompt de retomada |
 
-E duas skills **complementares**, que não entram na sequência — elas alimentam as fases:
+E três skills **complementares**, que não entram na sequência — elas alimentam as fases:
 
 | Skill | Para quê | Entrada | Saída |
 |---|---|---|---|
 | [`sdd-kb`](skills/sdd-kb/) | Ensinar seu contexto à IA | O que você sabe sobre um domínio | Base de conhecimento consultável |
 | [`sdd-prompt-builder`](skills/sdd-prompt-builder/) | Escrever o prompt de produção do seu app | O que o prompt precisa fazer + o contrato de saída | O prompt pronto, com fórmulas e regra para dado ausente |
+| [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Faxina e deriva do seu harness, em qualquer motor | A raiz do repositório | `AUDITORIA_SDD_<data>.md` (read-only: não altera nada) |
 
 Cada pasta de skill é autocontida: um `SKILL.md` com o procedimento completo, `references/` com os protocolos, `assets/` com os templates canônicos de saída e (quando aplicável) `scripts/` com um validador estrutural e `agents/openai.yaml` para agentes baseados em OpenAI.
 

@@ -1,6 +1,7 @@
 ---
 name: sdd-auditoria-harness
-description: "Audita read-only o harness SDD de um repositório para FAXINA E DERIVA: inventaria comandos, agentes, skills, hooks, settings e scripts, mede referências, recência, duplicação e deriva entre docs e código, e gera um único relatório AUDITORIA_SDD_<data>.md sem alterar nada. Invocar quando alguém disser \"o harness cresceu demais\", \"o que aqui ninguém usa\", \"os docs ainda batem com o código?\", ou pedir uma faxina do .claude/. ⚠️ Fronteira: esta skill pergunta O QUE SOBRA E O QUE DERIVOU (higiene). Para SEGURANÇA — easter egg, código malicioso, backdoor, exfiltração, unicode invisível em material de terceiro que você vai instalar — use a skill rdd-audita-harness. Excesso não é ameaça; as duas são read-only e se complementam."
+license: MIT
+description: "Audita read-only o harness SDD de um repositório para FAXINA E DERIVA: inventaria comandos, agentes, skills, hooks, settings e scripts de QUALQUER motor (Claude Code, Codex, Kimi CLI: le CLAUDE.md e AGENTS.md, .claude/, .agents/ e .codex/), mede referências, recência, duplicação e deriva entre docs e código, e gera um único relatório AUDITORIA_SDD_<data>.md sem alterar nada. Invocar quando alguém disser \"o harness cresceu demais\", \"o que aqui ninguém usa\", \"os docs ainda batem com o código?\", ou pedir uma faxina do harness (`.claude/`, `.agents/` ou `.codex/`). ⚠️ Fronteira: esta skill pergunta O QUE SOBRA E O QUE DERIVOU (higiene). Para SEGURANÇA — easter egg, código malicioso, backdoor, exfiltração, unicode invisível em material de terceiro que você vai instalar — use a skill rdd-audita-harness. Excesso não é ameaça; as duas são read-only e se complementam."
 metadata:
   author: Roberto Dias Duarte
 ---
@@ -11,7 +12,7 @@ metadata:
 
 1. Defina `REPO_ROOT` como a raiz do repositório auditado.
 2. Execute primeiro o **Safety Gate** desta Skill.
-3. Leia as fontes de verdade do SDD: `CLAUDE.md` relevantes, índice/readme do SDD e `.claude/settings.json` / `.claude/settings.local.json`.
+3. Leia as fontes de verdade do SDD: os arquivos de instrução do projeto (`CLAUDE.md` **e/ou** `AGENTS.md`), índice/readme do SDD e as configurações do motor (`.claude/settings.json` / `.claude/settings.local.json`, `.codex/config.toml`).
 4. Opcionalmente, gere evidência estruturada somente em stdout:
    `python scripts/collect_evidence.py "$REPO_ROOT"`.
 5. Faça a análise seguindo [references/AUDIT_PROTOCOL.md](references/AUDIT_PROTOCOL.md).
@@ -23,11 +24,19 @@ metadata:
 
 ### Quando usar
 
-Use esta Skill para auditar o harness SDD de um repositório, em especial:
-- `.claude/commands/**/*.md`;
-- `.claude/agents/**/*.md`;
-- `.claude/skills/*/SKILL.md`;
-- `.claude/settings.json` e `.claude/settings.local.json`;
+Use esta Skill para auditar o harness SDD de um repositório, **seja qual for o motor**. As
+superfícies mudam de caminho conforme a ferramenta; audite as que existirem:
+
+| Peça | Claude Code | Codex / Kimi CLI |
+|---|---|---|
+| Instruções do projeto | `CLAUDE.md`, `.claude/CLAUDE.md`, `CLAUDE.local.md` | `AGENTS.md` (padrão aberto; o Claude Code também o lê por fallback desde a 2.1.277) |
+| Skills | `.claude/skills/*/SKILL.md` | `.agents/skills/*/SKILL.md`, `.codex/skills/*/SKILL.md` |
+| Comandos | `.claude/commands/**/*.md` | `.codex/prompts/**/*.md` |
+| Agentes/subagentes | `.claude/agents/**/*.md` | `.agents/agents/**/*.md` |
+| Configuração | `.claude/settings.json`, `.claude/settings.local.json` | `.codex/config.toml` |
+| Scripts do harness | `.claude/scripts/**` | `.agents/scripts/**`, `.codex/scripts/**` |
+
+Audite ainda:
 - hooks, permissões e scripts referenciados pelo harness;
 - docs de processo, playbooks, notas de memória e diretórios de specs;
 - divergências entre o fluxo SDD oficial e itens legados, duplicados ou sem evidência de uso.
@@ -72,10 +81,20 @@ Antes de executar qualquer comando:
 ### 1. Estabelecer o SDD principal
 
 Leia, nesta ordem:
-1. `CLAUDE.md` da raiz;
-2. `CLAUDE.md` em subdiretórios relevantes ao harness;
-3. índice/readme do diretório SDD, como `.claude/sdd/_index.md` ou equivalente;
-4. `.claude/settings.json` e `.claude/settings.local.json`, incluindo hooks e permissões.
+1. o arquivo de instruções do projeto na raiz — `CLAUDE.md` **ou** `AGENTS.md`, o que existir (podem coexistir);
+2. o mesmo, em subdiretórios relevantes ao harness;
+3. índice/readme do diretório SDD, como `sdd/_index.md`, `.claude/sdd/_index.md` ou equivalente;
+4. a configuração do motor: `.claude/settings.json` e `.claude/settings.local.json`, e/ou `.codex/config.toml`, incluindo hooks e permissões.
+
+⚠️ **Se o repositório tem `AGENTS.md` e nenhum `CLAUDE.md`**, isso não é lacuna: desde o
+Claude Code **2.1.277** o `AGENTS.md` é lido por fallback, e Codex/Cursor/Gemini CLI já o
+liam nativamente. Não classifique a ausência de `CLAUDE.md` como achado.
+
+⚠️ **Se os dois existem**, registre a precedência real: por padrão o Claude Code lê **só**
+os arquivos `CLAUDE.md` e **ignora** o `AGENTS.md` — a menos que o `CLAUDE.md` o importe com
+`@AGENTS.md` ou que **Project instructions** esteja em `claude-md-and-agents-md`. Instrução
+que o aluno acha que vale e não é lida é **CONFLITANTE**, e é dos achados mais úteis desta
+auditoria.
 
 Produza um resumo de 5–10 linhas contendo:
 - fases oficiais;
@@ -94,7 +113,7 @@ Inclua um item por linha para:
 - hooks e permissões;
 - scripts de apoio;
 - docs de processo e diretórios de specs;
-- scripts externos ao `.claude/` que sejam referenciados pelo harness.
+- scripts externos à pasta do motor (`.claude/`, `.agents/`, `.codex/`) que sejam referenciados pelo harness.
 
 Para cada item registre:
 `caminho | tipo | propósito declarado | idioma/origem aparente`.
