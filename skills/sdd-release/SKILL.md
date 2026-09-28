@@ -77,6 +77,12 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
    - Não use só `git diff origin/<principal>...HEAD`: ele ignora o que não foi commitado, e numa frente
      sem commit mostraria um resumo vazio — o usuário aprovaria algo diferente do que sobe.
    - Arquivo que não pertence a esta frente? **Pare e mostre** — não decida sozinha o que fica de fora.
+   - Algo **staged** com versão diferente da pasta (o mesmo arquivo em `git diff --cached --name-only` e
+     em `git diff --name-only`)? **Pare e mostre**: qual das duas versões sobe é decisão do usuário, e
+     nenhuma das duas pode ser descartada sem ele ver.
+   - **Impressão digital do que vai subir** — guarde o resultado de
+     `git diff <base> | shasum` mais `shasum` de cada arquivo novo (`??`), onde `<base>` é
+     `$(git merge-base origin/<alvo> HEAD)`. É o que o OK aprova; a Fase 3 confere antes de commitar.
 2. **Sintaxe** dos arquivos tocados, com a ferramenta do Passo 1.
 3. **Testes**, se existirem. Vermelho **para tudo**: aprovar um diff com teste quebrado transforma o OK em
    carimbo.
@@ -128,35 +134,37 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 
 ## Fase 3 — Publicar (só depois do OK)
 
-1. **Commit com os arquivos nomeados** um a um — exatamente os da lista do `git status --short` da Fase 1,
-   nenhum outro. Antes, esvazie o índice (`git reset -q`): algo que estava staged e não aparece na pasta
-   de trabalho entraria no commit sem ter passado pelo resumo. Depois do `git add`,
-   `git diff --cached --name-only` tem de ser exatamente essa lista — se não for, pare. Depois do commit,
-   `git status --short` vazio e `git diff --stat <base> HEAD` igual ao resumo aprovado.
+1. **A pasta ainda é a que foi aprovada?** Recalcule a impressão digital da Fase 1. Diferente ⇒ algo mudou
+   depois do OK: **pare**, mostre o que mudou e peça um OK novo — nunca commite o que não foi visto.
+2. **Commit com os arquivos nomeados** um a um — exatamente os da lista do `git status --short` da Fase 1,
+   nenhum outro. **Não resete o índice** (apagaria versão staged que não está na pasta). Depois do
+   `git add`, `git diff --cached --name-only` tem de ser exatamente essa lista — se aparecer outro
+   arquivo staged, pare antes do commit. Depois do commit, `git status --short` vazio.
    Nunca `git add -A`, nunca `git add -u`: com duas frentes abertas na mesma máquina, eles arrastam o
    trabalho da outra.
-2. **Base atualizada, testada de novo.** Se a base andou: `git fetch origin <alvo>`,
+3. **Base atualizada, testada de novo.** Se a base andou: `git fetch origin <alvo>`,
    `git merge origin/<alvo>` **na frente**, e rode os testes de novo. Conflito ou teste vermelho: **pare
    antes de qualquer push**, diga o que quebrou — nada foi publicado.
-3. **Integrar pelo cenário, sempre a partir da frente:**
+4. **Integrar pelo cenário, sempre a partir da frente:**
    - A (Trunk-Based): `git push origin HEAD:<principal>`. O push sai **da frente**, que contém exatamente
      o que foi aprovado mais a base remota — nunca do checkout principal, onde um commit local que ninguém
-     aprovou iria junto. Recusado? A base andou de novo: volte ao item 2 (nunca force).
+     aprovou iria junto. Recusado porque a base andou (`non-fast-forward`/`fetch first`)? Volte ao
+     item 3 (nunca force). Recusado por outro motivo (permissão, branch protegida)? Pare e mostre o erro.
    - B (GitHub Flow): `git push -u origin <branch-da-frente>` e abra o PR para a principal — **e pare aí**.
      A integração é o merge do PR, depois da revisão.
    - C (GitFlow): `git push -u origin <branch-da-frente>` e abra o PR para `develop` — **e pare aí**. A
      frente não vai direto para a principal.
-4. **Deploy manual, se houver, só a partir da principal já integrada e atualizada** — nunca da branch da
+5. **Deploy manual, se houver, só a partir da principal já integrada e atualizada** — nunca da branch da
    frente não publicada. O deploy roda numa árvore **idêntica ao que foi publicado**: no cenário A, a
    própria frente logo depois do push aceito — confira `git status --porcelain` vazio e
    `git rev-parse HEAD` igual a `git rev-parse origin/<principal>` (após `git fetch`); se não bater,
    pare. Nunca do checkout principal, que pode ter mudança local ou commit que ninguém aprovou. Nos
    cenários B e C, entregue o comando de deploy para rodar **depois que o PR for integrado**; não o
    execute antes. (Com deploy automático, o próprio push na principal já publica.)
-5. **Confirme que funcionou.** Não diga "publicado" porque o comando não deu erro. Há CI? Veja o resultado
+6. **Confirme que funcionou.** Não diga "publicado" porque o comando não deu erro. Há CI? Veja o resultado
    do workflow. Há URL? Veja se responde. Não há como confirmar? Diga isso: "publicado, sem verificação
    automática disponível" é honesto; "✅ tudo certo" sem ter olhado, não é.
-6. **Checkout principal e limpeza**, entregues como comandos (de dentro da worktree ela não consegue se
+7. **Checkout principal e limpeza**, entregues como comandos (de dentro da worktree ela não consegue se
    remover): no checkout principal, `git pull --ff-only` — se recusar, a principal local tem commits que
    não foram publicados, e isso é dito, não resolvido por você; depois `git worktree remove <pasta>` e
    `git branch -d <branch>` (o `-d` minúsculo só apaga o que já foi integrado). Nos cenários B e C, a

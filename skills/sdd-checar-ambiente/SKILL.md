@@ -68,8 +68,10 @@ Certo (a mesma situação):
 - **Worktree órfã:** entrada da lista marcada `prunable`, ou cuja pasta não existe mais (alguém
   apagou a pasta à mão). Comando: `git worktree prune`.
 - **Frente já integrada ainda aberta:** branch de uma worktree que já está contida na principal
-  (`git branch --merged origin/<principal>`). Comando: `git worktree remove <pasta>` e depois
-  `git branch -d <branch>`.
+  (`git branch --merged origin/<principal>`) **e** que teve commit próprio (`git reflog show <branch>`
+  tem alguma entrada `commit`). Branch contida na principal **sem** commit próprio é uma frente recém-
+  aberta, não integrada — não sugira removê-la. Comando para a integrada: `git worktree remove <pasta>` e
+  depois `git branch -d <branch>`.
 - Se existir `sdd/ambiente.md` no checkout principal (a primeira linha de
   `git worktree list --porcelain`), leia-o: ele diz a branch principal e onde as frentes ficam.
   Um `sdd/` não rastreado no checkout principal é esse arquivo — **não** é problema.
