@@ -11,26 +11,25 @@ metadata:
 Responder uma pergunta: **este ambiente está pronto para trabalhar com SDD aqui?** Em segundos, sem
 mudar nada, dizendo o que consertar.
 
-## Formato da resposta (vale para a resposta inteira)
+## Como executar
 
-- A resposta **começa pelo símbolo** — `🔴`, `⚠️` ou `✅` — nunca por uma frase de introdução.
-- **Checagem que não se aplica ou que passou não é mencionada** fora da linha ✅: nada de "sem
-  `package.json`, então…", "sem editor, mas não é problema", "tudo limpo".
-- Ambiente saudável ⇒ a resposta inteira é **uma linha**, a do ✅.
+**Com bash disponível** (macOS, Linux, ou Git Bash no Windows), rode o script que acompanha esta skill,
+de dentro da pasta do projeto:
 
-Errado (resumo do que foi verificado antes do veredito — o usuário lê isso toda vez):
-
-```text
-Tudo verificado: repo git válido, identidade configurada, sem dependências a checar.
-
-✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1.
+```bash
+bash <pasta desta skill>/scripts/checar.sh
 ```
 
-Certo (a mesma situação):
+e **responda com a saída dele, exatamente como veio** — sem frase antes, sem frase depois, sem
+comentário sobre o que foi ou não verificado, sem tradução. O script já faz todas as verificações abaixo
+e já imprime o relatório no formato certo; o formato não depende de você. (A pasta desta skill é a que
+contém este `SKILL.md`: `.claude/skills/sdd-checar-ambiente/` ou `.agents/skills/sdd-checar-ambiente/`,
+no projeto ou na pasta global do agente.)
 
-```text
-✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1.
-```
+**Sem bash** (PowerShell puro), faça as verificações abaixo à mão e responda no mesmo formato do
+script: blocos `🔴 Impede o trabalho` e `⚠️ Vale arrumar` só se tiverem itens, e por último a linha
+`✅ Pronto: repo …` (ou `✅ Repo …` quando houver problema). Checagem que passou ou não se aplica não é
+mencionada fora dessa linha.
 
 ## Regras
 

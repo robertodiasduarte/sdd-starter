@@ -55,8 +55,9 @@ E leia: `README.md`, `package.json` (seção `scripts`), `Makefile`, `.github/wo
   (termina em push na principal); merges de PR ⇒ **B, GitHub Flow** (termina em PR para a principal);
   tags de versão **e** branches `release/*` ou `hotfix/*` ⇒ **C, GitFlow** (termina em PR para `develop`) —
   o mesmo critério da `sdd-new-session`. Na dúvida entre A e B, A. Se existir `develop` no remoto mas o
-  critério de C não fechar, **não decida sozinha**: pergunte, dentro do bloco do OK, se a frente entra na
-  principal ou em `develop` — com a sua recomendação.
+  critério de C não fechar, **não decida sozinha**: a última linha do bloco do OK vira
+  "**Posso publicar na `<recomendada>`?** (responda `develop` ou `main` para trocar)" — continua sendo
+  uma pergunta só.
 - **Branch de integração** — onde esta frente entra: a principal nos cenários A e B, `develop` no C. Daqui
   em diante, `<alvo>` é ela. Comparar ou integrar uma frente do cenário C contra a principal levaria para
   produção o que ainda está em desenvolvimento.
@@ -78,11 +79,14 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
    - Não use só `git diff origin/<principal>...HEAD`: ele ignora o que não foi commitado, e numa frente
      sem commit mostraria um resumo vazio — o usuário aprovaria algo diferente do que sobe.
    - Arquivo que não pertence a esta frente? **Pare e mostre** — não decida sozinha o que fica de fora.
+     Exceção que não é da frente e nunca entra no commit: pastas de skills não versionadas
+     (`.claude/skills/…`, `.agents/skills/…`) — a `sdd-new-session` as copia para a frente funcionar.
    - Algo **staged** com versão diferente da pasta (o mesmo arquivo em `git diff --cached --name-only` e
      em `git diff --name-only`)? **Pare e mostre**: qual das duas versões sobe é decisão do usuário, e
      nenhuma das duas pode ser descartada sem ele ver.
    - **Impressão digital do que vai subir** — guarde `git rev-parse HEAD` (fixa o histórico que o push
-     vai enviar), o resultado de `git diff <base> | shasum` e o `shasum` de cada arquivo novo (`??`), onde
+     vai enviar), o resultado de `git diff <base> | shasum`, o de `git diff --cached | shasum` (o que já
+     está staged) e o `shasum` de cada arquivo novo (`??`) — no PowerShell, `Get-FileHash` —, onde
      `<base>` é `$(git merge-base origin/<alvo> HEAD)`. É o que o OK aprova; a Fase 3 confere antes de
      commitar. Um commit reescrito depois do OK muda o `HEAD` mesmo que o conteúdo final seja igual.
 2. **Sintaxe** dos arquivos tocados, com a ferramenta do Passo 1.
