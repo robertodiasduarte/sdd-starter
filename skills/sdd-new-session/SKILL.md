@@ -60,6 +60,9 @@ Extraia:
   nova (senão ela nasce quebrada). Mesma lógica para `requirements.txt`, `composer.json`.
 - **Arquivos locais fora do git** — `.env` no `.gitignore` e `.env.example` versionado ⇒ a pasta nova
   precisa de uma cópia do `.env` do checkout principal.
+- **Skills do agente fora do git** — `.claude/skills/` ou `.agents/skills/` presentes e não versionados
+  (`git ls-files .claude/skills .agents/skills` vazio) ⇒ a pasta nova precisa de uma cópia dessas pastas;
+  sem ela, a `sdd-release` não existe dentro da frente.
 - **Editor** — o primeiro que existir de `code`, `cursor`, `subl` (`command -v <nome>` no bash/zsh,
   `Get-Command <nome>` no PowerShell).
 - **Cenário de branching**, pela evidência do repositório (critério do material "Git na Prática"):
@@ -112,7 +115,7 @@ Receba o nome da tarefa em linguagem natural e, na ordem:
    `git worktree add <pasta_das_frentes>/<slug> -b <slug> origin/<branch-base>` — a partir do estado
    **remoto**, não do local, que pode estar atrasado. `<branch-base>` é a principal (A, B) ou `develop` (C).
 4. Na pasta nova: rode a preparação, se houver.
-5. Copie os arquivos locais fora do git, se houver.
+5. Copie os arquivos locais fora do git e as pastas de skills não versionadas, se houver.
 6. Abra no editor (`code <pasta>`). **Sem editor, não aborte**: a frente já está pronta; mostre o caminho
    para abrir à mão.
 

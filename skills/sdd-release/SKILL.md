@@ -53,7 +53,9 @@ E leia: `README.md`, `package.json` (seção `scripts`), `Makefile`, `.github/wo
   não invente: projeto sem versão não ganha versão junto com a release.
 - **Cenário** (o mesmo da `sdd-new-session`): commits diretos na principal ⇒ **A, Trunk-Based**
   (termina em push na principal); merges de PR ⇒ **B, GitHub Flow** (termina em PR para a principal);
-  tags de versão **e** branches `release/*` ⇒ **C, GitFlow** (termina em PR para `develop`). Na dúvida, A.
+  tags de versão **e** branches `release/*` ou `hotfix/*` ⇒ **C, GitFlow** (termina em PR para `develop`) —
+  o mesmo critério da `sdd-new-session`. Na dúvida entre A e B, A; `develop` no remoto com qualquer
+  evidência de C ⇒ C (nunca empurre direto na principal um repositório que tem `develop`).
 - **Branch de integração** — onde esta frente entra: a principal nos cenários A e B, `develop` no C. Daqui
   em diante, `<alvo>` é ela. Comparar ou integrar uma frente do cenário C contra a principal levaria para
   produção o que ainda está em desenvolvimento.
@@ -79,7 +81,10 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
    modificados **e o conteúdo inteiro de cada arquivo novo** (`??` do `git status`), que não aparece no
    `git diff` mas será commitado. Procure chave de API, token, senha, `.env` sendo versionado por engano:
    atribuições como `API_KEY=`, `SECRET=`, `PASSWORD=`, `TOKEN=` com valor literal, prefixos de chave de
-   provedor e blocos `PRIVATE KEY`. Uma chave publicada não se despublica, nem apagando o commit depois.
+   provedor e blocos `PRIVATE KEY`. **E também no histórico da frente** (`git log -p <base>..HEAD`): uma
+   chave que entrou num commit e saiu no seguinte some do diff agregado, mas o push envia os dois
+   commits. Achou no histórico? Pare: reescrever histórico é decisão do usuário, nunca desta skill.
+   Uma chave publicada não se despublica, nem apagando o commit depois.
 5. **A base andou?** `git fetch origin <alvo>` e `git rev-list --count HEAD..origin/<alvo>`. **Não
    integre agora**: um `git merge` aqui criaria commit antes do OK (e recusaria a pasta com mudanças não
    commitadas). Só registre: "a base andou N commits" vai no bloco do OK, e a Fase 3 integra a base
@@ -120,7 +125,10 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 
 ## Fase 3 — Publicar (só depois do OK)
 
-1. **Commit com os arquivos nomeados** um a um — os do resumo aprovado, nenhum outro.
+1. **Commit com os arquivos nomeados** um a um — os do resumo aprovado, nenhum outro. Antes, esvazie o
+   índice (`git reset -q`): algo que estava staged e não aparece na pasta de trabalho entraria no commit
+   sem ter passado pelo resumo. Depois do `git add`, `git diff --cached --name-only` tem de ser
+   exatamente a lista aprovada — se não for, pare.
    Nunca `git add -A`, nunca `git add -u`: com duas frentes abertas na mesma máquina, eles arrastam o
    trabalho da outra.
 2. **Base atualizada, testada de novo.** Se a base andou: `git fetch origin <alvo>`,
@@ -135,8 +143,10 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
    - C (GitFlow): `git push -u origin <branch-da-frente>` e abra o PR para `develop` — **e pare aí**. A
      frente não vai direto para a principal.
 4. **Deploy manual, se houver, só a partir da principal já integrada e atualizada** — nunca da branch da
-   frente. Nos cenários B e C, entregue o comando de deploy para rodar **depois que o PR for integrado**; não
-   o execute antes. (Com deploy automático, o próprio push na principal já publica.)
+   frente. No cenário A: no checkout principal, `git pull --ff-only` **primeiro** (se recusar, a principal
+   local tem commits que não foram publicados — pare e diga) e só então o comando de deploy, dali. Nos
+   cenários B e C, entregue o comando de deploy para rodar **depois que o PR for integrado**; não o
+   execute antes. (Com deploy automático, o próprio push na principal já publica.)
 5. **Confirme que funcionou.** Não diga "publicado" porque o comando não deu erro. Há CI? Veja o resultado
    do workflow. Há URL? Veja se responde. Não há como confirmar? Diga isso: "publicado, sem verificação
    automática disponível" é honesto; "✅ tudo certo" sem ter olhado, não é.
