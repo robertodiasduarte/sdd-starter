@@ -80,9 +80,10 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
    - Algo **staged** com versão diferente da pasta (o mesmo arquivo em `git diff --cached --name-only` e
      em `git diff --name-only`)? **Pare e mostre**: qual das duas versões sobe é decisão do usuário, e
      nenhuma das duas pode ser descartada sem ele ver.
-   - **Impressão digital do que vai subir** — guarde o resultado de
-     `git diff <base> | shasum` mais `shasum` de cada arquivo novo (`??`), onde `<base>` é
-     `$(git merge-base origin/<alvo> HEAD)`. É o que o OK aprova; a Fase 3 confere antes de commitar.
+   - **Impressão digital do que vai subir** — guarde `git rev-parse HEAD` (fixa o histórico que o push
+     vai enviar), o resultado de `git diff <base> | shasum` e o `shasum` de cada arquivo novo (`??`), onde
+     `<base>` é `$(git merge-base origin/<alvo> HEAD)`. É o que o OK aprova; a Fase 3 confere antes de
+     commitar. Um commit reescrito depois do OK muda o `HEAD` mesmo que o conteúdo final seja igual.
 2. **Sintaxe** dos arquivos tocados, com a ferramenta do Passo 1.
 3. **Testes**, se existirem. Vermelho **para tudo**: aprovar um diff com teste quebrado transforma o OK em
    carimbo.

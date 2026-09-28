@@ -114,6 +114,8 @@ Receba o nome da tarefa em linguagem natural e, na ordem:
 3. `git fetch origin <branch-base>` e
    `git worktree add <pasta_das_frentes>/<slug> -b <slug> origin/<branch-base>` — a partir do estado
    **remoto**, não do local, que pode estar atrasado. `<branch-base>` é a principal (A, B) ou `develop` (C).
+   Cenário C sem `origin/develop` (`git ls-remote --heads origin develop` vazio)? Pare antes de criar
+   qualquer coisa e diga: o critério aponta GitFlow, mas não há `develop` de onde a frente possa nascer.
 4. Na pasta nova: rode a preparação, se houver.
 5. **Copie para a frente o que o git não leva**: os arquivos locais (`.env`) e **cada pasta de skill não
    versionada** (`cp -R .claude/skills/<skill> <frente>/.claude/skills/`, idem `.agents/skills/`).

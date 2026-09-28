@@ -67,7 +67,8 @@ Certo (a mesma situação):
 - `git worktree list` — quantas frentes abertas e onde.
 - **Worktree órfã:** entrada da lista marcada `prunable`, ou cuja pasta não existe mais (alguém
   apagou a pasta à mão). Comando: `git worktree prune`.
-- **Frente já integrada ainda aberta:** branch de uma worktree que já está contida na principal
+- **Frente já integrada ainda aberta:** branch de uma worktree **que não é o checkout principal nem a
+  própria branch principal** e que já está contida na principal
   (`git branch --merged origin/<principal>`) **e** que teve commit próprio (`git reflog show <branch>`
   tem alguma entrada `commit`). Branch contida na principal **sem** commit próprio é uma frente recém-
   aberta, não integrada — não sugira removê-la. Comando para a integrada: `git worktree remove <pasta>` e
