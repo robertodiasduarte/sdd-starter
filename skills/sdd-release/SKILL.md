@@ -54,8 +54,9 @@ E leia: `README.md`, `package.json` (seção `scripts`), `Makefile`, `.github/wo
 - **Cenário** (o mesmo da `sdd-new-session`): commits diretos na principal ⇒ **A, Trunk-Based**
   (termina em push na principal); merges de PR ⇒ **B, GitHub Flow** (termina em PR para a principal);
   tags de versão **e** branches `release/*` ou `hotfix/*` ⇒ **C, GitFlow** (termina em PR para `develop`) —
-  o mesmo critério da `sdd-new-session`. Na dúvida entre A e B, A; `develop` no remoto com qualquer
-  evidência de C ⇒ C (nunca empurre direto na principal um repositório que tem `develop`).
+  o mesmo critério da `sdd-new-session`. Na dúvida entre A e B, A. Se existir `develop` no remoto mas o
+  critério de C não fechar, **não decida sozinha**: pergunte, dentro do bloco do OK, se a frente entra na
+  principal ou em `develop` — com a sua recomendação.
 - **Branch de integração** — onde esta frente entra: a principal nos cenários A e B, `develop` no C. Daqui
   em diante, `<alvo>` é ela. Comparar ou integrar uma frente do cenário C contra a principal levaria para
   produção o que ainda está em desenvolvimento.
@@ -68,7 +69,9 @@ Grave o que descobriu em `sdd/ambiente.md` do checkout principal (chaves `deploy
 Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
 
 1. **O que exatamente vai subir** — inclusive o que ainda não foi commitado:
-   - `git status --short` — arquivos modificados e **novos** (`??`).
+   - `git status --short` — arquivos modificados e **novos** (`??`) em relação ao último commit. **Esta
+     é a lista do commit** da Fase 3, inclusive um arquivo que foi commitado e depois desfeito na pasta
+     (ele some do resumo abaixo, mas precisa entrar no commit para o desfazer valer).
    - `git diff --stat $(git merge-base origin/<alvo> HEAD)` — compara a base da frente com a
      **pasta de trabalho**: cobre os commits da frente **e** as mudanças ainda não commitadas.
    - Não use só `git diff origin/<principal>...HEAD`: ele ignora o que não foi commitado, e numa frente
@@ -125,10 +128,11 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 
 ## Fase 3 — Publicar (só depois do OK)
 
-1. **Commit com os arquivos nomeados** um a um — os do resumo aprovado, nenhum outro. Antes, esvazie o
-   índice (`git reset -q`): algo que estava staged e não aparece na pasta de trabalho entraria no commit
-   sem ter passado pelo resumo. Depois do `git add`, `git diff --cached --name-only` tem de ser
-   exatamente a lista aprovada — se não for, pare.
+1. **Commit com os arquivos nomeados** um a um — exatamente os da lista do `git status --short` da Fase 1,
+   nenhum outro. Antes, esvazie o índice (`git reset -q`): algo que estava staged e não aparece na pasta
+   de trabalho entraria no commit sem ter passado pelo resumo. Depois do `git add`,
+   `git diff --cached --name-only` tem de ser exatamente essa lista — se não for, pare. Depois do commit,
+   `git status --short` vazio e `git diff --stat <base> HEAD` igual ao resumo aprovado.
    Nunca `git add -A`, nunca `git add -u`: com duas frentes abertas na mesma máquina, eles arrastam o
    trabalho da outra.
 2. **Base atualizada, testada de novo.** Se a base andou: `git fetch origin <alvo>`,
@@ -143,8 +147,10 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
    - C (GitFlow): `git push -u origin <branch-da-frente>` e abra o PR para `develop` — **e pare aí**. A
      frente não vai direto para a principal.
 4. **Deploy manual, se houver, só a partir da principal já integrada e atualizada** — nunca da branch da
-   frente. No cenário A: no checkout principal, `git pull --ff-only` **primeiro** (se recusar, a principal
-   local tem commits que não foram publicados — pare e diga) e só então o comando de deploy, dali. Nos
+   frente não publicada. O deploy roda numa árvore **idêntica ao que foi publicado**: no cenário A, a
+   própria frente logo depois do push aceito — confira `git status --porcelain` vazio e
+   `git rev-parse HEAD` igual a `git rev-parse origin/<principal>` (após `git fetch`); se não bater,
+   pare. Nunca do checkout principal, que pode ter mudança local ou commit que ninguém aprovou. Nos
    cenários B e C, entregue o comando de deploy para rodar **depois que o PR for integrado**; não o
    execute antes. (Com deploy automático, o próprio push na principal já publica.)
 5. **Confirme que funcionou.** Não diga "publicado" porque o comando não deu erro. Há CI? Veja o resultado
