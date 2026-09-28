@@ -88,7 +88,7 @@ fecha_entrada() {
            && git merge-base --is-ancestor "${br}" "origin/${PRINCIPAL}" 2>/dev/null \
            && git reflog show --format='%gs' "refs/heads/${br}" 2>/dev/null | grep -q '^commit'; then
         add_arrumar "A frente ${wt} (branch ${br}) já foi integrada na ${PRINCIPAL} e continua aberta." \
-                    "git worktree remove ${wt} && git branch -d ${br}"
+                    "git worktree remove \"${wt}\" && git branch -d ${br}"
       fi
     fi
   fi
@@ -111,10 +111,11 @@ if [ -f "${RAIZ}/composer.json" ] && [ ! -d "${RAIZ}/vendor" ]; then
   add_impede "As dependências PHP não estão instaladas (composer.json sem vendor/)." "composer install"
 fi
 if [ -f "${RAIZ}/requirements.txt" ] && [ ! -d "${RAIZ}/.venv" ] && [ ! -d "${RAIZ}/venv" ]; then
-  add_arrumar "requirements.txt sem ambiente virtual nesta pasta." \
-              "python3 -m venv .venv && .venv/bin/pip install -r requirements.txt"
+  add_arrumar "requirements.txt sem ambiente virtual nesta pasta (as dependências podem estar instaladas fora dele)." \
+              "python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   (Windows: .venv\\Scripts\\pip)"
 fi
-if [ -f "${RAIZ}/.env.example" ] && [ ! -f "${RAIZ}/.env" ]; then
+if [ -f "${RAIZ}/.env.example" ] && [ ! -f "${RAIZ}/.env" ] \
+   && [ -n "$(git -C "${RAIZ}" ls-files .env.example 2>/dev/null)" ]; then
   add_arrumar "O projeto espera um .env (há .env.example) e ele não existe nesta pasta." "cp .env.example .env   (e preencha)"
 fi
 

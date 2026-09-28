@@ -80,8 +80,9 @@ mencionada fora dessa linha.
 
 **5. Ferramentas do projeto**
 - `package.json` presente e `node_modules` ausente ⇒ falta `npm install` (sem isso o primeiro
-  comando do projeto falha com um erro que parece outra coisa). Mesma lógica para `requirements.txt`
-  sem ambiente virtual e `composer.json` sem `vendor/`.
+  comando do projeto falha com um erro que parece outra coisa); `composer.json` sem `vendor/`, idem —
+  os dois são 🔴. `requirements.txt` sem ambiente virtual na pasta é ⚠️: as dependências podem estar
+  instaladas fora dele.
 - `.env.example` versionado e nenhum `.env` ⇒ falta a configuração local (copiar o exemplo e
   preencher).
 - Editor no PATH: `code`, `cursor` ou `subl` (nesta ordem). **Sem editor não é problema** — não entra

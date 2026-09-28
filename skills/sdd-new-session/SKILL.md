@@ -118,8 +118,9 @@ Receba o nome da tarefa em linguagem natural e, na ordem:
    qualquer coisa e diga: o critério aponta GitFlow, mas não há `develop` de onde a frente possa nascer.
 4. Na pasta nova: rode a preparação, se houver.
 5. **Copie para a frente o que o git não leva**: os arquivos locais (`.env`) e **cada pasta de skill não
-   versionada** (`mkdir -p <frente>/.claude/skills && cp -R .claude/skills/<skill> <frente>/.claude/skills/`,
-   idem `.agents/skills/`).
+   versionada**, sempre a partir do checkout principal (caminhos absolutos, entre aspas):
+   `mkdir -p "<frente>/.claude/skills" && cp -R "<checkout principal>/.claude/skills/<skill>" "<frente>/.claude/skills/"`,
+   idem `.agents/skills/`.
    Confira que `<frente>/.claude/skills/sdd-release` (ou `.agents/skills/sdd-release`) existe quando existe
    no checkout principal — sem ela, a frente não consegue ser fechada. O Claude Code pede aprovação para
    escrever em `.claude/`: se a cópia for negada, **não pare** — termine a frente e, na resposta, entregue

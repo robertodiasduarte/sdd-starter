@@ -57,7 +57,8 @@ E leia: `README.md`, `package.json` (seção `scripts`), `Makefile`, `.github/wo
   o mesmo critério da `sdd-new-session`. Na dúvida entre A e B, A. Se existir `develop` no remoto mas o
   critério de C não fechar, **não decida sozinha**: a última linha do bloco do OK vira
   "**Posso publicar na `<recomendada>`?** (responda `develop` ou `main` para trocar)" — continua sendo
-  uma pergunta só.
+  uma pergunta só. **O destino respondido vira o `<alvo>` da Fase 3**: `develop` ⇒ a frente segue o
+  caminho do cenário C (push da branch + PR para `develop`), nunca o push direto na principal.
 - **Branch de integração** — onde esta frente entra: a principal nos cenários A e B, `develop` no C. Daqui
   em diante, `<alvo>` é ela. Comparar ou integrar uma frente do cenário C contra a principal levaria para
   produção o que ainda está em desenvolvimento.
@@ -129,11 +130,12 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 <só se não houver revisor humano:> Antes de responder, vale pedir à IA uma revisão do próprio código:
 "isso quebra algo que já funcionava, expõe alguma senha, tem erro óbvio?"
 
-**Posso publicar?**
+**Posso publicar?**   ← ou "Posso publicar na <alvo>?", no único caso do destino ambíguo (Passo 1)
 ```
 
 - Verificação ausente dita como ausente é informação; em silêncio, é falsa segurança.
-- **A única pergunta do bloco é a última linha, literalmente "Posso publicar?".** A sugestão de revisão
+- **A única pergunta do bloco é a última linha, "Posso publicar?"** (ou "Posso publicar na `<alvo>`?", se o
+  destino ficou ambíguo no Passo 1). A sugestão de revisão
   é uma frase, não uma pergunta — transformá-la em "quer que eu revise antes?" cria um segundo ponto
   de parada, e duas paradas viram carimbo.
 - Se algo ficou ambíguo (qual arquivo pertence à frente), diga **dentro deste mesmo bloco**, antes da
@@ -147,14 +149,15 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 2. **Commit com os arquivos nomeados** um a um — exatamente os da lista do `git status` da Fase 1,
    nenhum outro. **Não resete o índice** (apagaria versão staged que não está na pasta). Depois do
    `git add`, `git diff --cached --name-only` tem de ser exatamente essa lista — se aparecer outro
-   arquivo staged, pare antes do commit. Depois do commit, `git status --short` vazio.
+   arquivo staged, pare antes do commit. Depois do commit, `git status --short` vazio — exceto as pastas
+   de skills não versionadas, que ficam de fora de propósito.
    Nunca `git add -A`, nunca `git add -u`: com duas frentes abertas na mesma máquina, eles arrastam o
    trabalho da outra.
 3. **Base atualizada, testada de novo.** Se a base andou: `git fetch origin <alvo>`,
    `git merge origin/<alvo>` **na frente**, e rode os testes de novo. Conflito ou teste vermelho: **pare
    antes de qualquer push**, diga o que quebrou — nada foi publicado.
 4. **Integrar pelo cenário, sempre a partir da frente:**
-   - A (Trunk-Based): `git push origin HEAD:<principal>`. O push sai **da frente**, que contém exatamente
+   - A (Trunk-Based, `<alvo>` = principal): `git push origin HEAD:<principal>`. O push sai **da frente**, que contém exatamente
      o que foi aprovado mais a base remota — nunca do checkout principal, onde um commit local que ninguém
      aprovou iria junto. Recusado porque a base andou (`non-fast-forward`/`fetch first`)? Volte ao
      item 3 (nunca force). Recusado por outro motivo (permissão, branch protegida)? Pare e mostre o erro.
@@ -174,7 +177,7 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
    automática disponível" é honesto; "✅ tudo certo" sem ter olhado, não é.
 7. **Checkout principal e limpeza**, entregues como comandos (de dentro da worktree ela não consegue se
    remover): no checkout principal, `git pull --ff-only` — se recusar, a principal local tem commits que
-   não foram publicados, e isso é dito, não resolvido por você; depois `git worktree remove <pasta>` e
+   não foram publicados, e isso é dito, não resolvido por você; depois `git worktree remove "<pasta>"` (com aspas: o caminho pode ter espaço) e
    `git branch -d <branch>` (o `-d` minúsculo só apaga o que já foi integrado). Nos cenários B e C, a
    limpeza vem depois do merge do PR.
 
