@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Release by RDD"
+  short_description: "Fecha a frente: verifica, mostra uma vez o que vai para produção e publica só depois do seu OK."
+  default_prompt: "Use a skill sdd-release para fechar esta frente de trabalho: verifique o que vai subir, me mostre uma vez o que vai para produção e só publique depois do meu OK."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD New Session by RDD"
+  short_description: "Abre uma frente de trabalho isolada (worktree + branch da produção atualizada)."
+  default_prompt: "Use a skill sdd-new-session para abrir uma frente de trabalho isolada neste repositório para a tarefa que eu vou descrever."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Checar Ambiente by RDD"
+  short_description: "Diz em uma linha se o computador e o repositório estão prontos, ou o comando do que falta."
+  default_prompt: "Use a skill sdd-checar-ambiente para verificar, sem alterar nada, se este repositório e este computador estão prontos para eu trabalhar com SDD, e me diga o comando exato de cada coisa que faltar."

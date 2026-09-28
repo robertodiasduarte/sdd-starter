@@ -32,6 +32,14 @@ E três skills **complementares**, que não entram na sequência — elas alimen
 | [`sdd-prompt-builder`](skills/sdd-prompt-builder/) | Escrever o prompt de produção do seu app | O que o prompt precisa fazer + o contrato de saída | O prompt pronto, com fórmulas e regra para dado ausente |
 | [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Faxina e deriva do seu harness, em qualquer motor | A raiz do repositório | `AUDITORIA_SDD_<data>.md` (read-only: não altera nada) |
 
+E três skills para **trabalhar em frentes isoladas** no seu repositório (Claude Code ou Codex no terminal):
+
+| Skill | Para quê | Quando chamar | O que faz |
+|---|---|---|---|
+| [`sdd-checar-ambiente`](skills/sdd-checar-ambiente/) | Saber se está tudo pronto | Antes da primeira frente, ou quando algo estranho acontecer | Diz em uma linha se o ambiente está pronto, ou o comando exato do que falta (read-only) |
+| [`sdd-new-session`](skills/sdd-new-session/) | Abrir uma frente de trabalho | No começo de cada tarefa | Cria worktree + branch a partir da produção atualizada, prepara a pasta e grava `sdd/ambiente.md` |
+| [`sdd-release`](skills/sdd-release/) | Fechar a frente e publicar | No fim da tarefa, de dentro da pasta da frente | Verifica (testes, segredo no diff, base atualizada), mostra uma vez o que vai para produção e só publica depois do seu OK |
+
 Cada pasta de skill é autocontida: um `SKILL.md` com o procedimento completo, `references/` com os protocolos, `assets/` com os templates canônicos de saída e (quando aplicável) `scripts/` com um validador estrutural e `agents/openai.yaml` para agentes baseados em OpenAI.
 
 ## Instalação
@@ -99,11 +107,21 @@ If you want the advanced version of this workflow — with an executable Verify 
 | [`sdd-build`](skills/sdd-build/) | Implement | All three artifacts + writable project | Working code + `BUILD_REPORT_{FEATURE}.md` |
 | [`sdd-handoff`](skills/sdd-handoff/) | Close the cycle | The session's work | `HANDOFF_{FEATURE}.md` + resume prompt |
 
-Plus a **complementary** skill that is not part of the sequence — it feeds any phase:
+Plus three **complementary** skills that are not part of the sequence — they feed the phases:
 
 | Skill | Purpose | Input | Output |
 |---|---|---|---|
 | [`sdd-kb`](skills/sdd-kb/) | Teach the AI your context | What you know about a domain | A consultable knowledge base |
+| [`sdd-prompt-builder`](skills/sdd-prompt-builder/) | Write your app's production prompt | What the prompt must do + the output contract | The ready prompt, with formulas and a rule for missing data |
+| [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Cleanup and drift of your harness, on any engine | The repository root | `AUDITORIA_SDD_<date>.md` (read-only: changes nothing) |
+
+And three skills to **work in isolated workstreams** in your repository (Claude Code or Codex in the terminal):
+
+| Skill | Purpose | When to call | What it does |
+|---|---|---|---|
+| [`sdd-checar-ambiente`](skills/sdd-checar-ambiente/) | Know whether everything is ready | Before the first workstream, or when something odd happens | Says in one line whether the environment is ready, or the exact command for what is missing (read-only) |
+| [`sdd-new-session`](skills/sdd-new-session/) | Open a workstream | At the start of each task | Creates worktree + branch from up-to-date production, prepares the folder and writes `sdd/ambiente.md` |
+| [`sdd-release`](skills/sdd-release/) | Close the workstream and ship | At the end of the task, from inside the workstream folder | Checks (tests, secrets in the diff, up-to-date base), shows once what goes to production and ships only after your OK |
 
 Each skill folder is self-contained: a `SKILL.md` with the full procedure, `references/` with protocols, `assets/` with the canonical output templates, and (where applicable) `scripts/` with a structural validator and `agents/openai.yaml` for OpenAI-based agents.
 

@@ -12,7 +12,7 @@ Coloque as skills SDD no seu agente e rode seu primeiro fluxo.
 npx skills add robertodiasduarte/sdd-starter -a claude-code -y
 ```
 
-Instala as 8 skills em `.claude/skills/` do projeto onde você rodou. Para instalar uma vez e valer em todos os projetos, acrescente `-g` (vai para `~/.claude/skills/`).
+Instala as 11 skills em `.claude/skills/` do projeto onde você rodou. Para instalar uma vez e valer em todos os projetos, acrescente `-g` (vai para `~/.claude/skills/`).
 
 ### Codex
 
@@ -49,7 +49,7 @@ O ChatGPT instala skills nativamente (planos Business, Enterprise e Edu):
 
 1. Abra **Configurações → Habilidades** (ou `chatgpt.com/admin/skills`).
 2. Clique no **+** e arraste cada `.zip` da [última Release](../../../releases/latest) — sem descompactar.
-3. Defina o acesso e repita para as 4 skills. Depois acione pelo nome (`sdd-brainstorm`, `sdd-define`…).
+3. Defina o acesso e repita para cada skill. Depois acione pelo nome (`sdd-brainstorm`, `sdd-define`…).
 
 **Sem acesso à administração?** Crie um Projeto, envie os arquivos da skill (principalmente `SKILL.md` e `references/`) e, nas instruções do projeto, escreva: *"Siga o SKILL.md que está nos arquivos deste projeto."*
 
