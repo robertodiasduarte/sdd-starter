@@ -23,13 +23,13 @@ Errado (resumo do que foi verificado antes do veredito — o usuário lê isso t
 ```text
 Tudo verificado: repo git válido, identidade configurada, sem dependências a checar.
 
-✅ Pronto: repo meu-app, branch main, 1 frente aberta, Claude Code 2.1.
+✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1.
 ```
 
 Certo (a mesma situação):
 
 ```text
-✅ Pronto: repo meu-app, branch main, 1 frente aberta, Claude Code 2.1.
+✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1.
 ```
 
 ## Regras
@@ -64,7 +64,9 @@ Certo (a mesma situação):
   "HEAD branch")?
 
 **4. Frentes de trabalho (worktrees)**
-- `git worktree list` — quantas frentes abertas e onde.
+- `git worktree list` — a 1ª linha é o checkout principal, **não é frente**. Frentes abertas = as linhas
+  seguintes. Só o checkout principal ⇒ "nenhuma frente aberta" (dizer "1 frente aberta" aqui descreve
+  um estado que não existe).
 - **Worktree órfã:** entrada da lista marcada `prunable`, ou cuja pasta não existe mais (alguém
   apagou a pasta à mão). Comando: `git worktree prune`.
 - **Frente já integrada ainda aberta:** branch de uma worktree **que não é o checkout principal nem a
@@ -105,7 +107,7 @@ não merece parágrafo; quem quer detalhe pergunta.
 Saudável:
 
 ```text
-✅ Pronto: repo meu-app, branch main, 1 frente aberta, Claude Code 2.1.
+✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1.
 ```
 
 Com dois problemas:
@@ -120,7 +122,7 @@ Com dois problemas:
   git worktree remove ../meu-app-frentes/relatorio-mensal
   git branch -d relatorio-mensal
 
-✅ Repo meu-app, branch main, Claude Code 2.1.
+✅ Repo meu-app, branch main, 1 frente aberta, Claude Code 2.1.
 ```
 
 ---
