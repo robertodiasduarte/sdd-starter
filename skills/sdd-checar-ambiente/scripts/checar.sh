@@ -48,7 +48,8 @@ if [ -z "${RAIZ}" ]; then
              "cd <pasta do projeto>   (ou, se o projeto ainda não tem git: git init)"
   relatorio "pasta $(basename "$(pwd)"), ${AGENTES}"; exit 0
 fi
-REPO="$(basename "$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')")"
+# sed, não awk '{print $2}': caminho com espaço ("Ana Silva/Projetos/…") quebraria no 1º espaço.
+REPO="$(basename "$(git worktree list --porcelain | sed -n 's/^worktree //p' | head -1)")"
 BRANCH="$(git branch --show-current 2>/dev/null)"; BRANCH="${BRANCH:-HEAD destacado}"
 
 # ── 3. git utilizável ────────────────────────────────────────────────────────

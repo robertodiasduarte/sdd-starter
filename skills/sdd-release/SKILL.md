@@ -106,7 +106,9 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
    atualizada e **roda os testes de novo antes de qualquer push**.
 
 Se qualquer item falhar: **pare, diga qual falhou, com arquivo e motivo, e não siga.** Não conserte sozinha
-e não peça OK "mesmo assim".
+e não peça OK "mesmo assim". Nessa resposta **não mencione o bloco do OK nem a pergunta "Posso publicar"**,
+nem como passo futuro: termine com o que precisa ser corrigido e "depois, rode a `sdd-release` de novo".
+Quem lê a pergunta no fim da resposta entende que o OK está sendo pedido.
 
 ## Fase 2 — O único ponto de parada
 
