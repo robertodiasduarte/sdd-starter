@@ -69,7 +69,8 @@ Grave o que descobriu em `sdd/ambiente.md` do checkout principal (chaves `deploy
 Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
 
 1. **O que exatamente vai subir** — inclusive o que ainda não foi commitado:
-   - `git status --short` — arquivos modificados e **novos** (`??`) em relação ao último commit. **Esta
+   - `git status --short --untracked-files=all` — arquivos modificados e **novos** (`??`, um por arquivo,
+     nunca a pasta inteira agrupada) em relação ao último commit. **Esta
      é a lista do commit** da Fase 3, inclusive um arquivo que foi commitado e depois desfeito na pasta
      (ele some do resumo abaixo, mas precisa entrar no commit para o desfazer valer).
    - `git diff --stat $(git merge-base origin/<alvo> HEAD)` — compara a base da frente com a
@@ -137,7 +138,7 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 
 1. **A pasta ainda é a que foi aprovada?** Recalcule a impressão digital da Fase 1. Diferente ⇒ algo mudou
    depois do OK: **pare**, mostre o que mudou e peça um OK novo — nunca commite o que não foi visto.
-2. **Commit com os arquivos nomeados** um a um — exatamente os da lista do `git status --short` da Fase 1,
+2. **Commit com os arquivos nomeados** um a um — exatamente os da lista do `git status` da Fase 1,
    nenhum outro. **Não resete o índice** (apagaria versão staged que não está na pasta). Depois do
    `git add`, `git diff --cached --name-only` tem de ser exatamente essa lista — se aparecer outro
    arquivo staged, pare antes do commit. Depois do commit, `git status --short` vazio.

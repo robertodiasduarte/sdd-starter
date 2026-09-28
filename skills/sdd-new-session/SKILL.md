@@ -118,7 +118,8 @@ Receba o nome da tarefa em linguagem natural e, na ordem:
    qualquer coisa e diga: o critério aponta GitFlow, mas não há `develop` de onde a frente possa nascer.
 4. Na pasta nova: rode a preparação, se houver.
 5. **Copie para a frente o que o git não leva**: os arquivos locais (`.env`) e **cada pasta de skill não
-   versionada** (`cp -R .claude/skills/<skill> <frente>/.claude/skills/`, idem `.agents/skills/`).
+   versionada** (`mkdir -p <frente>/.claude/skills && cp -R .claude/skills/<skill> <frente>/.claude/skills/`,
+   idem `.agents/skills/`).
    Confira que `<frente>/.claude/skills/sdd-release` (ou `.agents/skills/sdd-release`) existe quando existe
    no checkout principal — sem ela, a frente não consegue ser fechada. O Claude Code pede aprovação para
    escrever em `.claude/`: se a cópia for negada, **não pare** — termine a frente e, na resposta, entregue
@@ -151,12 +152,12 @@ Nesta ordem:
 
 ## Por que cada regra existe (não apague sem ler)
 
-- **A branch nasce de `origin/<principal>` atualizada** — nascer da branch atual herda trabalho pela
+- **A branch nasce de `origin/<branch-base>` atualizada** (a principal; `develop` no cenário C) — nascer da branch atual herda trabalho pela
   metade de outra tarefa, e a frente nova "já vem com código estranho".
 - **A mesma branch não abre em duas worktrees** — o Git recusa. Por isso não se volta para a principal
   dentro da pasta da frente: integra-se pelo caminho do cenário e atualiza-se no checkout principal.
 - **Se outra frente for integrada antes desta**, esta nasceu de um ponto que já não existe. Antes de
-  integrar: `git fetch origin` + `git merge origin/<principal>` + **rodar os testes de novo** — é aí que
+  integrar: `git fetch origin` + `git merge origin/<branch-base>` + **rodar os testes de novo** — é aí que
   o conflito entre as duas aparece. (A `sdd-release` faz isso.)
 - **Worktree e branch órfãs se acumulam** — depois de integrar, `git worktree remove` **e**
   `git branch -d`. O `-d` minúsculo é proteção: só apaga o que já foi integrado.
