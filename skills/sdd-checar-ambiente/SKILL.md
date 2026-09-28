@@ -11,6 +11,27 @@ metadata:
 Responder uma pergunta: **este ambiente está pronto para trabalhar com SDD aqui?** Em segundos, sem
 mudar nada, dizendo o que consertar.
 
+## Formato da resposta (vale para a resposta inteira)
+
+- A resposta **começa pelo símbolo** — `🔴`, `⚠️` ou `✅` — nunca por uma frase de introdução.
+- **Checagem que não se aplica ou que passou não é mencionada** fora da linha ✅: nada de "sem
+  `package.json`, então…", "sem editor, mas não é problema", "tudo limpo".
+- Ambiente saudável ⇒ a resposta inteira é **uma linha**, a do ✅.
+
+Errado (resumo do que foi verificado antes do veredito — o usuário lê isso toda vez):
+
+```text
+Tudo verificado: repo git válido, identidade configurada, sem dependências a checar.
+
+✅ Pronto: repo meu-app, branch main, 1 frente aberta, Claude Code 2.1.
+```
+
+Certo (a mesma situação):
+
+```text
+✅ Pronto: repo meu-app, branch main, 1 frente aberta, Claude Code 2.1.
+```
+
 ## Regras
 
 - **Somente leitura.** Não instale, não configure, não conserte, não crie arquivo. Entregue o comando;
@@ -72,7 +93,9 @@ ordem, **omitindo os vazios**:
 2. **⚠️ Vale arrumar** — worktree órfã, frente integrada ainda aberta, `.env` ausente.
 3. **✅ Resumo em uma linha** — ex.: `✅ Pronto: repo meu-app, branch main, 2 frentes abertas, Claude Code 2.1.`
 
-Se estiver tudo certo, a resposta inteira é **só a linha ✅**. Ambiente saudável não merece parágrafo.
+Se estiver tudo certo, a resposta inteira é **exatamente a linha ✅** — nenhuma frase antes nem
+depois: nada de "Tudo limpo", de lista do que foi verificado ou de oferta de ajuda. Ambiente saudável
+não merece parágrafo; quem quer detalhe pergunta.
 
 ## Exemplos
 

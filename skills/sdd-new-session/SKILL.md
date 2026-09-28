@@ -38,7 +38,9 @@ de `sdd/ambiente.md`, onde ele corrige em uma linha.
 
 O checkout principal é o primeiro caminho de `git worktree list --porcelain` (linha `worktree …`).
 Se existir `<checkout principal>/sdd/ambiente.md`, **leia e use** — não redescubra o que já está
-escrito. Se não existir, investigue sem perguntar:
+escrito. Se não existir, investigue sem perguntar — mas, se o nome da tarefa já veio no pedido, faça
+**antes** a checagem de colisão do Passo 2 (item 2): nome repetido aborta sem gravar nada, nem o
+`sdd/ambiente.md`.
 
 ```bash
 git remote show origin
