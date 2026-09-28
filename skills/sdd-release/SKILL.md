@@ -84,21 +84,33 @@ e não peça OK "mesmo assim".
 
 ## Fase 2 — O único ponto de parada
 
-Mostre, num bloco só:
+Mostre **um bloco só, neste formato** (preencha; não acrescente perguntas):
 
-- O resumo do que sobe (`--stat` da Fase 1 + arquivos novos pelo nome).
-- **O que isso faz em produção, em uma frase, em português** — não "altera `handler.js`"; algo como
-  "muda o cálculo do relatório mensal que aparece na tela inicial".
-- **Se o push publica sozinho ou não** — a frase mais importante do bloco.
-- O resultado das 5 verificações — e o que foi **pulado**, com o motivo ("sem testes neste projeto").
-  Verificação ausente dita como ausente é informação; em silêncio, é falsa segurança.
-- Trabalhando sozinho com IA, sem revisor humano: sugira, antes do OK, pedir à IA uma revisão do próprio
-  código — "isso quebra algo que já funcionava, expõe alguma senha, tem erro óbvio?".
+```markdown
+**O que sobe**
+<saída do --stat da Fase 1> + arquivos novos, pelo nome
 
-E pergunte: **"Posso publicar?"**
+**O que muda em produção:** <uma frase, em português — "muda o cálculo do relatório mensal da tela
+inicial", não "altera handler.js">
 
-Uma pergunta só. Se algo ficou ambíguo (qual arquivo pertence à frente), pergunte **dentro deste mesmo
-OK** — nunca pare duas vezes. **Sem o OK, termine aqui**: nada de commit, merge ou push.
+**O push publica sozinho?** <sim, o workflow X publica ao receber o push na main | não: <por quê>>
+
+**Verificações:** sintaxe <ok|pulada: motivo> · testes <ok|pulados: motivo> · segredo no diff
+<nenhum> · base <atualizada|integrada e testada de novo>
+
+<só se não houver revisor humano:> Antes de responder, vale pedir à IA uma revisão do próprio código:
+"isso quebra algo que já funcionava, expõe alguma senha, tem erro óbvio?"
+
+**Posso publicar?**
+```
+
+- Verificação ausente dita como ausente é informação; em silêncio, é falsa segurança.
+- **A única pergunta do bloco é a última linha, literalmente "Posso publicar?".** A sugestão de revisão
+  é uma frase, não uma pergunta — transformá-la em "quer que eu revise antes?" cria um segundo ponto
+  de parada, e duas paradas viram carimbo.
+- Se algo ficou ambíguo (qual arquivo pertence à frente), diga **dentro deste mesmo bloco**, antes da
+  última linha — nunca pare duas vezes.
+- **Sem o OK, termine aqui**: nada de commit, merge ou push.
 
 ## Fase 3 — Publicar (só depois do OK)
 
