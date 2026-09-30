@@ -84,6 +84,26 @@ class ValidatorTests(unittest.TestCase):
             write_bundle(root, core + "\n| UX-VIS-001 | a |\n| UX-VIS-001 | b |\n", REVIEW_TEMPLATE_MIN, CHILD_MIN)
             self.assertIn("REVISAR_IDS_REPETIDOS:UX-VIS-001", validator.validate(root)["errors"])
 
+    def test_exception_row_in_template_format_is_not_a_duplicate(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            core = "\n".join(f"| UX-CORE-{i:03d} | regra |" for i in range(1, 11))
+            standard = core + "\n| UX-VIS-001 | regra |\n\n## Exceções aceitas\n\n| UX-VIS-001 | exceção | motivo |\n| UX-CORE-005 | exceção | motivo |\n\n## Histórico de revisões\n| UX-VIS-001 | alterada |\n"
+            write_bundle(root, standard, REVIEW_TEMPLATE_MIN, CHILD_MIN)
+            self.assertTrue(validator.validate(root)["pass"], validator.validate(root))
+
+    def test_ux_review_above_the_project_is_not_used(self):
+        with tempfile.TemporaryDirectory() as td:
+            outside = Path(td)
+            docs = outside / "projeto" / "sdd"
+            docs.mkdir(parents=True)
+            core = "\n".join(f"UX-CORE-{i:03d}" for i in range(1, 11))
+            (docs / "UX_STANDARD.md").write_text(core, encoding="utf-8")
+            (docs / "UX_REVIEW_TEMPLATE.md").write_text(REVIEW_TEMPLATE_MIN, encoding="utf-8")
+            (outside / "ux-review").mkdir()
+            (outside / "ux-review" / "SKILL.md").write_text(CHILD_MIN, encoding="utf-8")
+            self.assertIn("UX_REVIEW_SKILL_AUSENTE", validator.validate(docs)["errors"])
+
     def test_child_without_existing_folder_fallback_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -95,8 +115,9 @@ class ValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             core = "\n".join(f"UX-CORE-{i:03d}" for i in range(1, 11))
-            write_bundle(root, core, REVIEW_TEMPLATE_MIN, CHILD_MIN + " Ler sdd/feature/DEFINE_X.md.")
-            self.assertIn("SUBPASTA_SDD_NA_FILHA", validator.validate(root)["errors"])
+            for caminho in ("sdd/feature/DEFINE_X.md", "sdd/ux.review/DEFINE_X.md"):
+                write_bundle(root, core, REVIEW_TEMPLATE_MIN, CHILD_MIN + f" Ler {caminho}.")
+                self.assertIn("SUBPASTA_SDD_NA_FILHA", validator.validate(root)["errors"], caminho)
 
     def test_agent_layout_finds_ux_review_in_project_root(self):
         with tempfile.TemporaryDirectory() as td:

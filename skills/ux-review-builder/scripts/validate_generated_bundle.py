@@ -6,8 +6,8 @@ or correctness of project-specific UX decisions.
 
 --root  folder with UX_STANDARD.md and UX_REVIEW_TEMPLATE.md (the SDD folder, or the download folder)
 --skill folder of the generated ux-review skill (default: the first ux-review folder found in
-        the root, in its parent or two levels up — the agent delivery puts the documents in the SDD
-        folder and ux-review in the project root)
+        the root or in the project root — the parent of sdd/, or of .claude/ for .claude/sdd/ —
+        because the agent delivery puts the documents in the SDD folder and ux-review in the project root)
 """
 from __future__ import annotations
 import argparse
@@ -19,11 +19,13 @@ from pathlib import Path
 
 CORE_IDS = [f"UX-CORE-{i:03d}" for i in range(1, 11)]
 RULE_ID_RE = re.compile(r"\bUX-[A-Z]+-[0-9]{3}\b")
-# A rule is DEFINED where its ID opens a table row; exceptions, history and prose only CITE it.
-RULE_DEF_RE = re.compile(r"^\|\s*(UX-[A-Z0-9]+-[0-9]{3})\s*\|", re.MULTILINE)
+# A rule is DEFINED where its ID opens a table row; the exceptions and history sections (and prose)
+# only CITE it, so rows under those headings are not definitions.
+RULE_DEF_RE = re.compile(r"^\|\s*(UX-[A-Z0-9]+-[0-9]{3})\s*\|")
+CITATION_SECTIONS = ("excec", "historico")
 # The method keeps every SDD document side by side in one folder: a child skill that points
 # to a subfolder would never find the DEFINE nor be found by the Design phase.
-SUBFOLDER_RE = re.compile(r"\b(features|architecture|templates|reviews)/|\bsdd/[A-Za-z0-9_-]+/")
+SUBFOLDER_RE = re.compile(r"\b(features|architecture|templates|reviews)/|\bsdd/[^\s/`'\"]+/")
 HARDCODED_PATH_RE = re.compile(r"\bsdd/")
 
 
@@ -31,6 +33,20 @@ def plain(text: str) -> str:
     """Lowercase without diacritics, so accented and plain-ASCII phrasing both match."""
     decomposed = unicodedata.normalize("NFKD", text)
     return "".join(c for c in decomposed if not unicodedata.combining(c)).lower()
+
+
+def defined_rule_ids(standard: str) -> list[str]:
+    ids: list[str] = []
+    citing = False
+    for line in standard.splitlines():
+        if line.startswith("#"):
+            heading = plain(line.lstrip("#").strip())
+            citing = heading.startswith(CITATION_SECTIONS)
+            continue
+        match = RULE_DEF_RE.match(line)
+        if match and not citing:
+            ids.append(match.group(1))
+    return ids
 
 
 def read(path: Path) -> str:
@@ -44,7 +60,11 @@ def validate(root: Path, skill_dir: Path | None = None) -> dict:
     standard_path = root / "UX_STANDARD.md"
     review_template_path = root / "UX_REVIEW_TEMPLATE.md"
     if skill_dir is None:
-        skill_candidates = [d / "ux-review" / "SKILL.md" for d in (root, root.parent, root.parent.parent)]
+        # The project root is the parent of sdd/, or two levels up only for .claude/sdd/ — never beyond it.
+        bases = [root, root.parent]
+        if root.parent.name == ".claude":
+            bases.append(root.parent.parent)
+        skill_candidates = [d / "ux-review" / "SKILL.md" for d in bases]
     else:
         skill_candidates = [skill_dir / "SKILL.md"]
     skill_candidates.append(root / "SKILL_ux-review.md")
@@ -75,7 +95,7 @@ def validate(root: Path, skill_dir: Path | None = None) -> dict:
         for core_id in CORE_IDS:
             if core_id not in standard:
                 errors.append(f"PRINCIPIO_UNIVERSAL_AUSENTE:{core_id}")
-        ids = RULE_DEF_RE.findall(standard)
+        ids = defined_rule_ids(standard)
         duplicates = sorted({x for x in ids if ids.count(x) > 1})
         if duplicates:
             errors.append("REVISAR_IDS_REPETIDOS:" + ",".join(duplicates[:10]))
