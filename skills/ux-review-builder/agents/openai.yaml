@@ -1,0 +1,13 @@
+interface:
+  display_name: "UX Review Builder"
+  short_description: "Cria o padrão canônico de UX do projeto e uma ux-review personalizada."
+  default_prompt: "Use a skill ux-review-builder. Quero criar o padrão de experiência do meu projeto."
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

@@ -12,7 +12,7 @@ Get the SDD skills into your agent and run your first flow.
 npx skills add robertodiasduarte/sdd-starter -a claude-code -y
 ```
 
-Installs the 11 skills into the project's `.claude/skills/`. Add `-g` to install once into `~/.claude/skills/` and have them everywhere.
+Installs the 12 skills into the project's `.claude/skills/`. Add `-g` to install once into `~/.claude/skills/` and have them everywhere.
 
 ### Codex
 
