@@ -17,7 +17,7 @@ REVIEW_TEMPLATE_MIN = (
 )
 CHILD_MIN = (
     "UX_STANDARD.md UX_REVIEW_TEMPLATE.md MUST NAO AVALIAVEL "
-    "Os documentos ficam em `sdd/`, sem subpastas. nao editar"
+    "Os documentos ficam em `sdd/` (ou `.claude/sdd/`), sem subpastas. nao editar"
 )
 
 
@@ -63,6 +63,52 @@ class ValidatorTests(unittest.TestCase):
             child = CHILD_MIN.replace("nao editar", "Não altera o UX_STANDARD.md")
             write_bundle(root, core, template, child)
             result = validator.validate(root)
+            self.assertTrue(result["pass"], result)
+
+    def test_empty_files_are_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            write_bundle(root, "", "", "")
+            result = validator.validate(root)
+            self.assertFalse(result["pass"])
+            self.assertIn("PRINCIPIO_UNIVERSAL_AUSENTE:UX-CORE-001", result["errors"])
+            self.assertIn("REGRA_DE_PASTA_AUSENTE", result["errors"])
+
+    def test_cited_rule_id_is_not_a_duplicate(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            core = "\n".join(f"| UX-CORE-{i:03d} | regra |" for i in range(1, 11))
+            standard = core + "\n| UX-VIS-001 | regra |\n\n## Exceções\n| UX-VIS-001 | exceção aceita |\n"
+            write_bundle(root, standard.replace("| UX-VIS-001 | exceção", "| Regra UX-VIS-001 | exceção"), REVIEW_TEMPLATE_MIN, CHILD_MIN)
+            self.assertTrue(validator.validate(root)["pass"])
+            write_bundle(root, core + "\n| UX-VIS-001 | a |\n| UX-VIS-001 | b |\n", REVIEW_TEMPLATE_MIN, CHILD_MIN)
+            self.assertIn("REVISAR_IDS_REPETIDOS:UX-VIS-001", validator.validate(root)["errors"])
+
+    def test_child_without_existing_folder_fallback_is_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            core = "\n".join(f"UX-CORE-{i:03d}" for i in range(1, 11))
+            write_bundle(root, core, REVIEW_TEMPLATE_MIN, CHILD_MIN.replace(" (ou `.claude/sdd/`)", ""))
+            self.assertIn("REGRA_DE_PASTA_AUSENTE", validator.validate(root)["errors"])
+
+    def test_any_subfolder_under_sdd_is_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            core = "\n".join(f"UX-CORE-{i:03d}" for i in range(1, 11))
+            write_bundle(root, core, REVIEW_TEMPLATE_MIN, CHILD_MIN + " Ler sdd/feature/DEFINE_X.md.")
+            self.assertIn("SUBPASTA_SDD_NA_FILHA", validator.validate(root)["errors"])
+
+    def test_agent_layout_finds_ux_review_in_project_root(self):
+        with tempfile.TemporaryDirectory() as td:
+            project = Path(td)
+            docs = project / "sdd"
+            docs.mkdir()
+            core = "\n".join(f"UX-CORE-{i:03d}" for i in range(1, 11))
+            (docs / "UX_STANDARD.md").write_text(core, encoding="utf-8")
+            (docs / "UX_REVIEW_TEMPLATE.md").write_text(REVIEW_TEMPLATE_MIN, encoding="utf-8")
+            (project / "ux-review").mkdir()
+            (project / "ux-review" / "SKILL.md").write_text(CHILD_MIN, encoding="utf-8")
+            result = validator.validate(docs)
             self.assertTrue(result["pass"], result)
 
     def test_shipped_templates_pass_with_separate_skill_dir(self):

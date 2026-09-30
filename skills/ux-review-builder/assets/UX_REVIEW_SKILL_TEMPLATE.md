@@ -56,7 +56,7 @@ Não marcar `CONFORME` sem evidência suficiente.
 
 ### 4. Aplicar o gate universal
 
-Qualquer violação comprovada de `UX-CORE-*` é `MUST` por padrão. Conflito relevante entre DEFINE e UX_STANDARD também é `MUST`.
+Uma violação comprovada de `UX-CORE-*` recebe a severidade-base do UX_STANDARD: `MUST` em todos os princípios universais, exceto `UX-CORE-008` (Consistência), que nasce em `SHOULD` — a menos que o projeto a tenha endurecido. Conflito relevante entre DEFINE e UX_STANDARD é `MUST`.
 
 ### 5. Revisar as dimensões da experiência
 

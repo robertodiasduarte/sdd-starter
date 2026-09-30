@@ -7,7 +7,8 @@
 - Texto revisado e acentuado; a entrevista descreve o que pergunta, sem rotular quem responde.
 - Catálogo de referências renomeado para `references/CATALOGO_DE_REFERENCIAS.md`.
 - Removidos os registros internos de construção da 1.0.0.
-- Validador: aceita texto acentuado, recusa `ux-review` que aponte para subpasta (`SUBPASTA_SDD_NA_FILHA`), exige a regra de pasta (`REGRA_DE_PASTA_AUSENTE`) e aceita `--skill` para a pasta da `ux-review`.
+- Validador: aceita texto acentuado; recusa `ux-review` que aponte para subpasta (`SUBPASTA_SDD_NA_FILHA`) ou sem a regra de pasta completa (`REGRA_DE_PASTA_AUSENTE`); arquivo vazio é checado, não pulado; ID citado em exceção ou histórico não conta como duplicado; acha a `ux-review/` na raiz do projeto quando os documentos estão na pasta do SDD, ou recebe `--skill`.
+- `UX-CORE-008` (Consistência) mantém a severidade-base `SHOULD` também no gate da `ux-review`.
 
 ## 1.0.0 - 2026-09-21
 

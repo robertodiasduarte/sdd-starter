@@ -5,7 +5,9 @@ Structural validation only. It does not judge visual quality, accessibility comp
 or correctness of project-specific UX decisions.
 
 --root  folder with UX_STANDARD.md and UX_REVIEW_TEMPLATE.md (the SDD folder, or the download folder)
---skill folder of the generated ux-review skill (default: <root>/ux-review)
+--skill folder of the generated ux-review skill (default: the first ux-review folder found in
+        the root, in its parent or two levels up — the agent delivery puts the documents in the SDD
+        folder and ux-review in the project root)
 """
 from __future__ import annotations
 import argparse
@@ -17,9 +19,11 @@ from pathlib import Path
 
 CORE_IDS = [f"UX-CORE-{i:03d}" for i in range(1, 11)]
 RULE_ID_RE = re.compile(r"\bUX-[A-Z]+-[0-9]{3}\b")
+# A rule is DEFINED where its ID opens a table row; exceptions, history and prose only CITE it.
+RULE_DEF_RE = re.compile(r"^\|\s*(UX-[A-Z0-9]+-[0-9]{3})\s*\|", re.MULTILINE)
 # The method keeps every SDD document side by side in one folder: a child skill that points
 # to a subfolder would never find the DEFINE nor be found by the Design phase.
-SUBFOLDER_RE = re.compile(r"\b(features|architecture|templates|reviews)/")
+SUBFOLDER_RE = re.compile(r"\b(features|architecture|templates|reviews)/|\bsdd/[A-Za-z0-9_-]+/")
 HARDCODED_PATH_RE = re.compile(r"\bsdd/")
 
 
@@ -39,43 +43,46 @@ def validate(root: Path, skill_dir: Path | None = None) -> dict:
     errors: list[str] = []
     standard_path = root / "UX_STANDARD.md"
     review_template_path = root / "UX_REVIEW_TEMPLATE.md"
-    skill_dir = skill_dir or (root / "ux-review")
-    skill_candidates = [skill_dir / "SKILL.md", root / "SKILL_ux-review.md"]
+    if skill_dir is None:
+        skill_candidates = [d / "ux-review" / "SKILL.md" for d in (root, root.parent, root.parent.parent)]
+    else:
+        skill_candidates = [skill_dir / "SKILL.md"]
+    skill_candidates.append(root / "SKILL_ux-review.md")
     skill_path = next((p for p in skill_candidates if p.is_file()), None)
 
+    # None = missing; "" = present but empty — an empty file is checked (and fails), never skipped.
     try:
         standard = read(standard_path)
     except Exception:
-        standard = ""
+        standard = None
         errors.append("UX_STANDARD_AUSENTE")
     try:
         review_template = read(review_template_path)
     except Exception:
-        review_template = ""
+        review_template = None
         errors.append("UX_REVIEW_TEMPLATE_AUSENTE")
     if skill_path is None:
-        child_skill = ""
+        child_skill = None
         errors.append("UX_REVIEW_SKILL_AUSENTE")
     else:
         try:
             child_skill = read(skill_path)
         except Exception:
-            child_skill = ""
+            child_skill = None
             errors.append("UX_REVIEW_SKILL_ILEGIVEL")
 
-    if standard:
+    if standard is not None:
         for core_id in CORE_IDS:
             if core_id not in standard:
                 errors.append(f"PRINCIPIO_UNIVERSAL_AUSENTE:{core_id}")
-        ids = RULE_ID_RE.findall(standard)
-        duplicates = sorted({x for x in ids if ids.count(x) > 1 and not x.startswith("UX-CORE-")})
-        # IDs may appear in tables/history; duplicate detection is conservative and reported only once.
+        ids = RULE_DEF_RE.findall(standard)
+        duplicates = sorted({x for x in ids if ids.count(x) > 1})
         if duplicates:
             errors.append("REVISAR_IDS_REPETIDOS:" + ",".join(duplicates[:10]))
         if HARDCODED_PATH_RE.search(standard):
             errors.append("CAMINHO_HARDCODED_NO_STANDARD")
 
-    if review_template:
+    if review_template is not None:
         required = [
             "Canonical Conformance", "UX/CX Findings", "Universal Principles Check",
             "Required States", "Accessibility and Responsiveness", "Design Handoff",
@@ -91,13 +98,13 @@ def validate(root: Path, skill_dir: Path | None = None) -> dict:
         if "BLOCKED FOR DESIGN" not in review_template:
             errors.append("GATE_BLOQUEANTE_AUSENTE")
 
-    if child_skill:
+    if child_skill is not None:
         required_child = ["UX_STANDARD.md", "UX_REVIEW_TEMPLATE.md", "MUST", "NAO AVALIAVEL"]
         for item in required_child:
             if item not in child_skill:
                 errors.append("CONTRATO_CHILD_AUSENTE:" + item)
         child_plain = plain(child_skill)
-        if "`sdd/`" not in child_skill or "sem subpastas" not in child_plain:
+        if "`sdd/`" not in child_skill or "`.claude/sdd/`" not in child_skill or "sem subpastas" not in child_plain:
             errors.append("REGRA_DE_PASTA_AUSENTE")
         if SUBFOLDER_RE.search(child_skill):
             errors.append("SUBPASTA_SDD_NA_FILHA")

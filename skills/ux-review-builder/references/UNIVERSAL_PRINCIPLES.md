@@ -17,4 +17,4 @@ Todo `UX_STANDARD.md` gerado contém estes dez princípios como piso de qualidad
 
 ## Uso no gate
 
-Uma violação comprovada de qualquer princípio universal é, por padrão, `MUST`. Se o responsável aceitar uma exceção, registrar o aceite explicitamente, sem marcar a regra como conforme.
+Uma violação comprovada de um princípio universal usa a severidade-base registrada no `UX_STANDARD.md`: `MUST` em todos, exceto `UX-CORE-008` (Consistência), que nasce em `SHOULD`. O projeto pode endurecer essa severidade, nunca afrouxar as demais. Se o responsável aceitar uma exceção, registrar o aceite explicitamente, sem marcar a regra como conforme.
