@@ -33,11 +33,12 @@ E quatro skills **complementares**, que não entram na sequência — elas alime
 | [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Faxina e deriva do seu harness, em qualquer motor | A raiz do repositório | `AUDITORIA_SDD_<data>.md` (read-only: não altera nada) |
 | [`ux-review-builder`](skills/ux-review-builder/) | Criar o padrão de experiência do seu projeto e a sua `ux-review` — a revisão que roda entre o Define e o Design | Uma entrevista sobre público, referências e o que é inaceitável | `UX_STANDARD.md` + skill `ux-review` + `UX_REVIEW_TEMPLATE.md` |
 
-E três skills para **trabalhar em frentes isoladas** no seu repositório (Claude Code ou Codex no terminal):
+E quatro skills para **preparar o ambiente e trabalhar em frentes isoladas** no seu repositório (Claude Code ou Codex no terminal):
 
 | Skill | Para quê | Quando chamar | O que faz |
 |---|---|---|---|
-| [`sdd-checar-ambiente`](skills/sdd-checar-ambiente/) | Saber se está tudo pronto | Antes da primeira frente, ou quando algo estranho acontecer | Diz em uma linha se o ambiente está pronto, ou o comando exato do que falta (read-only) |
+| [`sdd-checar-ambiente`](skills/sdd-checar-ambiente/) | Saber se está tudo pronto | Antes da primeira frente, ou quando algo estranho acontecer | Diz em uma linha se o ambiente está pronto, ou o comando exato do que falta — inclusive senha, certificado A1 ou chave já salvos no git (read-only) |
+| [`sdd-higiene-dado`](skills/sdd-higiene-dado/) | Barrar dado de cliente antes do git | Ao preparar a máquina do escritório | Com o seu OK, instala um alarme de commit que recusa CPF/CNPJ, `.env`, certificado A1 e planilha nova — e explica como corrigir |
 | [`sdd-new-session`](skills/sdd-new-session/) | Abrir uma frente de trabalho | No começo de cada tarefa | Cria worktree + branch a partir da produção atualizada, prepara a pasta e grava `sdd/ambiente.md` |
 | [`sdd-release`](skills/sdd-release/) | Fechar a frente e publicar | No fim da tarefa, de dentro da pasta da frente | Verifica (testes, segredo no diff, base atualizada), mostra uma vez o que vai para produção e só publica depois do seu OK |
 
@@ -51,6 +52,8 @@ Dois caminhos, dependendo do seu agente — instruções completas no [Quickstar
 - **Codex** — o mesmo comando trocando o motor: `npx skills add robertodiasduarte/sdd-starter -a codex -y` (instala em `.agents/skills/` do projeto; com `-g`, em `~/.agents/skills/` — o Codex lê essa pasta e também `~/.codex/skills/`).
 - **Cursor, Kimi, Gemini CLI e outros** — mesmo comando com o nome do seu agente em `-a`. Sem Node.js, clone este repositório e copie as pastas de `skills/` para o diretório de skills do seu agente.
 - **claude.ai ou ChatGPT (web)** — baixe os `.zip` prontos, um por skill, anexados na [última Release](../../releases/latest) e faça o upload no seu agente.
+
+Cada skill diz a própria versão e a data na primeira resposta (ex.: `sdd-define v1.0.0 · out/2026`). Se você instalou pelo `.zip` e a [última Release](../../releases/latest) traz uma versão mais nova, baixe de novo — o `.zip` não se atualiza sozinho.
 
 ## Documentação
 
@@ -117,11 +120,12 @@ Plus four **complementary** skills that are not part of the sequence — they fe
 | [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Cleanup and drift of your harness, on any engine | The repository root | `AUDITORIA_SDD_<date>.md` (read-only: changes nothing) |
 | [`ux-review-builder`](skills/ux-review-builder/) | Build your project's UX standard and your own `ux-review` — the review that runs between Define and Design | An interview on audience, references and what is unacceptable | `UX_STANDARD.md` + `ux-review` skill + `UX_REVIEW_TEMPLATE.md` |
 
-And three skills to **work in isolated workstreams** in your repository (Claude Code or Codex in the terminal):
+And four skills to **prepare the environment and work in isolated workstreams** in your repository (Claude Code or Codex in the terminal):
 
 | Skill | Purpose | When to call | What it does |
 |---|---|---|---|
-| [`sdd-checar-ambiente`](skills/sdd-checar-ambiente/) | Know whether everything is ready | Before the first workstream, or when something odd happens | Says in one line whether the environment is ready, or the exact command for what is missing (read-only) |
+| [`sdd-checar-ambiente`](skills/sdd-checar-ambiente/) | Know whether everything is ready | Before the first workstream, or when something odd happens | Says in one line whether the environment is ready, or the exact command for what is missing — including passwords, A1 certificates or keys already committed to git (read-only) |
+| [`sdd-higiene-dado`](skills/sdd-higiene-dado/) | Stop client data before it reaches git | When preparing the office machine | With your OK, installs a commit alarm that rejects CPF/CNPJ numbers, `.env`, A1 certificates and new spreadsheets — and explains how to fix it |
 | [`sdd-new-session`](skills/sdd-new-session/) | Open a workstream | At the start of each task | Creates worktree + branch from up-to-date production, prepares the folder and writes `sdd/ambiente.md` |
 | [`sdd-release`](skills/sdd-release/) | Close the workstream and ship | At the end of the task, from inside the workstream folder | Checks (tests, secrets in the diff, up-to-date base), shows once what goes to production and ships only after your OK |
 
@@ -135,6 +139,8 @@ Two paths, depending on your agent — full instructions in the [Quickstart](doc
 - **Codex** — same command, different engine: `npx skills add robertodiasduarte/sdd-starter -a codex -y` (installs into the project's `.agents/skills/`; with `-g`, into `~/.agents/skills/` — Codex reads that folder and `~/.codex/skills/` too).
 - **Cursor, Kimi, Gemini CLI and others** — same command with your agent's name in `-a`. Without Node.js, clone this repo and copy the folders under `skills/` into your agent's skills directory.
 - **claude.ai or ChatGPT (web)** — download the ready-made per-skill `.zip` files attached to the [latest Release](../../releases/latest) and upload them to your agent.
+
+Each skill states its own version and date in its first reply (e.g. `sdd-define v1.0.0 · out/2026`). If you installed from a `.zip` and the [latest Release](../../releases/latest) has a newer version, download it again — a `.zip` does not update itself.
 
 ## Documentation
 

@@ -4,9 +4,14 @@ license: MIT
 description: "Conduz a fase Define de um fluxo SDD/AgentSpec a partir do arquivo Markdown gerado pelo Brainstorm e de interações de clarificação com o usuário. Extrai e estrutura problema, usuários, objetivos, métricas, escopo, restrições e contexto técnico; escreve testes de aceitação em EARS, resolve ambiguidades, calcula Clarity Score e define um Verify Gate objetivo. Use após o SDD Brainstorm by RDD para gerar um DEFINE_{FEATURE_NAME}.md pronto para o gate seguinte."
 metadata:
   author: Roberto Dias Duarte
+  version: "1.0.0"
+  updated: "2026-10"
 ---
 
 # SDD Define
+
+Na primeira resposta desta skill, comece com esta linha, uma vez só:
+`sdd-define v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 

@@ -4,9 +4,14 @@ license: MIT
 description: "Gera, refina e otimiza prompts de produção para LLMs com contrato de saída explícito, critérios de completude, tratamento de contexto ausente e verificação concisa. Usar quando o usuário pedir para criar ou melhorar prompts destinados a runtime, ou quando um fluxo SDD design/build criar ou alterar system prompts, passes de pipeline, classificadores, sintetizadores, prompts em edge/worker/runtime, arquivos **/prompts/**, system prompts inline ou templates em _shared. Não usar para documentação humana, prompts internos de orquestração SDD, emails, notificações ou copy transacional de UI."
 metadata:
   author: Roberto Dias Duarte
+  version: "1.0.0"
+  updated: "2026-10"
 ---
 
 # Prompt Builder
+
+Na primeira resposta desta skill, comece com esta linha, uma vez só:
+`sdd-prompt-builder v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Produzir um único prompt operacional pronto para uso em runtime. Priorizar o menor prompt que preserve clareza, controle de saída, recuperabilidade e fidelidade ao contexto fornecido.
 

@@ -16,6 +16,9 @@ jobs:
       - name: Content safety gate
         run: bash scripts/publish-check.sh
 
+      - name: Version gate
+        run: python3 scripts/check-versions.py
+
       - name: Build skill zips
         run: bash scripts/package.sh
 

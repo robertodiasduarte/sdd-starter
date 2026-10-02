@@ -35,6 +35,13 @@ jobs:
       - name: Content safety gate
         run: bash scripts/publish-check.sh
 
+      # Fail-closed: skill alterada sem subir metadata.version nao vira Release, porque o zip
+      # publicado diria ao aluno uma versao que nao muda quando o conteudo muda.
+      - name: Version gate
+        env:
+          BASE: ${{ github.event.before }}
+        run: python3 scripts/check-versions.py --base "$BASE"
+
       - name: Compute next patch tag
         id: tag
         run: |

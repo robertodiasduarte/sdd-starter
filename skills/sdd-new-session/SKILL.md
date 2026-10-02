@@ -4,9 +4,14 @@ license: MIT
 description: "Abre uma frente de trabalho isolada neste repositório: cria uma git worktree fora da pasta do projeto, com uma branch nova nascida da branch de produção ATUALIZADA do remoto, prepara a pasta (dependências, arquivos locais) e abre no editor. Na primeira vez, investiga o repositório e grava o que descobriu em sdd/ambiente.md. Use quando o usuário disser 'abrir uma frente', 'nova sessão', 'nova tarefa isolada', 'criar worktree para X' ou quiser começar uma feature/correção sem misturar com outra em andamento."
 metadata:
   author: Roberto Dias Duarte
+  version: "1.0.0"
+  updated: "2026-10"
 ---
 
 # Nova frente de trabalho (new-session)
+
+Na primeira resposta desta skill, comece com esta linha, uma vez só:
+`sdd-new-session v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Um comando, uma tarefa, um diretório: `git worktree` + branch nova nascida do estado **remoto atual**
 da branch de produção, pronta para abrir no editor.

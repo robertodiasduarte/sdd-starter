@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Higiene de Dado by RDD"
+  short_description: "Alarme de commit que barra CPF/CNPJ, senha, certificado A1 e planilha de cliente antes do git."
+  default_prompt: "Use a skill sdd-higiene-dado para verificar e, com o meu OK, instalar neste projeto o alarme de commit que barra dado de cliente, senha e certificado."

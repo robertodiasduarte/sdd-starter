@@ -4,9 +4,14 @@ license: MIT
 description: "Fecha um ciclo de trabalho e passa o bastão para a próxima sessão: registra o que foi feito, o que ficou pendente (separando o que está quebrado do que é melhoria), quais são os próximos passos e o que não pode quebrar — e gera um prompt de retomada que funciona sozinho, sem depender da conversa anterior. Mantém um único arquivo de handoff por feature, com cada etapa nova no topo. Use quando o usuário disser que vai parar, que o contexto está acabando, que terminou uma etapa, que quer documentar para continuar depois, ou ao final da fase de Build de um fluxo SDD."
 metadata:
   author: Roberto Dias Duarte
+  version: "1.0.0"
+  updated: "2026-10"
 ---
 
 # SDD Handoff
+
+Na primeira resposta desta skill, comece com esta linha, uma vez só:
+`sdd-handoff v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 

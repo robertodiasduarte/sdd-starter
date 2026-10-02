@@ -4,9 +4,14 @@ license: MIT
 description: "Fecha uma frente de trabalho e a leva para produção com UM ponto de aprovação: verifica sozinha o que vai subir (sintaxe, testes, segredo no diff, base desatualizada), mostra uma vez o que exatamente vai para produção e se o push publica sozinho, e só depois do OK do usuário commita, integra, publica e confere. Use de dentro da pasta da frente quando o usuário disser 'release', 'publicar', 'subir para produção', 'fechar a frente' ou 'integrar'. É a outra ponta da skill sdd-new-session."
 metadata:
   author: Roberto Dias Duarte
+  version: "1.0.0"
+  updated: "2026-10"
 ---
 
 # Release — fechar a frente com um OK
+
+Na primeira resposta desta skill, comece com esta linha, uma vez só:
+`sdd-release v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Verificar o que vai subir, mostrar **uma vez** o que vai para produção e — só depois do OK — integrar e
 publicar.

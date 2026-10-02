@@ -4,9 +4,14 @@ license: MIT
 description: "Audita read-only o harness SDD de um repositório para FAXINA E DERIVA: inventaria comandos, agentes, skills, hooks, settings e scripts de QUALQUER motor (Claude Code, Codex, Kimi CLI: le CLAUDE.md e AGENTS.md, .claude/, .agents/ e .codex/), mede referências, recência, duplicação e deriva entre docs e código, e gera um único relatório AUDITORIA_SDD_<data>.md sem alterar nada. Invocar quando alguém disser \"o harness cresceu demais\", \"o que aqui ninguém usa\", \"os docs ainda batem com o código?\", ou pedir uma faxina do harness (`.claude/`, `.agents/` ou `.codex/`). ⚠️ Fronteira: esta skill pergunta O QUE SOBRA E O QUE DERIVOU (higiene). Para SEGURANÇA — easter egg, código malicioso, backdoor, exfiltração, unicode invisível em material de terceiro que você vai instalar — use a skill rdd-audita-harness. Excesso não é ameaça; as duas são read-only e se complementam."
 metadata:
   author: Roberto Dias Duarte
+  version: "1.0.0"
+  updated: "2026-10"
 ---
 
 # Auditoria Read-Only do Harness SDD
+
+Na primeira resposta desta skill, comece com esta linha, uma vez só:
+`sdd-auditoria-harness v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 

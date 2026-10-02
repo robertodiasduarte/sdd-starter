@@ -4,9 +4,14 @@ license: MIT
 description: "Conduz o brainstorm da Fase 0 de um fluxo SDD/AgentSpec por interação com o usuário: explora contexto, faz perguntas de descoberta uma por vez, coleta amostras, compara 2–3 abordagens, aplica YAGNI, valida incrementalmente e gera um BRAINSTORM pronto para a fase /define. Use para ideias vagas de software, automações, agentes, produtos ou features que ainda precisam de exploração antes de formalizar requisitos; também quando o usuário pedir para transformar uma conversa, problema ou notas iniciais em um brainstorm estruturado."
 metadata:
   author: Roberto Dias Duarte
+  version: "1.0.0"
+  updated: "2026-10"
 ---
 
 # SDD Brainstorm
+
+Na primeira resposta desta skill, comece com esta linha, uma vez só:
+`sdd-brainstorm v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 

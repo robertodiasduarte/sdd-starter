@@ -4,9 +4,14 @@ license: MIT
 description: "Executar a fase Build de um fluxo SDD/AgentSpec a partir dos arquivos Markdown de Brainstorm, Define e Design e de interações com o usuário. Usar quando o usuário quiser implementar uma feature já especificada: ler os três artefatos, extrair e ordenar o File Manifest, recomendar e confirmar o modo de execução, alterar somente o código previsto, verificar incrementalmente, tratar drift e prompts LLM, executar o Verify Gate bloqueante do Define e gerar BUILD_REPORT_{FEATURE}.md com evidências. Requer acesso gravável ao projeto/código e deve terminar com o fluxo SDD concluído e o BUILD_REPORT validado."
 metadata:
   author: Roberto Dias Duarte
+  version: "1.0.0"
+  updated: "2026-10"
 ---
 
 # SDD Build
+
+Na primeira resposta desta skill, comece com esta linha, uma vez só:
+`sdd-build v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Executar implementação real. Não tratar Build como geração de um documento isolado.
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0 - 2026-10
+
+- Versão e data no frontmatter (`metadata.updated`) e linha de identificação na primeira resposta, para quem baixou o .zip saber se a cópia envelheceu.
+
 ## 1.1.0 - 2026-09-30
 
 - A `ux-review` gerada segue a pasta do SDD do método: `sdd/` na raiz do projeto (ou a pasta do SDD que o projeto já usa), com os documentos lado a lado, sem subpastas — a mesma pasta em que o Define grava e o Design lê.
