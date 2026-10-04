@@ -285,6 +285,30 @@ class NormativeKB(unittest.TestCase):
         rc, out = self.run_validator("--strict")
         self.assertEqual(rc, 2, out)
 
+    def test_strict_accepts_signed_base_mentioning_pending_items(self):
+        # review r3 R2: "pendentes" depois da assinatura não é base pendente
+        self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO (exemplo didático da skill — conferir na NT antes de qualquer uso)",
+                  "> **Revisado por:** Contadora Fictícia, CRC 0000 (revisão parcial — itens pendentes anotados no index)")
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn("PENDENTE", out)
+
+    def test_rule_with_bom_is_read(self):
+        # review r3 R3: regra salva como "UTF-8 com BOM" continua legível
+        p = self.kb / "rules" / "UB12-10-CRT3.md"
+        p.write_bytes(b"\xef\xbb\xbf" + p.read_bytes())
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 0, out)
+
+    def test_pipe_in_localizador_keeps_rule_map_columns(self):
+        # review r3 R1: "|" no localizador não pode virar coluna extra no RULE_MAP
+        self.edit("rules/UB12-10-CRT3.md", "  localizador: p. 42, regra UB12-10, Observações 1 e 2",
+                  "  localizador: art. 5º, § 1º | inciso II")
+        self.regen_rule_map()
+        linha = next(l for l in (self.kb / "RULE_MAP.md").read_text(encoding="utf-8").splitlines() if l.startswith("| UB12-10-CRT3 "))
+        self.assertEqual(len(re.findall(r"(?<!\\)\|", linha)), 10, linha)
+        self.assertNotIn("\\\\|", linha)
+
     def test_strict_passes_reviewed(self):
         self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO", "> **Revisado por:** Contador Fictício, CRC 0000")
         rc, out = self.run_validator("--strict")

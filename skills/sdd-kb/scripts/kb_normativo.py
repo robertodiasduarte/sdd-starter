@@ -73,7 +73,8 @@ def _scalar(raw: str):
 def parse_frontmatter(path: Path) -> dict:
     """Parse the leading `---` block. Grammar: `key: scalar`, one nesting level by two spaces,
     inline lists `[a, b]`, null/~, optional quotes, `#` comments on their own line."""
-    lines = path.read_text(encoding="utf-8").splitlines()
+    # utf-8-sig: o Bloco de Notas do Windows grava "UTF-8 com BOM"; o BOM não é conteúdo (review r3).
+    lines = path.read_text(encoding="utf-8-sig").splitlines()
     if not lines or lines[0].strip() != "---":
         raise KBError(f"{path.name}: frontmatter missing — the file must start with a `---` block")
     try:
@@ -166,7 +167,7 @@ def _cell(v) -> str:
     if v is None or v == []:
         return "—"
     if isinstance(v, list):
-        return ", ".join(str(x) for x in v)
+        return ", ".join(str(x) for x in v).replace("|", "\\|")
     return str(v).replace("|", "\\|")
 
 
@@ -189,7 +190,7 @@ def render_rule_map(root: Path) -> str:
         lines.append("| " + " | ".join([
             _cell(fm.get("regra")),
             f"{_cell(vig.get('de'))} → {_cell(vig.get('ate')) if vig.get('ate') else 'em vigor'}",
-            fonte_txt.replace("|", "\\|"),
+            fonte_txt,  # cada parte já passou por _cell (escapar de novo vira "\\\\|" e quebra a tabela)
             _cell(fm.get("status")),
             _cell(fm.get("conflito_com")),
             _cell(fm.get("implementacao")),
