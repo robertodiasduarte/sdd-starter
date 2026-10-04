@@ -273,7 +273,7 @@ Levantar o que ele sabe que a documentação não diz — armadilhas, o que dá 
 **Legislação com vigência**
 `Quero uma base da Reforma Tributária para alimentar meu validador de NF-e.`
 
-Perfil normativo, data-base perguntada no passo 1. Cada regra da nota técnica vira um arquivo em `rules/` com vigência e página; a NT, a lei complementar e as reportagens consultadas entram no catálogo com degrau; o "2026 riscado, 2027 escrito por cima" vira conflito registrado. O validador gera o `RULE_MAP.md`, que o validador de NF-e copia e referencia por id.
+Perfil normativo, data-base perguntada no passo 1. Cada regra da nota técnica vira um arquivo em `rules/` com vigência e página; a NT, a lei complementar e as reportagens consultadas entram no catálogo com degrau; o "2026 riscado, 2027 escrito por cima" vira conflito registrado. `kb_normativo.py rule-map` gera o `RULE_MAP.md` (o `validate_kb.py` só confere que ele não derivou), e o validador de NF-e copia esse mapa e referencia cada regra por id.
 
 **Conhecimento disperso**
 `Tenho anotações espalhadas sobre isso.`

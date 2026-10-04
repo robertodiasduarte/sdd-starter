@@ -248,6 +248,19 @@ class NormativeKB(unittest.TestCase):
         self.assertNotIn("WARN: index.md: PENDENTE", out)
 
     # perfil ----------------------------------------------------------------
+    def test_mut_j_perfil_with_trailing_comment_stays_normativo(self):
+        # review A1 (HIGH): comentário no fim da linha não pode rebaixar o domínio para geral
+        (self.tmp / "_index.yaml").write_text(
+            registry("normativo").replace("perfil: normativo", "perfil: normativo  # legislação"), encoding="utf-8")
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 2, out)
+        self.assertIn("--strict refuses an unreviewed normative KB", out)
+
+    def test_mut_f_case_source_not_catalogued(self):
+        # review A2: a fonte do gabarito também é rastreável
+        self.edit("casos/ub12-crt3-2026-09.json", '"fonte": {"id": "NT2025002-151"', '"fonte": {"id": "FONTE-INEXISTENTE"')
+        self.assert_fails(r"casos/ub12-crt3-2026-09\.json: fonte\.id 'FONTE-INEXISTENTE' not in fontes/CATALOGO\.md")
+
     def test_mut_j_unknown_perfil_fails(self):
         self.set_perfil("fiscal")
         self.assert_fails(r"perfil 'fiscal' for 'kb_norm' — use `normativo` or `geral`")

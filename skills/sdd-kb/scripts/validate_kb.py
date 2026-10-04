@@ -89,9 +89,11 @@ def read_perfil(registry, name):
                 continue
             if len(nxt) - len(nxt.lstrip()) <= base:
                 break
-            pm = re.match(r"^\s+perfil\s*:\s*(\S+)\s*$", nxt)
+            # `perfil: normativo  # comentário` is still normativo — a trailing comment must never
+            # silently downgrade the domain to geral and skip every normative check (review A1).
+            pm = re.match(r"^\s+perfil\s*:(.*)$", nxt)
             if pm:
-                return pm.group(1).strip("\"'")
+                return re.sub(r"\s+#.*$", "", pm.group(1)).strip().strip("\"'")
         return None
     return None
 
@@ -283,6 +285,10 @@ def check_normativo(root, concepts, patterns, strict):
             continue
         if "esperado" not in data:
             ok = fail(f"casos/{f.name}: esperado missing — a case states the expected result") and ok
+        cfonte = data.get("fonte")
+        if cfonte is not None and (not isinstance(cfonte, dict) or cfonte.get("id") not in catalogo):
+            got = cfonte.get("id") if isinstance(cfonte, dict) else cfonte
+            ok = fail(f"casos/{f.name}: fonte.id {got!r} not in fontes/CATALOGO.md — catalog the source of the expected result") and ok
         fato, vig = data.get("data_fato"), rule_vig[rid] or {}
         if not _date(fato):
             ok = fail(f"casos/{f.name}: data_fato {fato!r} — use AAAA-MM-DD (the date of the taxable event / document)") and ok
