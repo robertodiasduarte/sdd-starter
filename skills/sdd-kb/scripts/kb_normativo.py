@@ -180,13 +180,14 @@ def render_rule_map(root: Path) -> str:
     for _path, fm in read_rules(root):
         vig = fm.get("vigencia") if isinstance(fm.get("vigencia"), dict) else {}
         fonte = fm.get("fonte") if isinstance(fm.get("fonte"), dict) else {}
-        src = catalogo.get(str(fonte.get("id")), {})
+        fid = fonte.get("id") if isinstance(fonte.get("id"), str) else None
+        src = catalogo.get(fid, {}) if fid else {}
         fonte_txt = " · ".join(
-            x for x in (src.get("documento"), fonte.get("localizador"), src.get("degrau")) if x
+            _cell(x) for x in (src.get("documento"), fonte.get("localizador"), src.get("degrau")) if x
         ) or "—"
         lines.append("| " + " | ".join([
             _cell(fm.get("regra")),
-            f"{_cell(vig.get('de'))} → {vig.get('ate') or 'em vigor'}",
+            f"{_cell(vig.get('de'))} → {_cell(vig.get('ate')) if vig.get('ate') else 'em vigor'}",
             fonte_txt.replace("|", "\\|"),
             _cell(fm.get("status")),
             _cell(fm.get("conflito_com")),

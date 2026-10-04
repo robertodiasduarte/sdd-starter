@@ -127,7 +127,7 @@ No perfil **normativo**, o mínimo cresce:
 {dominio}/
 ├── index.md              ← INDEX_NORMATIVO_TEMPLATE: Data-base, Conflitos entre fontes, aviso
 ├── quick-reference.md
-├── concepts/{um}.md      ← com "Vale para:" no cabeçalho
+├── concepts/{um}.md      ← com `> **Vale para:** <período>` no cabeçalho (até a linha 15)
 ├── patterns/{uma}.md     ← com "Vale para:" no cabeçalho
 ├── rules/{ID}.md         ← ≥ 1 regra, uma por arquivo, com vigência e fonte
 ├── fontes/CATALOGO.md    ← cada documento citado: degrau, versão, captura, SHA-256

@@ -20,7 +20,7 @@ Use `normativo` quando o domínio tem regra que muda com o tempo: lei, alíquota
 {dominio}/
 ├── index.md            ← + Data-base, Conflitos entre fontes, aviso de responsabilidade
 ├── quick-reference.md
-├── concepts/           ← + linha "Vale para:" no cabeçalho
+├── concepts/           ← + `> **Vale para:** <período ou atemporal>` no cabeçalho
 ├── patterns/           ← + linha "Vale para:" no cabeçalho
 ├── rules/              ← regra atômica com vigência (obrigatório, ≥ 1)
 ├── fontes/CATALOGO.md  ← cada documento citado (obrigatório)

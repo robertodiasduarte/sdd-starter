@@ -152,7 +152,7 @@ class NormativeKB(unittest.TestCase):
         rc, out = self.run_validator()
         self.assertEqual(rc, 2, out)
         self.assertNotIn("Traceback", out)
-        self.assertIn("vigencia.ate ['2026-12-31'] is not a date", out)
+        self.assertIn("vigencia.ate must be a single value, got ['2026-12-31']", out)
 
     def test_mut_e_table_ate_not_a_scalar_fails_cleanly(self):
         self.edit("tabelas/2026-01-01/aliquotas-referencia.json", '"ate": "2026-12-31"', '"ate": ["2026-12-31"]')
@@ -171,6 +171,45 @@ class NormativeKB(unittest.TestCase):
         self.regen_rule_map()
         rm = (self.kb / "RULE_MAP.md").read_text(encoding="utf-8")
         self.assertNotIn("{}", rm)
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 0, out)
+
+    # review rodada 2: tipo errado dentro da gramática = FAIL nomeando o campo, nunca traceback
+    def assert_fails_cleanly(self, reason):
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 2, out)
+        self.assertNotIn("Traceback", out)
+        self.assertNotIn("stopped on unexpected content", out)
+        self.assertRegex(out, reason)
+
+    def test_mut_a_vigencia_scalar_with_case(self):
+        self.edit("rules/UB12-10-CRT3.md", "vigencia:\n  de: 2026-08-03\n  ate: null\n", "vigencia: 2026-08-03\n")
+        self.assert_fails_cleanly(r"UB12-10-CRT3\.md: vigencia must be a block")
+
+    def test_mut_b_fonte_id_list(self):
+        self.edit("rules/UB12-10-CRT3.md", "  id: NT2025002-151", "  id: [NT2025002-151, LC214-2025]")
+        self.assert_fails_cleanly(r"UB12-10-CRT3\.md: fonte\.id must be a single value")
+
+    def test_mut_b_status_list(self):
+        self.edit("rules/UB12-10-CRT3.md", "status: confirmado", "status: [confirmado]")
+        self.assert_fails_cleanly(r"UB12-10-CRT3\.md: status must be a single value")
+
+    def test_mut_b_localizador_list_rule_map_survives(self):
+        self.edit("rules/UB12-10-CRT3.md", "  localizador: p. 42, regra UB12-10, Observações 1 e 2", "  localizador: [p. 42, p. 45]")
+        self.assert_fails_cleanly(r"fonte\.localizador must be a single value")
+        r = subprocess.run([sys.executable, str(RULEMAP), "rule-map", str(self.kb)], capture_output=True, text=True)
+        self.assertNotIn("Traceback", r.stdout + r.stderr)
+
+    def test_mut_f_case_regra_list(self):
+        self.edit("casos/ub12-crt3-2026-09.json", '"regra": "UB12-10-CRT3"', '"regra": ["UB12-10-CRT3"]')
+        self.assert_fails_cleanly(r"casos/ub12-crt3-2026-09\.json: regra \['UB12-10-CRT3'\] does not exist|regra None does not exist")
+
+    def test_mut_e_table_fonte_id_list(self):
+        self.edit("tabelas/2026-01-01/aliquotas-referencia.json", '"fonte": {"id": "NT2025002-151"', '"fonte": {"id": ["NT2025002-151"]')
+        self.assert_fails_cleanly(r"aliquotas-referencia\.json: fonte\.id not in fontes/CATALOGO\.md")
+
+    def test_vale_para_without_bold_is_accepted(self):
+        self.edit("concepts/ano-teste-2026.md", "> **Vale para:**", "> Vale para:")
         rc, out = self.run_validator()
         self.assertEqual(rc, 0, out)
 

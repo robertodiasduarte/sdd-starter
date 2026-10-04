@@ -131,6 +131,40 @@ def _load_json(path):
         return None, f"{path.name}: invalid JSON ({e}) — fix the file"
 
 
+def _s(v):
+    """The value if it is a non-empty string, else None — membership tests never see a list."""
+    return v if isinstance(v, str) and v else None
+
+
+# Field → expected type. The frontmatter grammar admits lists and blocks anywhere, so a value of
+# the wrong TYPE is reported here, by name, and replaced before anything compares it (review r1/r2:
+# a list or a scalar in the wrong place used to end in a traceback instead of FAIL + exit 2).
+RULE_SCALARS = ("regra", "titulo", "status", "implementacao", "teste", "severidade", "codigo")
+
+
+def sanitize_rule(name, fm):
+    ok = True
+    for k in RULE_SCALARS:
+        if fm.get(k) is not None and not isinstance(fm.get(k), str):
+            ok = fail(f"{name}: {k} must be a single value, got {fm[k]!r}") and ok
+            fm[k] = None
+    for k, subs in (("vigencia", ("de", "ate")), ("fonte", ("id", "localizador"))):
+        v = fm.get(k)
+        if v is not None and not isinstance(v, dict):
+            ok = fail(f"{name}: {k} must be a block with {' and '.join(subs)} (two-space indented lines), got {v!r}") and ok
+            fm[k] = {}
+        elif isinstance(v, dict):
+            for sub in subs:
+                if v.get(sub) is not None and not isinstance(v.get(sub), str):
+                    ok = fail(f"{name}: {k}.{sub} must be a single value, got {v[sub]!r}") and ok
+                    v[sub] = None
+    cc = fm.get("conflito_com")
+    if cc is not None and (not isinstance(cc, list) or not all(isinstance(x, str) for x in cc)):
+        ok = fail(f"{name}: conflito_com must be a list of ids `[id, ...]`, got {cc!r}") and ok
+        fm["conflito_com"] = []
+    return ok
+
+
 def check_normativo(root, concepts, patterns, strict):
     """Returns (ok, summary). Every FAIL names the file, the field and what to do."""
     ok = True
@@ -162,7 +196,7 @@ def check_normativo(root, concepts, patterns, strict):
 
     for path in concepts + patterns:
         head = "\n".join(path.read_text(encoding="utf-8").splitlines()[:15])
-        if not re.search(r"\*\*Vale para:\*\*", head):
+        if not re.search(r"(\*\*)?Vale para:(\*\*)?", head):
             ok = fail(f"{path.parent.name}/{path.name}: `> **Vale para:**` missing in the header — state the period (or `atemporal`) this text holds for") and ok
 
     try:
@@ -192,6 +226,8 @@ def check_normativo(root, concepts, patterns, strict):
         return fail(f"rules/{e}") and False, "rules unreadable"
     if not rules:
         ok = fail("rules/: no rule found — a normative KB needs at least one rules/*.md (RULE_TEMPLATE.md)") and ok
+    for path, fm in rules:
+        ok = sanitize_rule(f"rules/{path.name}", fm) and ok
     ids = {}
     for path, fm in rules:
         name = f"rules/{path.name}"
@@ -209,7 +245,7 @@ def check_normativo(root, concepts, patterns, strict):
             ok = fail(f"{name}: vigencia.ate {vig.get('ate')!r} is not a date on/after vigencia.de {vig['de']} — use null while in force") and ok
             vig["ate"] = None  # already reported; never compared again (a list here would raise)
         fonte = fm.get("fonte")
-        if not isinstance(fonte, dict) or fonte.get("id") not in catalogo:
+        if not isinstance(fonte, dict) or _s(fonte.get("id")) not in catalogo:
             got = fonte.get("id") if isinstance(fonte, dict) else None
             ok = fail(f"{name}: fonte.id {got!r} not in fontes/CATALOGO.md — catalog the source first") and ok
         else:
@@ -223,9 +259,6 @@ def check_normativo(root, concepts, patterns, strict):
     com_conflito = []
     for path, fm in rules:
         cc = fm.get("conflito_com") or []
-        if not isinstance(cc, list):
-            ok = fail(f"rules/{path.name}: conflito_com must be a list `[id, ...]`") and ok
-            continue
         for c in cc:
             if c not in known:
                 ok = fail(f"rules/{path.name}: conflito_com {c!r} is neither a rule nor a catalogued source") and ok
@@ -250,6 +283,9 @@ def check_normativo(root, concepts, patterns, strict):
                 ok = fail(f"tabelas/{d.name}/{err}") and ok
                 continue
             vig = data.get("vigencia") if isinstance(data, dict) else None
+            if isinstance(vig, dict) and vig.get("ate") is not None and not isinstance(vig.get("ate"), str):
+                ok = fail(f"tabelas/{d.name}/{f.name}: vigencia.ate {vig.get('ate')!r} is not a date on/after {d.name}") and ok
+                continue
             if not isinstance(vig, dict) or vig.get("de") != d.name:
                 got = vig.get("de") if isinstance(vig, dict) else None
                 ok = fail(f"tabelas/{d.name}/{f.name}: vigencia.de {got!r} differs from the folder {d.name} — the folder is the start date") and ok
@@ -258,7 +294,7 @@ def check_normativo(root, concepts, patterns, strict):
                 ok = fail(f"tabelas/{d.name}/{f.name}: vigencia.ate {vig.get('ate')!r} is not a date on/after {vig['de']}") and ok
                 continue
             fonte = data.get("fonte") if isinstance(data, dict) else None
-            if not isinstance(fonte, dict) or fonte.get("id") not in catalogo:
+            if not isinstance(fonte, dict) or _s(fonte.get("id")) not in catalogo:
                 ok = fail(f"tabelas/{d.name}/{f.name}: fonte.id not in fontes/CATALOGO.md") and ok
             series.setdefault(f.name, []).append((vig["de"], vig.get("ate"), d.name))
     for fname, periods in series.items():
@@ -269,7 +305,8 @@ def check_normativo(root, concepts, patterns, strict):
 
     n_casos = 0
     cdir = root / "casos"
-    rule_vig = {fm.get("regra"): fm.get("vigencia") for _p, fm in rules}
+    rule_vig = {fm.get("regra"): (fm.get("vigencia") if isinstance(fm.get("vigencia"), dict) else {})
+                for _p, fm in rules if _s(fm.get("regra"))}
     for f in sorted(cdir.glob("*.json")) if cdir.is_dir() else []:
         n_casos += 1
         data, err = _load_json(f)
@@ -279,14 +316,14 @@ def check_normativo(root, concepts, patterns, strict):
         if not isinstance(data, dict) or data.get("id") != f.stem:
             ok = fail(f"casos/{f.name}: id must equal the file name ({f.stem!r})") and ok
             continue
-        rid = data.get("regra")
+        rid = _s(data.get("regra"))
         if rid not in rule_vig:
             ok = fail(f"casos/{f.name}: regra {rid!r} does not exist in rules/") and ok
             continue
         if "esperado" not in data:
             ok = fail(f"casos/{f.name}: esperado missing — a case states the expected result") and ok
         cfonte = data.get("fonte")
-        if cfonte is not None and (not isinstance(cfonte, dict) or cfonte.get("id") not in catalogo):
+        if cfonte is not None and (not isinstance(cfonte, dict) or _s(cfonte.get("id")) not in catalogo):
             got = cfonte.get("id") if isinstance(cfonte, dict) else cfonte
             ok = fail(f"casos/{f.name}: fonte.id {got!r} not in fontes/CATALOGO.md — catalog the source of the expected result") and ok
         fato, vig = data.get("data_fato"), rule_vig[rid] or {}
@@ -388,7 +425,13 @@ def main():
             f"{index_file.name}: perfil {perfil!r} for {root.name!r} — use `normativo` or `geral`"
         ) and ok
     elif perfil == "normativo":
-        nok, nsum = check_normativo(root, concepts, patterns, strict)
+        try:
+            nok, nsum = check_normativo(root, concepts, patterns, strict)
+        except Exception as e:  # noqa: BLE001 — a lint must answer FAIL + exit 2, never a traceback
+            nok, nsum = fail(
+                f"normative check stopped on unexpected content ({type(e).__name__}: {e}) — "
+                "check field types against RULE_TEMPLATE.md and report this message"
+            ), "aborted"
         ok = nok and ok
         summary = f"; {nsum}"
     else:
