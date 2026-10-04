@@ -280,6 +280,11 @@ class NormativeKB(unittest.TestCase):
         self.assertEqual(rc, 2, out)
         self.assertIn("--strict refuses an unreviewed normative KB", out)
 
+    def test_strict_refuses_pending_in_any_case(self):
+        self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO", "> **Revisado por:** Pendente de revisão")
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 2, out)
+
     def test_strict_passes_reviewed(self):
         self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO", "> **Revisado por:** Contador Fictício, CRC 0000")
         rc, out = self.run_validator("--strict")

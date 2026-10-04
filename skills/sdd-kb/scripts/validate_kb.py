@@ -188,7 +188,8 @@ def check_normativo(root, concepts, patterns, strict):
         ok = fail("index.md: section `## Conflitos entre fontes` missing — list each conflict, or state that none is registered up to the data-base") and ok
     if not re.search(r"não é aconselhamento", text, re.I):
         ok = fail("index.md: responsibility notice missing — the index must say the base \"não é aconselhamento tributário\" (see INDEX_NORMATIVO_TEMPLATE.md)") and ok
-    if re.search(r"Revisado por:\**\s*.*PENDENTE", text):
+    # Case-insensitive: "Pendente de revisão" em prosa também é pendência (review rodada 2, R2@kimi).
+    if re.search(r"Revisado por:\**\s*.*pendente", text, re.I):
         if strict:
             ok = fail("index.md: Revisado por = PENDENTE DE REVISÃO — --strict refuses an unreviewed normative KB; the professional reviews and signs first") and ok
         else:
