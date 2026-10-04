@@ -39,5 +39,8 @@ jobs:
             python3 -B -m unittest discover -s "$t" -p 'test_*.py'
           done
 
+      - name: KB validator gate
+        run: bash skills/sdd-kb/scripts/gate.sh
+
       - name: Skill zips build
         run: bash scripts/package.sh

@@ -5,6 +5,8 @@ Usage: python scripts/validate_kb.py <kb-domain-dir> [index-file]
 
 Checks the minimum viable KB (index + quick-reference + >=1 concept + >=1 pattern),
 the per-type line limits, leftover template placeholders, and registration in the index.
+Braces inside code (fenced blocks or `inline`) are examples — JSON, sets, template
+expressions — and only an unmistakable {{UPPER_CASE}} token counts there.
 
 Exit codes: 0 pass, 2 fail, 64 usage error.
 """
@@ -15,6 +17,11 @@ from pathlib import Path
 LIMITS = {"quick_reference": 100, "concept": 150, "pattern": 200}
 
 PLACEHOLDER = re.compile(r"\{\{[^}]*\}\}|\{[A-Z][A-Z0-9_]{2,}\}|\{[^{}\n]*\s[^{}\n]*\}")
+# Inside code (fenced block or `inline`), braces are examples: JSON, sets, template expressions.
+# There only an unmistakable template token counts — {{UPPER_CASE}}.
+CODE_PLACEHOLDER = re.compile(r"\{\{[A-Z][A-Z0-9_]*\}\}")
+FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+INLINE_CODE = re.compile(r"(`+)(?:(?!\1).)+?\1")
 
 
 def fail(msg):
@@ -27,12 +34,28 @@ def count_lines(path):
 
 
 def check_placeholders(path, ok):
+    fence = None
     for num, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        m = FENCE.match(line)
+        if fence is None and m:
+            fence = m.group(1)[0] * 3
+            continue
+        if fence is not None:
+            if line.strip().startswith(fence):
+                fence = None
+                continue
+            found = [x.group(0) for x in CODE_PLACEHOLDER.finditer(line)]
+        else:
+            codes = [x.group(0) for x in INLINE_CODE.finditer(line)]
+            prose = INLINE_CODE.sub(" ", line)
+            found = [x.group(0) for x in PLACEHOLDER.finditer(prose)]
+            found += [x.group(0) for c in codes for x in CODE_PLACEHOLDER.finditer(c)]
         # The templates carry intentional guidance after a horizontal rule; still, a
         # published KB must not ship any placeholder at all.
-        for match in PLACEHOLDER.finditer(line):
+        for token in found:
             ok = fail(
-                f"{path.name}:{num}: unsubstituted placeholder {match.group(0)!r}"
+                f"{path.name}:{num}: unsubstituted placeholder {token!r} "
+                "(if it is an example, not a gap, put it in `code`)"
             ) and ok
     return ok
 
