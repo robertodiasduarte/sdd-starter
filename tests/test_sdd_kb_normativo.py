@@ -344,6 +344,68 @@ class GeralNonUtf8(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class GeralNormativeMarkers(unittest.TestCase):
+    """Avaliador ciclo 1: markers are tokens — "LC nº 123", "EC nº 132", "a NT da SEFAZ" count;
+    a word or code that only contains them ("EC2", "ECONOMIA", "NTFS") does not."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="sddkb-marcadores-"))
+        self.kb = self.tmp / NAME
+        shutil.copytree(SKILL / "assets" / "example-kb", self.kb)
+        (self.tmp / "_index.yaml").write_text(registry(None), encoding="utf-8")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def run_with_line(self, line):
+        concept = self.kb / "concepts" / "regime-de-competencia.md"
+        concept.write_text(concept.read_text(encoding="utf-8") + "\n" + line + "\n", encoding="utf-8")
+        r = subprocess.run([sys.executable, str(VALIDATOR), str(self.kb), str(self.tmp / "_index.yaml")],
+                           capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+    def test_lc_ec_aliquota_without_digit_right_after_warns(self):
+        rc, out = self.run_with_line(
+            "Conforme a LC nº 123/2006 e a EC nº 132/2023, a alíquota efetiva muda por faixa.")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("WARN: parece normativo", out)
+        self.assertIn("PASS: KB lint passed", out)
+
+    def test_nt_art_lc_vigencia_warns(self):
+        rc, out = self.run_with_line("Ver a NT da SEFAZ, o art. 5º da LC e a vigência da regra.")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("WARN: parece normativo", out)
+        self.assertIn("PASS: KB lint passed", out)
+
+    def test_marker_inside_other_word_or_code_does_not_count(self):
+        # 3 would-be markers (EC, NT, LC) so a prefix-only regex (\bEC, \bNT, \bLC) crosses the threshold
+        rc, out = self.run_with_line("A instância EC2 mostra o relatório de ECONOMIA num monitor LCD, disco NTFS.")
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn("WARN", out)
+
+
+class RuleMapCheckArgOrder(unittest.TestCase):
+    """Avaliador ciclo 1: `rule-map --check <dir>` (flag first, like validate_kb --strict) exits 0."""
+
+    def run_rulemap(self, *args):
+        r = subprocess.run([sys.executable, str(RULEMAP), *args], capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+    def test_check_before_dir(self):
+        rc, out = self.run_rulemap("rule-map", "--check", str(EXAMPLE))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("PASS: RULE_MAP.md matches rules/", out)
+
+    def test_check_after_dir(self):
+        rc, out = self.run_rulemap("rule-map", str(EXAMPLE), "--check")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("PASS: RULE_MAP.md matches rules/", out)
+
+    def test_check_without_dir_is_usage_error(self):
+        rc, out = self.run_rulemap("rule-map", "--check")
+        self.assertEqual(rc, 64, out)
+
+
 class GeralUntouched(unittest.TestCase):
     def test_v1_example_still_passes_without_warning(self):
         r = subprocess.run([sys.executable, str(VALIDATOR), str(SKILL / "assets" / "example-kb")],

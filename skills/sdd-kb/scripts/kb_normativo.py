@@ -3,7 +3,8 @@
 
 Usage:
   python3 scripts/kb_normativo.py rule-map <kb-domain-dir>          # (re)write RULE_MAP.md
-  python3 scripts/kb_normativo.py rule-map <kb-domain-dir> --check  # exit 2 if it drifted
+  python3 scripts/kb_normativo.py rule-map [--check] <kb-domain-dir> # exit 2 if it drifted
+                                  (--check also accepted after the directory)
   python3 scripts/kb_normativo.py sha <file>                        # SHA-256 + today's date
 
 validate_kb.py imports this module, so the RULE_MAP it checks is the one this script writes.
@@ -209,15 +210,21 @@ def main(argv: list) -> int:
             return 64
         print(f"{sha256(p)}  capturado em {_dt.date.today().isoformat()}  {p.name}")
         return 0
-    if len(argv) in (2, 3) and argv[0] == "rule-map" and (len(argv) == 2 or argv[2] == "--check"):
-        root = Path(argv[1])
+    # `--check` may come before or after the directory (avaliador ciclo 1: validate_kb.py
+    # already takes `--strict <dir>`, so `rule-map --check <dir>` must not be a usage error).
+    rest = argv[1:]
+    check = rest.count("--check") == 1
+    dirs = [a for a in rest if a != "--check"]
+    if (argv[:1] == ["rule-map"] and rest.count("--check") <= 1 and len(dirs) == 1
+            and not dirs[0].startswith("-")):
+        root = Path(dirs[0])
         try:
             text = render_rule_map(root)
         except KBError as e:
             print(f"FAIL: {e}")
             return 2
         target = root / "RULE_MAP.md"
-        if len(argv) == 3:
+        if check:
             if not target.is_file() or target.read_text(encoding="utf-8") != text:
                 print("FAIL: RULE_MAP.md differs from rules/ — run `python3 scripts/kb_normativo.py rule-map <domain>`")
                 return 2

@@ -98,13 +98,16 @@ def read_perfil(registry, name):
     return None
 
 
+# Markers are TOKENS, not "token + digit": "LC nº 123", "EC nº 132" and "a NT da SEFAZ" count
+# (avaliador ciclo 1). LC/EC/NT are whole words — (?<!\w)/(?!\w) instead of \b, so a code or
+# word that merely contains them ("EC2", "ECONOMIA", "NTFS") never counts.
 NORMATIVE_MARKERS = {
-    "LC": re.compile(r"\bLC\s?\d"),
-    "art.": re.compile(r"\bart\.\s?\d", re.I),
-    "NT": re.compile(r"\bNT\s?\d"),
+    "LC": re.compile(r"(?<!\w)LC(?!\w)"),
+    "art.": re.compile(r"(?<!\w)art\.", re.I),
+    "NT": re.compile(r"(?<!\w)NT(?!\w)"),
     "vigência": re.compile(r"vig[êe]ncia", re.I),
     "alíquota": re.compile(r"al[íi]quota", re.I),
-    "EC": re.compile(r"\bEC\s?\d"),
+    "EC": re.compile(r"(?<!\w)EC(?!\w)"),
 }
 
 
