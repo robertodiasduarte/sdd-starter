@@ -102,6 +102,10 @@ def parse_frontmatter(path: Path) -> dict:
         else:
             parent = None
             data[key] = _scalar(rest)
+    # `key:` with nothing indented below is an empty value, not an empty block: null, never {}.
+    for k, v in list(data.items()):
+        if v == {}:
+            data[k] = None
     return data
 
 

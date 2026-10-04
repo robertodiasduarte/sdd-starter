@@ -136,6 +136,44 @@ class NormativeKB(unittest.TestCase):
         (self.kb / "tabelas" / "2026-01-01").rename(self.kb / "tabelas" / "2026-13-01")
         self.assert_fails(r"tabelas/2026-13-01/: folder name must be the start date")
 
+    def test_mut_k_conflict_id_is_prefix_of_cited_id(self):
+        # review R1: "ALIQ-REF" dentro de "ALIQ-REF-2026" não conta como citado
+        src = (self.kb / "rules" / "UB12-10-CRT3.md").read_text(encoding="utf-8")
+        (self.kb / "rules" / "ALIQ-REF.md").write_text(
+            src.replace("regra: UB12-10-CRT3", "regra: ALIQ-REF").replace("conflito_com: []", "conflito_com: [REPORT-2026]"),
+            encoding="utf-8")
+        self.regen_rule_map()
+        self.assert_fails(r"rule ALIQ-REF has conflito_com but is not explained")
+
+    def test_mut_a_ate_not_a_scalar_fails_cleanly(self):
+        # review R2: lista em vigencia.ate reprova com motivo (exit 2), nunca traceback
+        self.edit("rules/UB12-10-CRT3.md", "  ate: null", "  ate: [2026-12-31]")
+        self.regen_rule_map()
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 2, out)
+        self.assertNotIn("Traceback", out)
+        self.assertIn("vigencia.ate ['2026-12-31'] is not a date", out)
+
+    def test_mut_e_table_ate_not_a_scalar_fails_cleanly(self):
+        self.edit("tabelas/2026-01-01/aliquotas-referencia.json", '"ate": "2026-12-31"', '"ate": ["2026-12-31"]')
+        nova = self.kb / "tabelas" / "2027-01-01"
+        nova.mkdir()
+        (nova / "aliquotas-referencia.json").write_text(
+            '{"vigencia": {"de": "2027-01-01", "ate": null}, "fonte": {"id": "NT2025002-151", "localizador": "x"}, "dados": {}}',
+            encoding="utf-8")
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 2, out)
+        self.assertNotIn("Traceback", out)
+
+    def test_mut_m_empty_value_is_null_not_block(self):
+        # review R4: `implementacao:` sem valor vira null — RULE_MAP mostra —, nunca {}
+        self.edit("rules/UB12-10-CRT3.md", "implementacao: null", "implementacao:")
+        self.regen_rule_map()
+        rm = (self.kb / "RULE_MAP.md").read_text(encoding="utf-8")
+        self.assertNotIn("{}", rm)
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 0, out)
+
     def test_mut_d_index_without_data_base(self):
         self.edit("index.md", "> **Data-base:** 2026-09-27\n", "")
         self.assert_fails(r"index\.md: Data-base missing")
@@ -229,6 +267,24 @@ class NormativeKB(unittest.TestCase):
         rc, out = self.run_validator()
         self.assertEqual(rc, 2, out)
         self.assertIn("quick-reference.md has 101 lines", out)
+
+
+class GeralNonUtf8(unittest.TestCase):
+    def test_latin1_reference_file_does_not_crash_geral(self):
+        # review R3: arquivo Latin-1 em reference/ (que a 1.0.1 não abria) não vira traceback
+        tmp = Path(tempfile.mkdtemp(prefix="sddkb-geral-"))
+        try:
+            kb = tmp / NAME
+            shutil.copytree(SKILL / "assets" / "example-kb", kb)
+            (kb / "reference").mkdir()
+            (kb / "reference" / "tabela-antiga.md").write_bytes("al\xedquota antiga\n".encode("latin-1"))
+            (tmp / "_index.yaml").write_text(registry(None), encoding="utf-8")
+            r = subprocess.run([sys.executable, str(VALIDATOR), str(kb), str(tmp / "_index.yaml")],
+                               capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 class GeralUntouched(unittest.TestCase):

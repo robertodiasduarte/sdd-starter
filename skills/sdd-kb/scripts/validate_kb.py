@@ -107,7 +107,9 @@ NORMATIVE_MARKERS = {
 
 
 def warn_looks_normative(root):
-    text = "\n".join(p.read_text(encoding="utf-8") for p in sorted(root.rglob("*.md")))
+    # errors="replace": this scan opens files the 1.0.1 never read (reference/, specs/…); a
+    # Latin-1 file there must not turn a passing geral domain into a traceback (AT-003).
+    text = "\n".join(p.read_text(encoding="utf-8", errors="replace") for p in sorted(root.rglob("*.md")))
     found = sorted(k for k, rx in NORMATIVE_MARKERS.items() if rx.search(text))
     if len(found) >= 3:
         warn(
@@ -203,6 +205,7 @@ def check_normativo(root, concepts, patterns, strict):
             ok = fail(f"{name}: vigencia.de missing or not AAAA-MM-DD — every rule says from when it holds") and ok
         elif vig.get("ate") is not None and (not _date(vig.get("ate")) or vig["ate"] < vig["de"]):
             ok = fail(f"{name}: vigencia.ate {vig.get('ate')!r} is not a date on/after vigencia.de {vig['de']} — use null while in force") and ok
+            vig["ate"] = None  # already reported; never compared again (a list here would raise)
         fonte = fm.get("fonte")
         if not isinstance(fonte, dict) or fonte.get("id") not in catalogo:
             got = fonte.get("id") if isinstance(fonte, dict) else None
@@ -228,7 +231,7 @@ def check_normativo(root, concepts, patterns, strict):
             com_conflito.append(fm["regra"])
     sec = re.search(r"^##\s+Conflitos entre fontes\s*$(.*?)(?=^##\s|\Z)", text, re.M | re.S)
     for rid in com_conflito:
-        if sec and rid not in sec.group(1):
+        if sec and not re.search(rf"(?<![\w-]){re.escape(rid)}(?![\w-])", sec.group(1)):
             ok = fail(f"index.md: rule {rid} has conflito_com but is not explained under `## Conflitos entre fontes`") and ok
 
     n_tab = 0
@@ -251,6 +254,7 @@ def check_normativo(root, concepts, patterns, strict):
                 continue
             if vig.get("ate") is not None and (not _date(vig.get("ate")) or vig["ate"] < vig["de"]):
                 ok = fail(f"tabelas/{d.name}/{f.name}: vigencia.ate {vig.get('ate')!r} is not a date on/after {vig['de']}") and ok
+                continue
             fonte = data.get("fonte") if isinstance(data, dict) else None
             if not isinstance(fonte, dict) or fonte.get("id") not in catalogo:
                 ok = fail(f"tabelas/{d.name}/{f.name}: fonte.id not in fontes/CATALOGO.md") and ok
@@ -282,7 +286,7 @@ def check_normativo(root, concepts, patterns, strict):
         fato, vig = data.get("data_fato"), rule_vig[rid] or {}
         if not _date(fato):
             ok = fail(f"casos/{f.name}: data_fato {fato!r} — use AAAA-MM-DD (the date of the taxable event / document)") and ok
-        elif _date(vig.get("de")) and (fato < vig["de"] or (vig.get("ate") and fato > vig["ate"])):
+        elif _date(vig.get("de")) and (fato < vig["de"] or (_date(vig.get("ate")) and fato > vig["ate"])):
             ok = fail(f"casos/{f.name}: data_fato {fato} is outside the vigência of {rid} ({vig['de']} → {vig.get('ate') or 'em vigor'})") and ok
 
     try:
