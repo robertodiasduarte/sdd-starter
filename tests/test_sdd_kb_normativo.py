@@ -294,6 +294,23 @@ class NormativeKB(unittest.TestCase):
         self.assertIn("Revisado por:**` missing", out)
         self.assertIn("--strict refuses an unreviewed normative KB", out)
 
+    def test_strict_refuses_empty_reviewer_followed_by_heading(self):
+        # review rodada 4 A1: "Revisado por:" vazio não pega a linha seguinte como assinatura
+        self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO (exemplo didático da skill — conferir na NT antes de qualquer uso)",
+                  "> **Revisado por:**\n\n## Notas")
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 2, out)
+        self.assertIn("Revisado por:**` missing", out)
+
+    def test_pending_inside_fenced_block_is_not_pending(self):
+        # review rodada 4 R2: exemplo do molde dentro de bloco cercado não é o estado da base
+        self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO (exemplo didático da skill — conferir na NT antes de qualquer uso)",
+                  "> **Revisado por:** Contadora Fictícia, CRC 0000")
+        self.edit("index.md", "## O que este domínio NÃO cobre",
+                  "## Como marcar pendência\n\n```text\n> **Revisado por:** PENDENTE DE REVISÃO\n```\n\n## O que este domínio NÃO cobre")
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 0, out)
+
     def test_strict_accepts_independent_reviewer(self):
         self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO (exemplo didático da skill — conferir na NT antes de qualquer uso)",
                   "> **Revisado por:** Maria Fictícia — revisora independente, CRC 0000")

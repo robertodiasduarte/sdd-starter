@@ -195,8 +195,11 @@ def check_normativo(root, concepts, patterns, strict):
     # código: "> **Situação:** PENDENTE DE REVISÃO" também é base não revisada (review r3, A1 HIGH).
     # Na linha do revisor, o valor que COMEÇA com "pendente" é pendência; "…itens pendentes" depois
     # de uma assinatura, ou "revisora independente", não (review r2 e r3).
-    prosa = re.sub(r"`[^`\n]*`", "", text)
-    revisor = re.search(r"Revisado por:\**\s*(.*)$", prosa, re.M)
+    prosa = re.sub(r"^\s*(```|~~~).*?^\s*\1[^\n]*$", "", text, flags=re.M | re.S)  # blocos cercados
+    prosa = re.sub(r"`[^`\n]*`", "", prosa)
+    # [ \t]* e não \s*: o valor do revisor é o resto DESTA linha — um "Revisado por:" vazio não pode
+    # pegar o título da linha seguinte como assinatura (review rodada 4, A1).
+    revisor = re.search(r"Revisado por:\**[ \t]*(.*)$", prosa, re.M)
     if not revisor or not revisor.group(1).strip():
         ok = fail("index.md: `> **Revisado por:**` missing — name and registration of the reviewer, or PENDENTE DE REVISÃO") and ok
     pendente = (revisor and re.match(r"pendente", revisor.group(1).strip(), re.I)) or \
