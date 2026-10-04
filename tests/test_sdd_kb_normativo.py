@@ -285,6 +285,30 @@ class NormativeKB(unittest.TestCase):
         rc, out = self.run_validator("--strict")
         self.assertEqual(rc, 2, out)
 
+    def test_strict_refuses_pending_outside_reviewer_line(self):
+        # review r3 A1 (HIGH): pendência em outra linha, sem "Revisado por:", não pode passar no --strict
+        self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO (exemplo didático da skill — conferir na NT antes de qualquer uso)",
+                  "> **Situação:** PENDENTE DE REVISÃO")
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 2, out)
+        self.assertIn("Revisado por:**` missing", out)
+        self.assertIn("--strict refuses an unreviewed normative KB", out)
+
+    def test_strict_accepts_independent_reviewer(self):
+        self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO (exemplo didático da skill — conferir na NT antes de qualquer uso)",
+                  "> **Revisado por:** Maria Fictícia — revisora independente, CRC 0000")
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 0, out)
+
+    def test_mut_m_duplicate_key(self):
+        # review r3 R1@kimi: chave repetida reprova nomeando a linha, nunca "a última vence"
+        self.edit("rules/UB12-10-CRT3.md", "status: confirmado", "status: confirmado\nstatus: premissa")
+        self.assert_fails(r"UB12-10-CRT3\.md:\d+: key 'status' repeated")
+
+    def test_mut_m_duplicate_block(self):
+        self.edit("rules/UB12-10-CRT3.md", "status: confirmado", "status: confirmado\nvigencia:\n  de: 2027-01-01")
+        self.assert_fails(r"UB12-10-CRT3\.md:\d+: key 'vigencia' repeated")
+
     def test_strict_accepts_signed_base_mentioning_pending_items(self):
         # review r3 R2: "pendentes" depois da assinatura não é base pendente
         self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO (exemplo didático da skill — conferir na NT antes de qualquer uso)",

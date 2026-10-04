@@ -94,6 +94,10 @@ def parse_frontmatter(path: Path) -> dict:
                 "use `key: value`, or two-space indented `key: value` under a parent key"
             )
         indent, key, rest = m.groups()
+        alvo = data[parent] if indent and parent is not None else data
+        if key in alvo:
+            # Repetida, a última venceria em silêncio e o RULE_MAP mostraria o que o autor não vê no topo.
+            raise KBError(f"{path.name}:{num + 1}: key {key!r} repeated — keep one, remove the other")
         if indent:
             if parent is None:
                 raise KBError(f"{path.name}:{num + 1}: indented key {key!r} without a parent key")

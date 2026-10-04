@@ -191,11 +191,19 @@ def check_normativo(root, concepts, patterns, strict):
         ok = fail("index.md: section `## Conflitos entre fontes` missing — list each conflict, or state that none is registered up to the data-base") and ok
     if not re.search(r"não é aconselhamento", text, re.I):
         ok = fail("index.md: responsibility notice missing — the index must say the base \"não é aconselhamento tributário\" (see INDEX_NORMATIVO_TEMPLATE.md)") and ok
-    # O VALOR começa com "pendente" (qualquer caixa): "PENDENTE DE REVISÃO", "Pendente de revisão".
-    # Uma base assinada que menciona "itens pendentes" depois do nome não é pendente (review r2 e r3).
-    if re.search(r"Revisado por:\**\s*pendente", text, re.I):
+    # Quem revisou é obrigatório no normativo, e a pendência vale em QUALQUER linha do index fora de
+    # código: "> **Situação:** PENDENTE DE REVISÃO" também é base não revisada (review r3, A1 HIGH).
+    # Na linha do revisor, o valor que COMEÇA com "pendente" é pendência; "…itens pendentes" depois
+    # de uma assinatura, ou "revisora independente", não (review r2 e r3).
+    prosa = re.sub(r"`[^`\n]*`", "", text)
+    revisor = re.search(r"Revisado por:\**\s*(.*)$", prosa, re.M)
+    if not revisor or not revisor.group(1).strip():
+        ok = fail("index.md: `> **Revisado por:**` missing — name and registration of the reviewer, or PENDENTE DE REVISÃO") and ok
+    pendente = (revisor and re.match(r"pendente", revisor.group(1).strip(), re.I)) or \
+        re.search(r"pendente\s+de\s+revis[ãa]o", prosa, re.I)
+    if pendente:
         if strict:
-            ok = fail("index.md: Revisado por = PENDENTE DE REVISÃO — --strict refuses an unreviewed normative KB; the professional reviews and signs first") and ok
+            ok = fail("index.md: base marked PENDENTE DE REVISÃO — --strict refuses an unreviewed normative KB; the professional reviews and signs first") and ok
         else:
             warn("index.md: PENDENTE DE REVISÃO — do not let software consume this KB before review (validate with --strict)")
 
