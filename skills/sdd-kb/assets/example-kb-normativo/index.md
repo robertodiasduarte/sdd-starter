@@ -25,7 +25,7 @@ Para "o que vale numa data", vá direto ao [RULE_MAP.md](RULE_MAP.md): cada linh
 ## Regras, fontes, tabelas e casos
 
 - [RULE_MAP.md](RULE_MAP.md) — 3 regras com vigência, fonte, status e código de rejeição (gerado; não editar à mão)
-- [fontes/CATALOGO.md](fontes/CATALOGO.md) — NT 2025.002 v1.51, LC 214/2025 e reportagens, com degrau, captura e SHA-256
+- [fontes/CATALOGO.md](fontes/CATALOGO.md) — NT 2025.002 v1.51, LC 214/2025, reportagens e o registro da captura (arquivo local com SHA-256 conferido pelo validador)
 - [tabelas/2026-01-01/aliquotas-referencia.json](tabelas/2026-01-01/aliquotas-referencia.json) — alíquotas do ano-teste
 - [casos/ub12-crt3-2026-09.json](casos/ub12-crt3-2026-09.json) — NF-e de CRT 3 sem `IBSCBS` em setembro/2026
 
