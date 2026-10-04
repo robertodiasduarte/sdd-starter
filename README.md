@@ -28,7 +28,7 @@ E quatro skills **complementares**, que não entram na sequência — elas alime
 
 | Skill | Para quê | Entrada | Saída |
 |---|---|---|---|
-| [`sdd-kb`](skills/sdd-kb/) | Ensinar seu contexto à IA | O que você sabe sobre um domínio | Base de conhecimento consultável |
+| [`sdd-kb`](skills/sdd-kb/) | Ensinar seu contexto à IA | O que você sabe sobre um domínio | Base de conhecimento consultável — para legislação e normas, com vigência por regra, hierarquia das fontes e registro de conflitos |
 | [`sdd-prompt-builder`](skills/sdd-prompt-builder/) | Escrever o prompt de produção do seu app | O que o prompt precisa fazer + o contrato de saída | O prompt pronto, com fórmulas e regra para dado ausente |
 | [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Faxina e deriva do seu harness, em qualquer motor | A raiz do repositório | `AUDITORIA_SDD_<data>.md` (read-only: não altera nada) |
 | [`ux-review-builder`](skills/ux-review-builder/) | Criar o padrão de experiência do seu projeto e a sua `ux-review` — a revisão que roda entre o Define e o Design | Uma entrevista sobre público, referências e o que é inaceitável | `UX_STANDARD.md` + skill `ux-review` + `UX_REVIEW_TEMPLATE.md` |
@@ -115,7 +115,7 @@ Plus four **complementary** skills that are not part of the sequence — they fe
 
 | Skill | Purpose | Input | Output |
 |---|---|---|---|
-| [`sdd-kb`](skills/sdd-kb/) | Teach the AI your context | What you know about a domain | A consultable knowledge base |
+| [`sdd-kb`](skills/sdd-kb/) | Teach the AI your context | What you know about a domain | A consultable knowledge base — for laws and regulations, with per-rule validity dates, a source hierarchy and recorded conflicts |
 | [`sdd-prompt-builder`](skills/sdd-prompt-builder/) | Write your app's production prompt | What the prompt must do + the output contract | The ready prompt, with formulas and a rule for missing data |
 | [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Cleanup and drift of your harness, on any engine | The repository root | `AUDITORIA_SDD_<date>.md` (read-only: changes nothing) |
 | [`ux-review-builder`](skills/ux-review-builder/) | Build your project's UX standard and your own `ux-review` — the review that runs between Define and Design | An interview on audience, references and what is unacceptable | `UX_STANDARD.md` + `ux-review` skill + `UX_REVIEW_TEMPLATE.md` |

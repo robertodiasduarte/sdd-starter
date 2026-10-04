@@ -16,4 +16,8 @@ domains:
     name: {Nome legível do domínio}
     description: {uma frase sobre o recorte deste conhecimento}
     path: {slug-do-dominio}/
+    # perfil: geral (padrão) ou normativo — normativo quando o domínio tem regra que vale por
+    # período (lei, alíquota, prazo, leiaute). Normativo exige data-base, vigência por regra,
+    # catálogo de fontes e conflitos registrados; o validador cobra tudo isso.
+    perfil: {geral | normativo}
     updated: {AAAA-MM-DD}

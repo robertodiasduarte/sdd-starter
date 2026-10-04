@@ -1,18 +1,30 @@
 #!/usr/bin/env python3
 """Structural and size lint for a knowledge-base domain folder.
 
-Usage: python scripts/validate_kb.py <kb-domain-dir> [index-file]
+Usage: python scripts/validate_kb.py <kb-domain-dir> [index-file] [--strict]
 
 Checks the minimum viable KB (index + quick-reference + >=1 concept + >=1 pattern),
 the per-type line limits, leftover template placeholders, and registration in the index.
 Braces inside code (fenced blocks or `inline`) are examples — JSON, sets, template
 expressions — and only an unmistakable {{UPPER_CASE}} token counts there.
 
-Exit codes: 0 pass, 2 fail, 64 usage error.
+Profile: `perfil: normativo | geral` in the domain's block of the index (absent = geral).
+A `normativo` domain also needs a data-base, a "Conflitos entre fontes" section, the
+"não é aconselhamento" notice, fontes/CATALOGO.md, at least one rules/*.md with vigência and
+a catalogued source, a RULE_MAP.md generated from rules/, and — when present — tables by
+vigência and test cases inside a rule's vigência. --strict also fails a normative KB still
+marked PENDENTE DE REVISÃO (run it before software consumes the KB).
+
+Exit codes: 0 pass, 2 fail, 64 usage error. WARN lines never change the exit code.
 """
+import datetime as _dt
+import json
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import kb_normativo as kn  # noqa: E402  (same folder; stdlib only)
 
 LIMITS = {"quick_reference": 100, "concept": 150, "pattern": 200}
 
@@ -27,6 +39,10 @@ INLINE_CODE = re.compile(r"(`+)(?:(?!\1).)+?\1")
 def fail(msg):
     print(f"FAIL: {msg}")
     return False
+
+
+def warn(msg):
+    print(f"WARN: {msg}")
 
 
 def count_lines(path):
@@ -60,12 +76,236 @@ def check_placeholders(path, ok):
     return ok
 
 
+def read_perfil(registry, name):
+    """Value of `perfil:` inside the domain's block of the index, or None."""
+    lines = registry.splitlines()
+    for i, line in enumerate(lines):
+        m = re.match(rf"^(\s+){re.escape(name)}\s*:\s*$", line)
+        if not m:
+            continue
+        base = len(m.group(1))
+        for nxt in lines[i + 1:]:
+            if not nxt.strip() or nxt.lstrip().startswith("#"):
+                continue
+            if len(nxt) - len(nxt.lstrip()) <= base:
+                break
+            pm = re.match(r"^\s+perfil\s*:\s*(\S+)\s*$", nxt)
+            if pm:
+                return pm.group(1).strip("\"'")
+        return None
+    return None
+
+
+NORMATIVE_MARKERS = {
+    "LC": re.compile(r"\bLC\s?\d"),
+    "art.": re.compile(r"\bart\.\s?\d", re.I),
+    "NT": re.compile(r"\bNT\s?\d"),
+    "vigência": re.compile(r"vig[êe]ncia", re.I),
+    "alíquota": re.compile(r"al[íi]quota", re.I),
+    "EC": re.compile(r"\bEC\s?\d"),
+}
+
+
+def warn_looks_normative(root):
+    text = "\n".join(p.read_text(encoding="utf-8") for p in sorted(root.rglob("*.md")))
+    found = sorted(k for k, rx in NORMATIVE_MARKERS.items() if rx.search(text))
+    if len(found) >= 3:
+        warn(
+            f"parece normativo ({', '.join(found)}) — if its rules hold only for a period, "
+            "register the domain with `perfil: normativo` in the index"
+        )
+
+
+def _date(v):
+    return kn.valid_date(v)
+
+
+def _load_json(path):
+    try:
+        return json.loads(path.read_text(encoding="utf-8")), None
+    except (ValueError, OSError) as e:
+        return None, f"{path.name}: invalid JSON ({e}) — fix the file"
+
+
+def check_normativo(root, concepts, patterns, strict):
+    """Returns (ok, summary). Every FAIL names the file, the field and what to do."""
+    ok = True
+    index = root / "index.md"
+    text = index.read_text(encoding="utf-8") if index.is_file() else ""
+
+    m = re.search(r"\*\*Data-base:\*\*\s*(\d{4}-\d{2}-\d{2})", text)
+    if m and not kn.valid_date(m.group(1)):
+        ok = fail(f"index.md: Data-base {m.group(1)!r} is not a real calendar date") and ok
+        m = None
+    elif not m:
+        ok = fail("index.md: Data-base missing — add `> **Data-base:** AAAA-MM-DD` (the date the content was checked against the sources)") and ok
+    else:
+        try:
+            age = (_dt.date.today() - _dt.date.fromisoformat(m.group(1))).days
+            if age > 365:
+                warn(f"index.md: Data-base {m.group(1)} is {age} days old — recheck the sources and update it")
+        except ValueError:
+            ok = fail(f"index.md: Data-base {m.group(1)!r} is not a valid date") and ok
+    if not re.search(r"^##\s+Conflitos entre fontes\s*$", text, re.M):
+        ok = fail("index.md: section `## Conflitos entre fontes` missing — list each conflict, or state that none is registered up to the data-base") and ok
+    if not re.search(r"não é aconselhamento", text, re.I):
+        ok = fail("index.md: responsibility notice missing — the index must say the base \"não é aconselhamento tributário\" (see INDEX_NORMATIVO_TEMPLATE.md)") and ok
+    if re.search(r"Revisado por:\**\s*.*PENDENTE", text):
+        if strict:
+            ok = fail("index.md: Revisado por = PENDENTE DE REVISÃO — --strict refuses an unreviewed normative KB; the professional reviews and signs first") and ok
+        else:
+            warn("index.md: PENDENTE DE REVISÃO — do not let software consume this KB before review (validate with --strict)")
+
+    for path in concepts + patterns:
+        head = "\n".join(path.read_text(encoding="utf-8").splitlines()[:15])
+        if not re.search(r"\*\*Vale para:\*\*", head):
+            ok = fail(f"{path.parent.name}/{path.name}: `> **Vale para:**` missing in the header — state the period (or `atemporal`) this text holds for") and ok
+
+    try:
+        catalogo = kn.read_catalogo(root)
+    except kn.KBError as e:
+        return fail(str(e)) and False, "no catalog"
+    for sid, rec in catalogo.items():
+        if rec["degrau"] not in kn.DEGRAUS:
+            ok = fail(f"fontes/CATALOGO.md: {sid}: degrau {rec['degrau']!r} unknown — use one of {', '.join(kn.DEGRAUS)}") and ok
+        if not _date(rec["capturado em"]):
+            ok = fail(f"fontes/CATALOGO.md: {sid}: capturado em {rec['capturado em']!r} — use AAAA-MM-DD (the date you got the file, not the file's own date)") and ok
+        arq, sha = rec["arquivo"].strip("`"), rec["sha-256"].strip("`")
+        if sha != "—" and not kn.SHA.match(sha):
+            ok = fail(f"fontes/CATALOGO.md: {sid}: sha-256 {sha!r} is not 64 hex chars — run `kb_normativo.py sha <file>`") and ok
+        if arq != "—":
+            f = root / "fontes" / arq
+            if not f.is_file():
+                ok = fail(f"fontes/CATALOGO.md: {sid}: file listed in CATALOGO not found: fontes/{arq} — add it or write `—` in Arquivo") and ok
+            elif not kn.SHA.match(sha):
+                ok = fail(f"fontes/CATALOGO.md: {sid}: fontes/{arq} has no sha-256 — run `kb_normativo.py sha fontes/{arq}`") and ok
+            elif kn.sha256(f) != sha:
+                ok = fail(f"fontes/CATALOGO.md: {sid}: SHA-256 of fontes/{arq} differs from the catalog — the file changed; recatalog it as a new version") and ok
+
+    try:
+        rules = kn.read_rules(root)
+    except kn.KBError as e:
+        return fail(f"rules/{e}") and False, "rules unreadable"
+    if not rules:
+        ok = fail("rules/: no rule found — a normative KB needs at least one rules/*.md (RULE_TEMPLATE.md)") and ok
+    ids = {}
+    for path, fm in rules:
+        name = f"rules/{path.name}"
+        rid = fm.get("regra")
+        if not rid or not isinstance(rid, str):
+            ok = fail(f"{name}: regra missing — give the rule a stable id (never reuse or renumber)") and ok
+            continue
+        if rid in ids:
+            ok = fail(f"{name}: regra {rid!r} repeated (also in {ids[rid]})") and ok
+        ids[rid] = name
+        vig = fm.get("vigencia")
+        if not isinstance(vig, dict) or not _date(vig.get("de")):
+            ok = fail(f"{name}: vigencia.de missing or not AAAA-MM-DD — every rule says from when it holds") and ok
+        elif vig.get("ate") is not None and (not _date(vig.get("ate")) or vig["ate"] < vig["de"]):
+            ok = fail(f"{name}: vigencia.ate {vig.get('ate')!r} is not a date on/after vigencia.de {vig['de']} — use null while in force") and ok
+        fonte = fm.get("fonte")
+        if not isinstance(fonte, dict) or fonte.get("id") not in catalogo:
+            got = fonte.get("id") if isinstance(fonte, dict) else None
+            ok = fail(f"{name}: fonte.id {got!r} not in fontes/CATALOGO.md — catalog the source first") and ok
+        else:
+            if not fonte.get("localizador"):
+                ok = fail(f"{name}: fonte.localizador missing — page, article or section where the rule is written") and ok
+            if fm.get("status") == "confirmado" and catalogo[fonte["id"]]["degrau"] in kn.NAO_CONFIRMAM:
+                ok = fail(f"{name}: status confirmado rests on a {catalogo[fonte['id']]['degrau']} source ({fonte['id']}) — confirm it in a normative source or mark it nao-confirmado") and ok
+        if fm.get("status") not in kn.STATUS:
+            ok = fail(f"{name}: status {fm.get('status')!r} — use one of {', '.join(sorted(kn.STATUS))}") and ok
+    known = set(ids) | set(catalogo)
+    com_conflito = []
+    for path, fm in rules:
+        cc = fm.get("conflito_com") or []
+        if not isinstance(cc, list):
+            ok = fail(f"rules/{path.name}: conflito_com must be a list `[id, ...]`") and ok
+            continue
+        for c in cc:
+            if c not in known:
+                ok = fail(f"rules/{path.name}: conflito_com {c!r} is neither a rule nor a catalogued source") and ok
+        if cc and fm.get("regra"):
+            com_conflito.append(fm["regra"])
+    sec = re.search(r"^##\s+Conflitos entre fontes\s*$(.*?)(?=^##\s|\Z)", text, re.M | re.S)
+    for rid in com_conflito:
+        if sec and rid not in sec.group(1):
+            ok = fail(f"index.md: rule {rid} has conflito_com but is not explained under `## Conflitos entre fontes`") and ok
+
+    n_tab = 0
+    series = {}
+    tdir = root / "tabelas"
+    for d in sorted(p for p in tdir.iterdir() if p.is_dir()) if tdir.is_dir() else []:
+        if not kn.valid_date(d.name):
+            ok = fail(f"tabelas/{d.name}/: folder name must be the start date AAAA-MM-DD (a real calendar date)") and ok
+            continue
+        for f in sorted(d.glob("*.json")):
+            n_tab += 1
+            data, err = _load_json(f)
+            if err:
+                ok = fail(f"tabelas/{d.name}/{err}") and ok
+                continue
+            vig = data.get("vigencia") if isinstance(data, dict) else None
+            if not isinstance(vig, dict) or vig.get("de") != d.name:
+                got = vig.get("de") if isinstance(vig, dict) else None
+                ok = fail(f"tabelas/{d.name}/{f.name}: vigencia.de {got!r} differs from the folder {d.name} — the folder is the start date") and ok
+                continue
+            if vig.get("ate") is not None and (not _date(vig.get("ate")) or vig["ate"] < vig["de"]):
+                ok = fail(f"tabelas/{d.name}/{f.name}: vigencia.ate {vig.get('ate')!r} is not a date on/after {vig['de']}") and ok
+            fonte = data.get("fonte") if isinstance(data, dict) else None
+            if not isinstance(fonte, dict) or fonte.get("id") not in catalogo:
+                ok = fail(f"tabelas/{d.name}/{f.name}: fonte.id not in fontes/CATALOGO.md") and ok
+            series.setdefault(f.name, []).append((vig["de"], vig.get("ate"), d.name))
+    for fname, periods in series.items():
+        periods.sort()
+        for (de1, ate1, d1), (de2, _a2, d2) in zip(periods, periods[1:]):
+            if ate1 is None or ate1 >= de2:
+                ok = fail(f"tabelas/{d1}/{fname}: overlaps tabelas/{d2}/{fname} — close it with vigencia.ate before {de2}") and ok
+
+    n_casos = 0
+    cdir = root / "casos"
+    rule_vig = {fm.get("regra"): fm.get("vigencia") for _p, fm in rules}
+    for f in sorted(cdir.glob("*.json")) if cdir.is_dir() else []:
+        n_casos += 1
+        data, err = _load_json(f)
+        if err:
+            ok = fail(f"casos/{err}") and ok
+            continue
+        if not isinstance(data, dict) or data.get("id") != f.stem:
+            ok = fail(f"casos/{f.name}: id must equal the file name ({f.stem!r})") and ok
+            continue
+        rid = data.get("regra")
+        if rid not in rule_vig:
+            ok = fail(f"casos/{f.name}: regra {rid!r} does not exist in rules/") and ok
+            continue
+        if "esperado" not in data:
+            ok = fail(f"casos/{f.name}: esperado missing — a case states the expected result") and ok
+        fato, vig = data.get("data_fato"), rule_vig[rid] or {}
+        if not _date(fato):
+            ok = fail(f"casos/{f.name}: data_fato {fato!r} — use AAAA-MM-DD (the date of the taxable event / document)") and ok
+        elif _date(vig.get("de")) and (fato < vig["de"] or (vig.get("ate") and fato > vig["ate"])):
+            ok = fail(f"casos/{f.name}: data_fato {fato} is outside the vigência of {rid} ({vig['de']} → {vig.get('ate') or 'em vigor'})") and ok
+
+    try:
+        expected = kn.render_rule_map(root)
+        rm = root / "RULE_MAP.md"
+        if not rm.is_file() or rm.read_text(encoding="utf-8") != expected:
+            ok = fail("RULE_MAP.md: missing or differs from rules/ — run `python3 scripts/kb_normativo.py rule-map <domain>` (never edit it by hand)") and ok
+    except kn.KBError as e:
+        ok = fail(str(e)) and ok
+
+    summary = f"normativo: {len(rules)} rule(s), {len(catalogo)} source(s), {n_tab} table(s), {n_casos} case(s)"
+    return ok, summary
+
+
 def main():
-    if len(sys.argv) not in (2, 3):
-        print("Usage: python scripts/validate_kb.py <kb-domain-dir> [index-file]")
+    argv = sys.argv[1:]
+    strict = "--strict" in argv
+    args = [a for a in argv if a != "--strict"]
+    if len(args) not in (1, 2) or any(a.startswith("--") for a in args):
+        print("Usage: python scripts/validate_kb.py <kb-domain-dir> [index-file] [--strict]")
         return 64
 
-    root = Path(sys.argv[1])
+    root = Path(args[0])
     if not root.is_dir():
         print(f"FAIL: not a directory: {root}")
         return 64
@@ -116,7 +356,8 @@ def main():
         ok = check_placeholders(path, ok)
 
     # Registration: a KB that exists on disk but not in the index is invisible.
-    index_file = Path(sys.argv[2]) if len(sys.argv) == 3 else root.parent / "_index.yaml"
+    index_file = Path(args[1]) if len(args) == 2 else root.parent / "_index.yaml"
+    perfil = None
     if not index_file.is_file():
         ok = fail(
             f"index file not found: {index_file} — register the domain "
@@ -129,10 +370,23 @@ def main():
                 f"domain {root.name!r} is not registered in {index_file.name} "
                 "— an unregistered KB is invisible to whoever consults the index"
             ) and ok
+        perfil = read_perfil(registry, root.name)
+
+    summary = ""
+    if perfil not in (None, "geral", "normativo"):
+        ok = fail(
+            f"{index_file.name}: perfil {perfil!r} for {root.name!r} — use `normativo` or `geral`"
+        ) and ok
+    elif perfil == "normativo":
+        nok, nsum = check_normativo(root, concepts, patterns, strict)
+        ok = nok and ok
+        summary = f"; {nsum}"
+    else:
+        warn_looks_normative(root)
 
     if ok:
         print(
-            f"PASS: KB lint passed ({len(concepts)} concept(s), {len(patterns)} pattern(s))"
+            f"PASS: KB lint passed ({len(concepts)} concept(s), {len(patterns)} pattern(s){summary})"
         )
         return 0
     return 2

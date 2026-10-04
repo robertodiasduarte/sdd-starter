@@ -24,6 +24,31 @@ Todo conteúdo de KB vem de uma destas três, e cada uma se declara de um jeito:
 
 ---
 
+## Em norma, a origem tem degrau
+
+Em domínio normativo (`perfil: normativo`), "documentação oficial" é largo demais: a Emenda Constitucional e o artigo de blog não podem cair no mesmo balde. A escada, do degrau mais forte ao mais fraco:
+
+| Degrau | O que entra |
+|---|---|
+| `constituicao` | Constituição e emendas constitucionais |
+| `lei-complementar` | leis complementares |
+| `lei-ordinaria` | leis ordinárias e medidas provisórias |
+| `decreto` | decretos e regulamentos |
+| `ato-normativo` | resoluções (inclusive CGSN), instruções normativas, portarias |
+| `ato-tecnico` | notas técnicas, informes técnicos, manuais oficiais, atos conjuntos |
+| `solucao-de-consulta` | respostas da administração tributária a consulta formal |
+| `doutrina` | artigo, livro, curso, reportagem, parecer de terceiro |
+| `pratica-propria` | o que o escritório faz e já verificou na prática |
+
+Duas regras derivam da escada:
+
+1. **Conflito se resolve citando os dois degraus, não escolhendo em silêncio.** Registre o conflito; diga o que a base adota e por quê.
+2. **Regra sustentada só por `doutrina` ou `pratica-propria` não é `confirmado`.** É `nao-confirmado` até alguém achar o texto normativo — o validador reprova o contrário.
+
+E uma que vale sempre: **a data do arquivo e o nome não provam vigência.** Um PDF chamado `nt-2025.002-v1.51.pdf`, baixado ontem, pode ser a versão de três meses atrás. O que prova qual texto foi lido é a versão declarada, a data de captura e o SHA-256 do arquivo — por isso eles moram no `fontes/CATALOGO.md`. Detalhes em [normativo.md](normativo.md).
+
+---
+
 ## Marcar o que não foi verificado
 
 Quando você escreve algo de que não tem certeza, **escreva junto que não tem certeza**. Uma frase basta:
@@ -41,7 +66,7 @@ O oposto é o cenário caro: a suposição escrita como fato. Ela não se distin
 - **Cópia de documentação pública.** O KB é o que **você aprendeu** sobre aquilo — o que confunde, o que dá errado, o que a documentação não diz. Se é só cópia, aponte para o original.
 - **Dados de pessoas reais.** Nomes, documentos, telefones, e-mails, valores identificáveis. Exemplos são melhores fictícios: funcionam igual e não vazam nada.
 - **Segredos.** Senhas, chaves, tokens. Um KB tende a ser compartilhado.
-- **O que muda toda semana.** Se a informação tem validade curta, o KB vai estar errado na maior parte do tempo. Guarde o critério, não o valor volátil.
+- **O que muda toda semana.** Se a informação tem validade curta, o KB vai estar errado na maior parte do tempo. Guarde o critério, não o valor volátil. (Valor que muda em datas conhecidas — alíquota, tabela, prazo — é outra coisa: use o perfil normativo, com vigência.)
 
 ---
 

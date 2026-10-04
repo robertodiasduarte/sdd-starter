@@ -1,32 +1,32 @@
 ---
 name: sdd-kb
 license: MIT
-description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Cria o índice do projeto na primeira vez e registra cada domínio novo. Recomendada antes de iniciar um fluxo SDD, para as fases seguintes partirem do terreno já mapeado. A revisão do conteúdo é sempre do profissional — a IA organiza e redige, mas quem responde pelo que fica registrado é quem tem a responsabilidade técnica. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais, instruções ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
+description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Cria o índice do projeto na primeira vez e registra cada domínio novo. Para legislação e normas (perfil normativo), registra a vigência de cada regra, o degrau normativo e o SHA-256 de cada fonte, os conflitos entre fontes e um mapa regra → fonte → implementação → teste para software que consome a base. Recomendada antes de iniciar um fluxo SDD, para as fases seguintes partirem do terreno já mapeado. A revisão do conteúdo é sempre do profissional — a IA organiza e redige, mas quem responde pelo que fica registrado é quem tem a responsabilidade técnica. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais, instruções ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.1"
+  version: "2.0.0"
   updated: "2026-10"
 ---
 
 # SDD KB
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-kb v1.0.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-kb v2.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
 Transformar o que você sabe sobre um domínio em material que qualquer IA consulta sob demanda — em vez de você reexplicar tudo a cada conversa.
 
-1. Delimitar o domínio: o que entra, o que fica de fora.
+1. Delimitar o domínio: o que entra, o que fica de fora — e perguntar se ele tem regra que vale por período (perfil **normativo**) e qual é a data-base.
 2. Levantar o que você sabe, separando o que é **entender** do que é **fazer**.
 3. Verificar se o índice do projeto existe; se não existir, criar.
-4. Escrever o mínimo viável: `index.md` + `quick-reference.md` + 1 conceito + 1 receita.
+4. Escrever o mínimo viável: `index.md` + `quick-reference.md` + 1 conceito + 1 receita. No perfil normativo, também `fontes/CATALOGO.md`, ≥ 1 regra em `rules/` e o `RULE_MAP.md` gerado.
 5. Respeitar os limites de tamanho de cada tipo.
 6. Declarar a fonte de cada arquivo e marcar o que não foi verificado.
 7. **Registrar o domínio no índice** — passo obrigatório.
 8. **Pedir a revisão do profissional** — quem responde pelo conteúdo é ele, não a IA.
 
-Consultar [references/kb-protocol.md](references/kb-protocol.md) para a taxonomia e as regras, e [references/sourcing.md](references/sourcing.md) para procedência. Os moldes estão em `assets/`, e [assets/example-kb/](assets/example-kb/) é um KB completo de exemplo.
+Consultar [references/kb-protocol.md](references/kb-protocol.md) para a taxonomia e as regras, e [references/sourcing.md](references/sourcing.md) para procedência. Os moldes estão em `assets/`, e [assets/example-kb/](assets/example-kb/) é um KB completo de exemplo. Para o perfil normativo, ler [references/normativo.md](references/normativo.md) e usar [assets/example-kb-normativo/](assets/example-kb-normativo/) como modelo.
 
 ## Quando usar / Quando não usar
 
@@ -61,6 +61,16 @@ Os moldes de [assets/](assets/) são **assets de saída**: sempre usá-los para 
 | [assets/PATTERN_TEMPLATE.md](assets/PATTERN_TEMPLATE.md) | `patterns/*.md` |
 | [assets/KB_INDEX_TEMPLATE.yaml](assets/KB_INDEX_TEMPLATE.yaml) | `_index.yaml` do projeto, na primeira execução |
 
+No perfil normativo, somam-se:
+
+| Molde | Gera |
+|---|---|
+| [assets/INDEX_NORMATIVO_TEMPLATE.md](assets/INDEX_NORMATIVO_TEMPLATE.md) | `index.md` (no lugar do `INDEX_TEMPLATE.md`) |
+| [assets/RULE_TEMPLATE.md](assets/RULE_TEMPLATE.md) | `rules/*.md` |
+| [assets/CATALOGO_FONTES_TEMPLATE.md](assets/CATALOGO_FONTES_TEMPLATE.md) | `fontes/CATALOGO.md` |
+| [assets/TABELA_TEMPLATE.json](assets/TABELA_TEMPLATE.json) | `tabelas/AAAA-MM-DD/*.json` |
+| [assets/CASO_TEMPLATE.json](assets/CASO_TEMPLATE.json) | `casos/*.json` |
+
 ## Procedimento passo a passo
 
 ### 1. Delimitar o domínio
@@ -68,6 +78,15 @@ Os moldes de [assets/](assets/) são **assets de saída**: sempre usá-los para 
 Definir com o usuário o recorte: qual assunto, e principalmente **o que fica de fora**. Um domínio bom é aquele em que se pode dizer "isto não é aqui" sem hesitar.
 
 Domínio grande demais vira material que ninguém termina de escrever. Na dúvida, comece menor — dividir depois é fácil; um domínio inacabado não serve a ninguém.
+
+Em seguida, perguntar — com estas palavras ou equivalentes:
+
+> Este domínio tem regra que vale por período — lei, alíquota, prazo, leiaute de documento fiscal? Se sim, qual é a data-base desta revisão (a data em que o conteúdo é conferido contra as fontes)?
+
+- **Sim** → perfil `normativo`: toda afirmação datada ganha vigência, toda fonte entra no catálogo com degrau e SHA-256, e os conflitos entre fontes ficam registrados. Ler [references/normativo.md](references/normativo.md) antes de escrever.
+- **Não** → perfil `geral` (o padrão): o procedimento segue como abaixo, sem os itens normativos.
+
+Uma regra tributária não é verdadeira: é verdadeira **em um período**. Sem vigência, o arquivo que está certo hoje fica errado no ano que vem sem mudar uma linha.
 
 ### 2. Separar o que é entender do que é fazer
 
@@ -100,7 +119,22 @@ Produzir exatamente esta estrutura:
     └── {uma-receita}.md
 ```
 
-Quatro arquivos. Cada um pelo molde correspondente. Um domínio só com conceitos não ajuda a executar; um só com receitas não ajuda a decidir quando aplicá-las — por isso os dois são obrigatórios desde o começo.
+Quatro arquivos. Cada um pelo molde correspondente.
+
+No perfil **normativo**, o mínimo cresce:
+
+```
+{dominio}/
+├── index.md              ← INDEX_NORMATIVO_TEMPLATE: Data-base, Conflitos entre fontes, aviso
+├── quick-reference.md
+├── concepts/{um}.md      ← com "Vale para:" no cabeçalho
+├── patterns/{uma}.md     ← com "Vale para:" no cabeçalho
+├── rules/{ID}.md         ← ≥ 1 regra, uma por arquivo, com vigência e fonte
+├── fontes/CATALOGO.md    ← cada documento citado: degrau, versão, captura, SHA-256
+└── RULE_MAP.md           ← gerado: python3 scripts/kb_normativo.py rule-map {dominio}
+```
+
+`tabelas/AAAA-MM-DD/` (valores por vigência) e `casos/` (entrada → resultado esperado) entram quando o domínio tem esse material. Mudou uma regra numa data? Feche a antiga com `ate:` e crie outra — o passado não se edita. Um domínio só com conceitos não ajuda a executar; um só com receitas não ajuda a decidir quando aplicá-las — por isso os dois são obrigatórios desde o começo.
 
 Escrever mais de um conceito ou receita é bem-vindo quando o material existe. O mínimo é piso, não teto.
 
@@ -121,6 +155,8 @@ Estourou o limite? Quase sempre há dois assuntos no arquivo. Separar é melhor 
 Cada arquivo diz de onde veio o que está escrito: documentação, norma, ou prática própria — todas legítimas. E o que não foi verificado é **marcado como não verificado**, em uma frase.
 
 Suposição escrita como fato é o erro mais caro de um KB: ela não se distingue do resto e se propaga com confiança. Ver [references/sourcing.md](references/sourcing.md).
+
+No perfil normativo, a fonte tem **degrau** (Constituição > lei complementar > lei > decreto > ato normativo > ato técnico > solução de consulta > doutrina > prática própria). Regra sustentada só por doutrina ou prática própria fica `nao-confirmado`. E **a data do arquivo e o nome não provam vigência**: o catálogo registra versão, data de captura e SHA-256 (`python3 scripts/kb_normativo.py sha fontes/<arquivo>`).
 
 Nunca incluir dados de pessoas reais, senhas ou chaves. Exemplos fictícios funcionam igual.
 
@@ -162,6 +198,11 @@ Se o usuário disser que não vai revisar agora, registrar no `index.md` que a b
 **pendente de revisão** — melhor uma base marcada como não conferida do que uma que aparenta
 autoridade que ainda não tem.
 
+No perfil normativo, o aviso vai também no `index.md`, por escrito: **esta base não é
+aconselhamento tributário**, contábil ou jurídico. E uma base pendente de revisão não deve
+alimentar software: `validate_kb.py --strict` reprova o domínio normativo marcado como
+`PENDENTE DE REVISÃO` — rode-o antes de qualquer skill, agente ou sistema consumir a base.
+
 ### 10. Mostrar como usar daqui em diante
 
 Fechar dizendo, em duas ou três linhas, como o usuário passa a consultar isto: apontar a IA para a pasta do domínio no início da conversa, ou pedir que ela leia o `index.md` antes de responder sobre o assunto.
@@ -186,13 +227,22 @@ Antes de declarar concluído, verificar:
 - [ ] Base não revisada está marcada como pendente de revisão no `index.md`.
 - [ ] O usuário sabe como consultar o KB nas próximas conversas.
 
+No perfil normativo, também:
+
+- [ ] Data-base no `index.md`, seção "Conflitos entre fontes" e o aviso "não é aconselhamento tributário".
+- [ ] "Vale para:" no cabeçalho de cada conceito e receita.
+- [ ] Cada regra com vigência (`de`, e `ate` quando encerrada), fonte catalogada com localizador e status honesto.
+- [ ] Cada fonte no catálogo com degrau, versão, data de captura e, quando o arquivo está em `fontes/`, SHA-256.
+- [ ] `RULE_MAP.md` regerado depois da última mudança em `rules/`.
+
 Quando houver filesystem, o script [scripts/validate_kb.py](scripts/validate_kb.py) confere mecanicamente parte disso:
 
 ```
-python3 scripts/validate_kb.py {caminho-do-dominio}
+python3 scripts/validate_kb.py {caminho-do-dominio}            # escrever
+python3 scripts/validate_kb.py {caminho-do-dominio} --strict   # antes de software consumir
 ```
 
-Saída `PASS` com código 0; problemas listados com código 2.
+Saída `PASS` com código 0; problemas listados com código 2. Linhas `WARN:` (base pendente de revisão, data-base antiga, domínio geral que parece normativo) não mudam o código de saída. O perfil vem do registro do domínio no `_index.yaml`.
 
 ## Tratamento de exceções
 
@@ -204,6 +254,9 @@ Saída `PASS` com código 0; problemas listados com código 2.
 - **Arquivo estourou o limite:** procurar os dois assuntos dentro dele e separar. Resumir só quando genuinamente for um assunto só.
 - **Sem filesystem:** entregar tudo no chat com as três informações do passo 8.
 - **Material com dado real:** trocar por exemplo fictício equivalente antes de escrever.
+- **Duas fontes dizem coisas diferentes:** registrar o conflito na regra (`conflito_com`) e no `index.md`, dizer o que a base adota e por quê. Nunca escolher em silêncio.
+- **Regra mudou:** fechar a regra antiga com `ate:` e criar outra a partir da nova data; regerar o `RULE_MAP.md`.
+- **Software vai consumir a base:** `--strict` antes; o software referencia regra por id e fonte por SHA-256, sem copiar conceitos (ver "KB consumido por software" em [references/normativo.md](references/normativo.md)).
 
 ## Examples
 
@@ -216,6 +269,11 @@ Delimitar (fechamento contábil, sem apuração de tributos), separar o conceito
 `Uso essa ferramenta há anos e toda vez preciso reexplicar pra IA.`
 
 Levantar o que ele sabe que a documentação não diz — armadilhas, o que dá errado, quando não usar. É exatamente o material que falta à IA.
+
+**Legislação com vigência**
+`Quero uma base da Reforma Tributária para alimentar meu validador de NF-e.`
+
+Perfil normativo, data-base perguntada no passo 1. Cada regra da nota técnica vira um arquivo em `rules/` com vigência e página; a NT, a lei complementar e as reportagens consultadas entram no catálogo com degrau; o "2026 riscado, 2027 escrito por cima" vira conflito registrado. O validador gera o `RULE_MAP.md`, que o validador de NF-e copia e referencia por id.
 
 **Conhecimento disperso**
 `Tenho anotações espalhadas sobre isso.`

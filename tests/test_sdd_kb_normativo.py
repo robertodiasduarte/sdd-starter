@@ -1,0 +1,229 @@
+#!/usr/bin/env python3
+"""sdd-kb 2.0 — normative profile. Each case copies the canonical example-kb-normativo,
+applies ONE mutation and asserts the validator's exit code AND the reason it prints.
+
+Mutating the current example (instead of keeping cloned bad fixtures) means the bad cases can
+never drift away from what the skill actually ships.
+
+Run: python3 -B -m unittest discover -s tests -p 'test_sdd_kb_*.py'
+"""
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SKILL = ROOT / "skills" / "sdd-kb"
+VALIDATOR = SKILL / "scripts" / "validate_kb.py"
+RULEMAP = SKILL / "scripts" / "kb_normativo.py"
+EXAMPLE = SKILL / "assets" / "example-kb-normativo"
+NAME = "kb_norm"
+
+
+def registry(perfil):
+    line = f"    perfil: {perfil}\n" if perfil else ""
+    return (
+        "version: \"1.0\"\ndomains:\n"
+        f"  {NAME}:\n    name: teste\n    description: teste\n    path: {NAME}/\n{line}"
+        "    updated: 2026-10-04\n"
+    )
+
+
+class NormativeKB(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="sddkb-"))
+        self.kb = self.tmp / NAME
+        shutil.copytree(EXAMPLE, self.kb)
+        self.set_perfil("normativo")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    # helpers ---------------------------------------------------------------
+    def set_perfil(self, perfil):
+        (self.tmp / "_index.yaml").write_text(registry(perfil), encoding="utf-8")
+
+    def edit(self, rel, old, new, count=1):
+        p = self.kb / rel
+        text = p.read_text(encoding="utf-8")
+        self.assertIn(old, text, f"mutation anchor not found in {rel}: {old!r}")
+        p.write_text(text.replace(old, new, count), encoding="utf-8")
+
+    def regen_rule_map(self):
+        subprocess.run([sys.executable, str(RULEMAP), "rule-map", str(self.kb)], check=True,
+                       capture_output=True, text=True)
+
+    def run_validator(self, *extra):
+        r = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(self.kb), str(self.tmp / "_index.yaml"), *extra],
+            capture_output=True, text=True,
+        )
+        return r.returncode, r.stdout + r.stderr
+
+    def assert_fails(self, reason):
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 2, out)
+        self.assertRegex(out, reason)
+
+    # good ------------------------------------------------------------------
+    def test_example_passes_with_pending_warning(self):
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 0, out)
+        self.assertIn("normativo: 3 rule(s), 3 source(s), 1 table(s), 1 case(s)", out)
+        self.assertIn("WARN: index.md: PENDENTE", out)
+
+    def test_optional_dirs_absent_still_passes(self):
+        shutil.rmtree(self.kb / "tabelas")
+        shutil.rmtree(self.kb / "casos")
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 0, out)
+        self.assertIn("0 table(s), 0 case(s)", out)
+
+    def test_catalogued_file_with_matching_sha_passes(self):
+        f = self.kb / "fontes" / "nota.txt"
+        f.write_text("texto da norma\n", encoding="utf-8")
+        sha = subprocess.run([sys.executable, str(RULEMAP), "sha", str(f)], capture_output=True,
+                             text=True, check=True).stdout.split()[0]
+        self.edit("fontes/CATALOGO.md", "| — | — |\n| REPORT-2026", f"| nota.txt | {sha} |\n| REPORT-2026")
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 0, out)
+
+    # AT-002 mutations a..i -------------------------------------------------
+    def test_a_rule_without_vigencia_de(self):
+        self.edit("rules/UB12-10-CRT3.md", "  de: 2026-08-03\n", "")
+        self.assert_fails(r"UB12-10-CRT3\.md: vigencia\.de missing")
+
+    def test_a_rule_with_ate_before_de(self):
+        self.edit("rules/UB12-10-CRT3.md", "  ate: null", "  ate: 2026-01-01")
+        self.assert_fails(r"vigencia\.ate '2026-01-01' is not a date on/after")
+
+    def test_a_rule_with_impossible_date(self):
+        self.edit("rules/UB12-10-CRT3.md", "  de: 2026-08-03", "  de: 2026-13-01")
+        self.assert_fails(r"UB12-10-CRT3\.md: vigencia\.de missing or not AAAA-MM-DD")
+
+    def test_b_source_not_catalogued(self):
+        self.edit("rules/UB12-10-CRT3.md", "  id: NT2025002-151", "  id: NT-INEXISTENTE")
+        self.assert_fails(r"fonte\.id 'NT-INEXISTENTE' not in fontes/CATALOGO\.md")
+
+    def test_b_conflict_target_unknown(self):
+        self.edit("rules/ALIQ-REF-2026.md", "conflito_com: [REPORT-2026]", "conflito_com: [NAO-EXISTE]")
+        self.assert_fails(r"conflito_com 'NAO-EXISTE' is neither a rule nor a catalogued source")
+
+    def test_c_sha_mismatch(self):
+        (self.kb / "fontes" / "nota.txt").write_text("versão nova\n", encoding="utf-8")
+        self.edit("fontes/CATALOGO.md", "| — | — |\n| REPORT-2026", "| nota.txt | " + "0" * 64 + " |\n| REPORT-2026")
+        self.assert_fails(r"SHA-256 of fontes/nota\.txt differs from the catalog")
+
+    def test_c_catalogued_file_missing(self):
+        self.edit("fontes/CATALOGO.md", "| — | — |\n| REPORT-2026", "| sumiu.pdf | " + "0" * 64 + " |\n| REPORT-2026")
+        self.assert_fails(r"file listed in CATALOGO not found: fontes/sumiu\.pdf")
+
+    def test_d_index_without_data_base(self):
+        self.edit("index.md", "> **Data-base:** 2026-09-27\n", "")
+        self.assert_fails(r"index\.md: Data-base missing")
+
+    def test_d_index_without_conflicts_section(self):
+        self.edit("index.md", "## Conflitos entre fontes", "## Divergências")
+        self.assert_fails(r"section `## Conflitos entre fontes` missing")
+
+    def test_d_index_without_notice(self):
+        self.edit("index.md", "esta base não é aconselhamento tributário", "esta base é só um exemplo")
+        self.assert_fails(r"responsibility notice missing")
+
+    def test_d_conflict_not_explained_in_index(self):
+        self.edit("index.md", "- **UB12-10-EXC1** —", "- **Exceção 1** —")
+        self.assert_fails(r"rule UB12-10-EXC1 has conflito_com but is not explained")
+
+    def test_e_table_vigencia_differs_from_folder(self):
+        self.edit("tabelas/2026-01-01/aliquotas-referencia.json", '"de": "2026-01-01"', '"de": "2026-02-01"')
+        self.assert_fails(r"vigencia\.de '2026-02-01' differs from the folder 2026-01-01")
+
+    def test_e_tables_overlap(self):
+        nova = self.kb / "tabelas" / "2026-06-01"
+        nova.mkdir()
+        src = (self.kb / "tabelas" / "2026-01-01" / "aliquotas-referencia.json").read_text(encoding="utf-8")
+        (nova / "aliquotas-referencia.json").write_text(
+            src.replace('"de": "2026-01-01"', '"de": "2026-06-01"'), encoding="utf-8")
+        self.assert_fails(r"tabelas/2026-01-01/aliquotas-referencia\.json: overlaps tabelas/2026-06-01")
+
+    def test_f_case_outside_rule_vigencia(self):
+        self.edit("casos/ub12-crt3-2026-09.json", '"data_fato": "2026-09-15"', '"data_fato": "2026-07-15"')
+        self.assert_fails(r"data_fato 2026-07-15 is outside the vigência of UB12-10-CRT3")
+
+    def test_f_case_with_unknown_rule(self):
+        self.edit("casos/ub12-crt3-2026-09.json", '"regra": "UB12-10-CRT3"', '"regra": "UB99"')
+        self.assert_fails(r"regra 'UB99' does not exist in rules/")
+
+    def test_g_rule_map_drift(self):
+        self.edit("RULE_MAP.md", "| E | 1115 |", "| A | 1115 |")
+        self.assert_fails(r"RULE_MAP\.md: missing or differs from rules/")
+
+    def test_g_rule_change_without_regenerating(self):
+        self.edit("rules/UB12-10-CRT3.md", 'codigo: "1115"', 'codigo: "9999"')
+        self.assert_fails(r"RULE_MAP\.md: missing or differs")
+        self.regen_rule_map()
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 0, out)
+
+    def test_h_concept_without_vale_para(self):
+        self.edit("concepts/ano-teste-2026.md", "> **Vale para:**", "> **Período:**")
+        self.assert_fails(r"concepts/ano-teste-2026\.md: `> \*\*Vale para:\*\*` missing")
+
+    def test_i_confirmed_on_doctrine(self):
+        self.edit("rules/ALIQ-REF-2026.md", "  id: NT2025002-151", "  id: REPORT-2026")
+        self.edit("rules/ALIQ-REF-2026.md", "conflito_com: [REPORT-2026]", "conflito_com: []")
+        self.regen_rule_map()
+        self.assert_fails(r"status confirmado rests on a doutrina source \(REPORT-2026\)")
+
+    def test_frontmatter_outside_grammar(self):
+        self.edit("rules/UB12-10-CRT3.md", "status: confirmado", "    status confirmado")
+        self.assert_fails(r"UB12-10-CRT3\.md:\d+: frontmatter line not understood")
+
+    # AT-004 --strict -------------------------------------------------------
+    def test_strict_refuses_pending(self):
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 2, out)
+        self.assertIn("--strict refuses an unreviewed normative KB", out)
+
+    def test_strict_passes_reviewed(self):
+        self.edit("index.md", "> **Revisado por:** PENDENTE DE REVISÃO", "> **Revisado por:** Contador Fictício, CRC 0000")
+        rc, out = self.run_validator("--strict")
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn("WARN: index.md: PENDENTE", out)
+
+    # perfil ----------------------------------------------------------------
+    def test_unknown_perfil_fails(self):
+        self.set_perfil("fiscal")
+        self.assert_fails(r"perfil 'fiscal' for 'kb_norm' — use `normativo` or `geral`")
+
+    # AT-003 / AT-005 geral --------------------------------------------------
+    def test_geral_skips_normative_checks_and_warns(self):
+        self.set_perfil(None)
+        self.edit("index.md", "> **Data-base:** 2026-09-27\n", "")
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 0, out)
+        self.assertRegex(out, r"WARN: parece normativo \(")
+        self.assertNotIn("normativo:", out.split("PASS:")[-1])
+
+    def test_geral_warning_does_not_hide_failures(self):
+        self.set_perfil("geral")
+        (self.kb / "quick-reference.md").write_text("x\n" * 101, encoding="utf-8")
+        rc, out = self.run_validator()
+        self.assertEqual(rc, 2, out)
+        self.assertIn("quick-reference.md has 101 lines", out)
+
+
+class GeralUntouched(unittest.TestCase):
+    def test_v1_example_still_passes_without_warning(self):
+        r = subprocess.run([sys.executable, str(VALIDATOR), str(SKILL / "assets" / "example-kb")],
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertNotIn("WARN", r.stdout)
+        self.assertTrue(re.match(r"PASS: KB lint passed \(1 concept\(s\), 1 pattern\(s\)\)\n$", r.stdout), r.stdout)
+
+
+if __name__ == "__main__":
+    unittest.main()

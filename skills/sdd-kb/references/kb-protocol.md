@@ -19,7 +19,9 @@ Quando estiver em dúvida, pergunte o que a pessoa vai fazer logo depois de ler.
 
 ---
 
-## 2. Os quatro tipos
+## 2. Os tipos
+
+O núcleo são quatro, e todo domínio começa com eles:
 
 | Tipo | O que é | Limite | Teste |
 |---|---|---|---|
@@ -28,7 +30,24 @@ Quando estiver em dúvida, pergunte o que a pessoa vai fazer logo depois de ler.
 | `quick-reference` | Consulta rápida: tabela de decisão, valores que se esquece, erros comuns | 100 linhas | "eu **decido** em segundos" |
 | `index` | Porta de entrada: o que este domínio cobre, por onde começar, o que ele não cobre | — | "eu sei **se é aqui** e por onde começar" |
 
-Um quinto tipo aparece quando o domínio cresce: `reference`, para material de consulta exaustiva (tabelas longas, listas completas, transcrições de norma). Ele não tem limite de tamanho, porque ninguém o lê inteiro — consulta-se. Não é necessário no começo.
+Quando o domínio cresce, três tipos de apoio aparecem — nenhum é necessário no começo:
+
+| Tipo | Onde | O que é |
+|---|---|---|
+| `reference` | `reference/*.md` | Consulta exaustiva (lista completa, transcrição de norma, tabela longa). Sem limite de linhas: ninguém lê inteiro, consulta-se |
+| `spec` | `specs/*.yaml` | O mesmo conhecimento em formato que um programa lê (catálogo, critérios, enum), com `source` e data de validação no topo |
+| registro | bloco em `_index.yaml` | Nome, descrição, caminho, perfil e data do domínio. Obrigatório — é o que torna o domínio encontrável |
+
+No **perfil normativo** (`perfil: normativo` no registro), mais quatro, todos ligados a datas e fontes — detalhes em [normativo.md](normativo.md):
+
+| Tipo | Onde | O que é | Obrigatório? |
+|---|---|---|---|
+| `rule` | `rules/*.md` | Regra atômica com vigência, fonte, status e (opcional) implementação e teste | sim, ≥ 1 |
+| catálogo de fontes | `fontes/CATALOGO.md` | Cada documento citado, com degrau normativo, versão, data de captura e SHA-256 | sim |
+| `tabela` | `tabelas/AAAA-MM-DD/*.json` | Valores por vigência — uma pasta por data de início | quando houver |
+| `caso` | `casos/*.json` | Entrada e resultado esperado de uma regra (o antigo `test-case`) | quando houver |
+
+O `RULE_MAP.md` não é um tipo que se escreve: é gerado a partir de `rules/`.
 
 ---
 
@@ -98,6 +117,9 @@ Detalhes em [sourcing.md](sourcing.md).
 ---
 
 ## 8. Checklist de qualidade
+
+No perfil normativo, somam-se: data-base no `index.md`; seção "Conflitos entre fontes"; aviso "não é aconselhamento tributário"; "Vale para:" em cada concept e pattern; toda regra com vigência e fonte catalogada; `RULE_MAP.md` regerado.
+
 
 - [ ] Cada arquivo passou pelo teste "entender ou fazer"
 - [ ] O mínimo de quatro arquivos existe
