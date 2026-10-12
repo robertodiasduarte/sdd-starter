@@ -107,11 +107,22 @@ para o original.
 ```sql
 -- G01 — passa SÓ se o banco RECUSAR alterar e excluir lançamento gravado.
 begin;
+-- Preparação em bloco próprio: o papel LÊ as tabelas e há o que provar. Qualquer erro aqui reprova —
+-- assim um 42501 no bloco da tentativa só pode vir da ESCRITA proibida, nunca da leitura.
 do $$
 begin
+  if not has_table_privilege('lancamento', 'SELECT') then
+    raise exception 'GOVERNANCA G01 REPROVADA: a preparacao falhou, este papel nao le lancamento — rode com um papel que leia a tabela';
+  end if;
   if not exists (select 1 from lancamento) then
     raise exception 'GOVERNANCA G01 REPROVADA: lancamento vazia, nada a provar — grave 1 lancamento de teste';
   end if;
+exception when others then
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G01 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
+end $$;
+do $$
+begin
   update lancamento set historico = historico where id = (select id from lancamento limit 1);
   raise exception 'GOVERNANCA G01 REPROVADA: UPDATE em lancamento foi aceito pelo banco';
 exception when others then
@@ -186,13 +197,24 @@ reabrir sem informar aprovador e motivo; 5) a reabertura é recusada.
 ```sql
 -- G03 — passa SÓ se o banco RECUSAR lançamento em competência fechada.
 begin;
+-- Preparação em bloco próprio: o papel LÊ as tabelas e há o que provar. Qualquer erro aqui reprova —
+-- assim um 42501 no bloco da tentativa só pode vir da ESCRITA proibida, nunca da leitura.
+do $$
+begin
+  if not has_table_privilege('periodo', 'SELECT') then
+    raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou, este papel nao le periodo — rode com um papel que leia a tabela';
+  end if;
+  if not exists (select 1 from periodo where situacao = 'fechado') then
+    raise exception 'GOVERNANCA G03 REPROVADA: nenhuma competencia fechada para testar, nada a provar';
+  end if;
+exception when others then
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
+end $$;
 do $$
 declare v_comp date;
 begin
   select competencia into v_comp from periodo where situacao = 'fechado' limit 1;
-  if v_comp is null then
-    raise exception 'GOVERNANCA G03 REPROVADA: nenhuma competencia fechada para testar';
-  end if;
   insert into lancamento (historico, competencia) values ('teste G03', v_comp);
   raise exception 'GOVERNANCA G03 REPROVADA: lancamento em competencia fechada foi aceito';
 exception when others then
@@ -210,6 +232,10 @@ rollback;
 **prova_manual:** 1) faça um estorno pela aplicação; 2) confira 1 linha nova na trilha com quem, quando
 (UTC), antes, depois e motivo; 3) tente inserir, alterar e apagar linhas da trilha direto pelo cliente; 4) as
 três tentativas são recusadas.
+
+O script prova a metade **negativa** (o cliente não insere, não altera, não apaga). A metade **positiva** —
+cada ação de negócio gera 1 linha na trilha — não se prova por SQL sem conhecer a aplicação: os passos 1 e 2 do
+`prova_manual` ficam no AT mesmo quando o script existe.
 
 **prova_script** (`forma: negativa` — troque `papel_da_aplicacao` pelo papel que o app usa):
 
@@ -284,13 +310,24 @@ usuário A; 3) é recusado; 4) aprove com B e depois com C: só então o lançam
 ```sql
 -- G07 — passa SÓ se o banco RECUSAR a aprovação feita por quem criou o lançamento.
 begin;
+-- Preparação em bloco próprio: o papel LÊ as tabelas e há o que provar. Qualquer erro aqui reprova —
+-- assim um 42501 no bloco da tentativa só pode vir da ESCRITA proibida, nunca da leitura.
+do $$
+begin
+  if not has_table_privilege('lancamento', 'SELECT') then
+    raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou, este papel nao le lancamento — rode com um papel que leia a tabela';
+  end if;
+  if not exists (select 1 from lancamento) then
+    raise exception 'GOVERNANCA G07 REPROVADA: lancamento vazia, nada a provar — grave 1 lancamento de teste';
+  end if;
+exception when others then
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
+end $$;
 do $$
 declare v_id bigint; v_autor uuid;
 begin
   select id, criado_por into v_id, v_autor from lancamento limit 1;
-  if v_id is null then
-    raise exception 'GOVERNANCA G07 REPROVADA: lancamento vazia, nada a provar — grave 1 lancamento de teste';
-  end if;
   insert into aprovacao (lancamento_id, aprovador_id) values (v_id, v_autor);
   raise exception 'GOVERNANCA G07 REPROVADA: o autor aprovou o proprio lancamento';
 exception when others then
@@ -313,11 +350,25 @@ gravado contra o arquivo baixado; 3) tente substituir o arquivo ou o hash; 4) é
 ```sql
 -- G08 — passa SÓ se o banco RECUSAR trocar o hash de um documento já ligado a lançamento.
 begin;
+-- Preparação em bloco próprio: o papel LÊ as tabelas e há o que provar. Qualquer erro aqui reprova —
+-- assim um 42501 no bloco da tentativa só pode vir da ESCRITA proibida, nunca da leitura.
 do $$
 begin
+  if not has_table_privilege('lancamento', 'SELECT') then
+    raise exception 'GOVERNANCA G08 REPROVADA: a preparacao falhou, este papel nao le lancamento — rode com um papel que leia a tabela';
+  end if;
+  if not has_table_privilege('documento', 'SELECT') then
+    raise exception 'GOVERNANCA G08 REPROVADA: a preparacao falhou, este papel nao le documento — rode com um papel que leia a tabela';
+  end if;
   if not exists (select 1 from lancamento where documento_id is not null) then
     raise exception 'GOVERNANCA G08 REPROVADA: nenhum lancamento ligado a documento, nada a provar';
   end if;
+exception when others then
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G08 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
+end $$;
+do $$
+begin
   update documento set sha256 = encode(sha256(convert_to('troca', 'UTF8')), 'hex') where id = (select documento_id from lancamento where documento_id is not null limit 1);
   raise exception 'GOVERNANCA G08 REPROVADA: o hash do documento-fonte foi alterado';
 exception when others then
@@ -372,11 +423,22 @@ de novo; 4) a contagem não muda e a tela diz que nada novo foi importado.
 ```sql
 -- G10 — passa SÓ se o banco RECUSAR a 2ª inserção da mesma chave natural.
 begin;
+-- Preparação em bloco próprio: o papel LÊ as tabelas e há o que provar. Qualquer erro aqui reprova —
+-- assim um 42501 no bloco da tentativa só pode vir da ESCRITA proibida, nunca da leitura.
 do $$
 begin
+  if not has_table_privilege('lancamento', 'SELECT') then
+    raise exception 'GOVERNANCA G10 REPROVADA: a preparacao falhou, este papel nao le lancamento — rode com um papel que leia a tabela';
+  end if;
   if not exists (select 1 from lancamento where chave_natural is not null) then
     raise exception 'GOVERNANCA G10 REPROVADA: nenhum lancamento com chave natural, nada a provar';
   end if;
+exception when others then
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G10 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
+end $$;
+do $$
+begin
   insert into lancamento (historico, chave_natural)
   select 'teste G10', chave_natural from lancamento where chave_natural is not null limit 1;
   raise exception 'GOVERNANCA G10 REPROVADA: chave natural repetida foi aceita';
