@@ -13,7 +13,8 @@
 - **Tabela B** lista as bases legais. Só uma base com `status: confirmado` pode ser citada no relatório,
   e só pelo `texto_citavel` dela. Base `nao-confirmado` **não se cita**: o relatório usa a frase padrão
   do procedimento e fica com o fundamento técnico.
-- `porte_min` diz a partir de que porte o item é obrigatório, lendo o `GOVERNANCA_PADRAO.md` do projeto:
+- `porte_min` diz a partir de que porte o item **se aplica** — no mínimo inegociável e nos de IA, obrigatório;
+  na segunda camada, recomendado (veja o passo 3 do procedimento) —, lendo o `GOVERNANCA_PADRAO.md` do projeto:
   `todos` · `equipe` (campo `uso` = equipe ou clientes) · `multi_cnpj` (campo `multi_cnpj` = sim) ·
   `ia` (campo `ia_grava_sozinha` = sim, ou o DEFINE menciona IA que grava, classifica ou sugere lançamento).
   Abaixo do porte, o item é `N.A. por porte`, com o motivo.
@@ -86,9 +87,11 @@
 > branch — nunca contra produção**: mesmo dentro de `begin … rollback`, a tentativa trava a linha e dispara
 > os triggers. Item sem `prova_script` se prova só pelo roteiro.
 > Tabela vazia nunca passa: sem linha não há o que provar, e o script diz isso em vez de ficar verde.
-> Nome errado também não passa: erro de tabela ou coluna inexistente, função inexistente ou sintaxe
-> (SQLSTATE `42P01`, `42703`, `42883`, `42601`, `42702`, `42804`) **não é recusa do banco** — é o script que não
-> confere com o schema, e ele sai como `REPROVADA`. Ao adaptar os nomes, mantenha essa guarda.
+> **Só conta como recusa o código que o mecanismo do item produz** — a lista branca de cada script:
+> `P0001` (trigger com `raise exception`), `42501` (permissão negada), `23514` (CHECK), `23505` (UNIQUE, no G10).
+> Qualquer outro erro — tabela ou coluna inexistente, NOT NULL ou chave estrangeira no INSERT de preparação,
+> sintaxe — **não prova a regra**: o script sai `REPROVADA: a tentativa falhou por outro motivo`. Se o seu
+> mecanismo recusa com outro código, acrescente esse código à lista do item; nunca troque por "qualquer erro".
 
 ### G01 — prova
 
@@ -110,8 +113,8 @@ begin
   raise exception 'GOVERNANCA G01 REPROVADA: UPDATE em lancamento foi aceito pelo banco';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate in ('42P01', '42703', '42883', '42601', '42702', '42804') then
-    raise exception 'GOVERNANCA G01 REPROVADA: o script nao confere com o schema (%): %', sqlstate, sqlerrm;
+  if sqlstate not in ('P0001', '42501') then
+    raise exception 'GOVERNANCA G01 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G01 ok (update recusado): %', sqlerrm;
 end $$;
@@ -121,8 +124,8 @@ begin
   raise exception 'GOVERNANCA G01 REPROVADA: DELETE em lancamento foi aceito pelo banco';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate in ('42P01', '42703', '42883', '42601', '42702', '42804') then
-    raise exception 'GOVERNANCA G01 REPROVADA: o script nao confere com o schema (%): %', sqlstate, sqlerrm;
+  if sqlstate not in ('P0001', '42501') then
+    raise exception 'GOVERNANCA G01 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G01 ok (delete recusado): %', sqlerrm;
 end $$;
@@ -149,8 +152,8 @@ begin
   raise exception 'GOVERNANCA G02 REPROVADA: lancamento desbalanceado foi aceito';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate in ('42P01', '42703', '42883', '42601', '42702', '42804') then
-    raise exception 'GOVERNANCA G02 REPROVADA: o script nao confere com o schema (%): %', sqlstate, sqlerrm;
+  if sqlstate not in ('P0001', '23514') then
+    raise exception 'GOVERNANCA G02 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G02 ok: %', sqlerrm;
 end $$;
@@ -178,8 +181,8 @@ begin
   raise exception 'GOVERNANCA G03 REPROVADA: lancamento em competencia fechada foi aceito';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate in ('42P01', '42703', '42883', '42601', '42702', '42804') then
-    raise exception 'GOVERNANCA G03 REPROVADA: o script nao confere com o schema (%): %', sqlstate, sqlerrm;
+  if sqlstate not in ('P0001', '23514', '42501') then
+    raise exception 'GOVERNANCA G03 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G03 ok: %', sqlerrm;
 end $$;
@@ -203,8 +206,8 @@ begin
   raise exception 'GOVERNANCA G04 REPROVADA: o cliente escreveu direto na trilha de auditoria';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate in ('42P01', '42703', '42883', '42601', '42702', '42804') then
-    raise exception 'GOVERNANCA G04 REPROVADA: o script nao confere com o schema (%): %', sqlstate, sqlerrm;
+  if sqlstate not in ('42501', 'P0001') then
+    raise exception 'GOVERNANCA G04 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G04 ok: %', sqlerrm;
 end $$;
@@ -244,8 +247,8 @@ begin
   raise exception 'GOVERNANCA G07 REPROVADA: o autor aprovou o proprio lancamento';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate in ('42P01', '42703', '42883', '42601', '42702', '42804') then
-    raise exception 'GOVERNANCA G07 REPROVADA: o script nao confere com o schema (%): %', sqlstate, sqlerrm;
+  if sqlstate not in ('P0001', '23514', '42501') then
+    raise exception 'GOVERNANCA G07 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G07 ok: %', sqlerrm;
 end $$;
@@ -267,12 +270,12 @@ begin
   if not exists (select 1 from lancamento where documento_id is not null) then
     raise exception 'GOVERNANCA G08 REPROVADA: nenhum lancamento ligado a documento, nada a provar';
   end if;
-  update documento set sha256 = md5('troca') where id = (select documento_id from lancamento where documento_id is not null limit 1);
+  update documento set sha256 = encode(sha256(convert_to('troca', 'UTF8')), 'hex') where id = (select documento_id from lancamento where documento_id is not null limit 1);
   raise exception 'GOVERNANCA G08 REPROVADA: o hash do documento-fonte foi alterado';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate in ('42P01', '42703', '42883', '42601', '42702', '42804') then
-    raise exception 'GOVERNANCA G08 REPROVADA: o script nao confere com o schema (%): %', sqlstate, sqlerrm;
+  if sqlstate not in ('P0001', '42501') then
+    raise exception 'GOVERNANCA G08 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G08 ok: %', sqlerrm;
 end $$;
@@ -288,21 +291,25 @@ nenhuma coluna de valor é de ponto flutuante.
 **prova_script** (`forma: catalogo`):
 
 ```sql
--- G09 — passa SÓ se nenhuma coluna de valor do schema público for de ponto flutuante.
+-- G09 — passa SÓ se nenhuma coluna de VALOR (pelo nome) for de ponto flutuante, em qualquer schema do usuário.
 begin;
 do $$
 declare v_col text;
 begin
-  if not exists (select 1 from information_schema.columns where table_schema = 'public') then
-    raise exception 'GOVERNANCA G09 REPROVADA: schema public sem nenhuma tabela, nada a provar';
+  if not exists (select 1 from information_schema.columns
+                  where table_schema not in ('pg_catalog', 'information_schema') and table_schema not like 'pg\_%') then
+    raise exception 'GOVERNANCA G09 REPROVADA: nenhuma tabela do usuario, nada a provar';
   end if;
-  select string_agg(table_name || '.' || column_name, ', ') into v_col
+  -- colunas de VALOR: acrescente ao padrao os nomes que o seu schema usa para dinheiro
+  select string_agg(table_schema || '.' || table_name || '.' || column_name, ', ') into v_col
     from information_schema.columns
-   where table_schema = 'public' and data_type in ('real', 'double precision');
+   where table_schema not in ('pg_catalog', 'information_schema') and table_schema not like 'pg\_%'
+     and data_type in ('real', 'double precision')
+     and column_name ~* '(valor|preco|saldo|total|montante|debito|credito|juros|multa|desconto|aliquota|imposto|tributo|tarifa|salario)';
   if v_col is not null then
     raise exception 'GOVERNANCA G09 REPROVADA: ponto flutuante em %', v_col;
   end if;
-  raise notice 'G09 ok: nenhuma coluna real/double precision';
+  raise notice 'G09 ok: nenhuma coluna de valor em real/double precision';
 end $$;
 rollback;
 ```
@@ -327,8 +334,8 @@ begin
   raise exception 'GOVERNANCA G10 REPROVADA: chave natural repetida foi aceita';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate in ('42P01', '42703', '42883', '42601', '42702', '42804') then
-    raise exception 'GOVERNANCA G10 REPROVADA: o script nao confere com o schema (%): %', sqlstate, sqlerrm;
+  if sqlstate not in ('23505') then
+    raise exception 'GOVERNANCA G10 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G10 ok: %', sqlerrm;
 end $$;

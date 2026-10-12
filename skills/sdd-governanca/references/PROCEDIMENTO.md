@@ -35,7 +35,9 @@ Procure no DEFINE estes temas — **pelo sentido, não só pela palavra** (sem d
 
 ## Passo 2 — Padrão do projeto
 
-Procure `GOVERNANCA_PADRAO.md` na mesma pasta do DEFINE.
+Procure `GOVERNANCA_PADRAO.md` na **raiz da pasta do SDD do projeto** — o mesmo lugar onde a skill o grava na
+primeira vez (a porta de cada kit diz qual é essa pasta). Nunca dentro de uma subpasta de features: o padrão é
+um só por projeto.
 
 - **Existe** ⇒ não repita as perguntas. Confirme em uma linha: "Usando o padrão do projeto: uso = …,
   multi_cnpj = …, IA grava sozinha = …, responsável técnico = …, guarda = …. Mudou alguma coisa?"
@@ -57,13 +59,14 @@ Para **cada** item do catálogo, dê exatamente um veredito:
 | `já coberto` | O DEFINE já exige isso, com teste que prova a falha | a linha ou o AT do DEFINE |
 | `lacuna` | O item se aplica e o DEFINE não exige, ou exige sem teste negativo | as 5 partes do passo 4 |
 | `N.A.` | O item não se aplica a esta feature, ou está abaixo do `porte_min` | o motivo em uma frase (`N.A. por porte: uso = só você`) |
-| `2ª camada` | Item G11–G16 que não é obrigatório nesta feature, ou lacuna que o profissional decidiu adiar | uma linha |
+| `2ª camada` | Item G11–G16 não coberto (exceto G13 com `multi_cnpj = sim`), ou lacuna que o profissional decidiu adiar | uma linha |
 
 Regras:
 
 - G01–G10 recebem `já coberto`, `lacuna` ou `N.A.` — nunca `2ª camada` direto, só por adiamento.
-- G11–G16 entram como `2ª camada`, **exceto** quando o porte os torna obrigatórios (ex.: G13 com
-  `multi_cnpj = sim` vira `lacuna` se o DEFINE não cobre).
+- G11–G16 (segunda camada) **nunca saem `lacuna` por padrão**: não cobertos e com o porte atingido, saem
+  `2ª camada` (recomendado); abaixo do porte, `N.A. por porte`. **Única exceção:** G13 com `multi_cnpj = sim`
+  sai `lacuna` se o DEFINE não cobre — dado de um CNPJ aparecendo para outro é inegociável quando existe.
 - G17–G20 só se aplicam com `porte_min: ia`; sem IA, são `N.A.` com o motivo.
 - "Já coberto" exige prova: um requisito que diz "o sistema deve ter trilha de auditoria" sem dizer o que
   é recusado não cobre G04 — é `lacuna` com a parte que falta.

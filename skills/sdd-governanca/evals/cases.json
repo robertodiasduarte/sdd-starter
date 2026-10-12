@@ -60,10 +60,11 @@
     {
       "id": "padrao-reusado",
       "type": "positive",
-      "input": "Segunda feature do mesmo projeto. GOVERNANCA_PADRAO.md já existe na pasta do DEFINE.",
+      "input": "Segunda feature do mesmo projeto. GOVERNANCA_PADRAO.md já existe na raiz da pasta do SDD (o DEFINE desta feature está numa subpasta de features).",
       "expected": [
         "Não repetir as 5 perguntas",
-        "Confirmar o padrão em 1 linha e perguntar se algo mudou"
+        "Confirmar o padrão em 1 linha e perguntar se algo mudou",
+        "Procura o padrão na raiz da pasta do SDD, não na pasta do DEFINE — nunca grava um 2º padrão"
       ]
     },
     {

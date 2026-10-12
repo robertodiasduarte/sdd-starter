@@ -31,7 +31,8 @@ requisito custa uma linha e não uma migração.
 
 **Pasta do SDD.** Os documentos ficam em `sdd/` na raiz do projeto — pasta visível, igual em qualquer
 agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos ficam lado a lado, sem
-subpastas: `GOVERNANCA_REVIEW_{FEATURE_NAME}.md` e `GOVERNANCA_PADRAO.md` ao lado do DEFINE. É a mesma
+subpastas: `GOVERNANCA_REVIEW_{FEATURE_NAME}.md` ao lado do DEFINE e `GOVERNANCA_PADRAO.md` na mesma pasta,
+uma vez por projeto. É a mesma
 regra das skills de fase do método.
 
 ## Quando usar / Quando não usar
