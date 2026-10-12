@@ -220,6 +220,16 @@ exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
   raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
+-- Controle: o MESMO insert numa competência ABERTA (o mês seguinte ao último fechado) tem de gravar. Senão
+-- CHECK, RLS ou coluna obrigatória alheios ao fechamento recusariam a tentativa no lugar da regra.
+do $$
+declare v_aberta date;
+begin
+  v_aberta := ((select max(competencia) from periodo where situacao = 'fechado') + interval '1 month')::date;
+  insert into lancamento (historico, competencia) values ('controle G03', v_aberta);
+exception when others then
+  raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou, o mesmo lancamento numa competencia aberta nao grava (%): %', sqlstate, sqlerrm;
+end $$;
 do $$
 declare v_comp date;
 begin
@@ -350,6 +360,18 @@ exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
   raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
+-- Controle: a aprovação por OUTRO usuário tem de gravar. Senão CHECK, RLS ou coluna obrigatória alheios à
+-- segregação recusariam a tentativa no lugar da regra. Se aprovador_id tiver chave estrangeira para uma tabela
+-- de usuários, troque o gen_random_uuid() pelo id de um usuário real que não seja o autor.
+do $$
+declare v_id bigint; v_autor uuid; v_outro uuid;
+begin
+  select id, criado_por into v_id, v_autor from lancamento where criado_por is not null limit 1;
+  select aprovador_id into v_outro from aprovacao where aprovador_id is distinct from v_autor and aprovador_id is not null limit 1;
+  insert into aprovacao (lancamento_id, aprovador_id) values (v_id, coalesce(v_outro, gen_random_uuid()));
+exception when others then
+  raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou, a aprovacao por outro usuario nao grava (%): %', sqlstate, sqlerrm;
+end $$;
 do $$
 declare v_id bigint; v_autor uuid;
 begin
@@ -434,7 +456,9 @@ begin
     join pg_namespace n on n.oid = c.relnamespace
    where n.nspname not in ('pg_catalog', 'information_schema') and n.nspname not like 'pg\_%'
      and a.attnum > 0 and not a.attisdropped
-     and a.atttypid in ('real'::regtype, 'double precision'::regtype)
+     -- tipo-base: um domínio "moeda" sobre double precision também é ponto flutuante
+     and coalesce(nullif((select t.typbasetype from pg_type t where t.oid = a.atttypid), 0), a.atttypid)
+         in ('real'::regtype, 'double precision'::regtype)
      and a.attname ~* '(valor|preco|saldo|total|montante|debito|credito|juros|multa|desconto|aliquota|imposto|tributo|tarifa|salario)';
   if v_col is not null then
     raise exception 'GOVERNANCA G09 REPROVADA: ponto flutuante em %', v_col;
@@ -468,7 +492,16 @@ exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
   raise exception 'GOVERNANCA G10 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
+-- Controle: um lançamento com chave NOVA tem de gravar — prova que id, sequência e colunas obrigatórias não
+-- recusam por conta própria a inserção da tentativa.
 do $$
+begin
+  insert into lancamento (historico, chave_natural) values ('controle G10', 'controle-g10-' || txid_current());
+exception when others then
+  raise exception 'GOVERNANCA G10 REPROVADA: a preparacao falhou, um lancamento com chave nova nao grava (%): %', sqlstate, sqlerrm;
+end $$;
+do $$
+declare v_cons text;
 begin
   insert into lancamento (historico, chave_natural)
   select 'teste G10', chave_natural from lancamento where chave_natural is not null limit 1;
@@ -477,6 +510,10 @@ exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
   if sqlstate not in ('23505') then
     raise exception 'GOVERNANCA G10 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
+  end if;
+  get stacked diagnostics v_cons = constraint_name;
+  if exists (select 1 from pg_constraint where conname = v_cons and contype = 'p') then
+    raise exception 'GOVERNANCA G10 REPROVADA: o conflito foi na chave primaria (%), nao na chave natural', v_cons;
   end if;
   raise notice 'G10 ok: %', sqlerrm;
 end $$;
