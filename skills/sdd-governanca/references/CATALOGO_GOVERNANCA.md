@@ -544,6 +544,8 @@ declare v_cons text;
 begin
   insert into lancamento (historico, chave_natural)
   select 'teste G10', chave_natural from lancamento where chave_natural is not null limit 1;
+  -- UNIQUE DEFERRABLE só confere no commit: força a conferência AGORA, dentro deste bloco
+  set constraints all immediate;
   raise exception 'GOVERNANCA G10 REPROVADA: chave natural repetida foi aceita';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
@@ -553,10 +555,12 @@ exception when others then
   get stacked diagnostics v_cons = constraint_name;
   -- o índice violado tem de CONTER a chave natural: conflito na PK ou em outra UNIQUE não prova nada
   -- só as colunas de CHAVE do índice (as do INCLUDE não participam da unicidade); por definição de cada
-  -- coluna, vale também UNIQUE por expressão, como lower(chave_natural)
+  -- coluna, vale também UNIQUE por expressão, como lower(chave_natural); e o índice é DESTA tabela — um
+  -- homônimo em outro schema não prova nada
   if not exists (select 1 from pg_index i join pg_class ic on ic.oid = i.indexrelid
                    cross join generate_series(1, i.indnkeyatts) k
-                  where ic.relname = v_cons and pg_get_indexdef(i.indexrelid, k, true) ~* '\mchave_natural\M') then
+                  where ic.relname = v_cons and i.indrelid = 'lancamento'::regclass
+                    and pg_get_indexdef(i.indexrelid, k, true) ~* '\mchave_natural\M') then
     raise exception 'GOVERNANCA G10 REPROVADA: o conflito foi em % , que nao contem a chave natural', v_cons;
   end if;
   raise notice 'G10 ok: %', sqlerrm;
