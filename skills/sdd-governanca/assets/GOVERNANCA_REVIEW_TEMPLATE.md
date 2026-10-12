@@ -14,7 +14,7 @@
 
 **O que muda no app:** {uma frase}
 
-**Por quê:** {fundamento técnico}. **Base legal:** {texto_citavel da base confirmado no catálogo | ainda não confirmada no catálogo — confira na fonte antes de citar. O fundamento técnico vale por si: {fundamento}. | o catálogo não aponta base legal para este item — o fundamento técnico vale por si.}
+**Por quê:** {fundamento técnico}. **Base legal:** {texto_citavel da base confirmado no catálogo | ainda não confirmada no catálogo — confira na fonte antes de citar. | o catálogo não aponta base legal para este item — o fundamento técnico vale por si.}
 
 **Requisito (EARS):** **If** {ação proibida}, **then** the system **shall** {recusar e …}
 

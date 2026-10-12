@@ -77,19 +77,16 @@ Grave o relatório pelo template. Ele abre com a **cobertura em uma linha** e ca
 
 1. **O que muda no app** — uma frase que o profissional entende sem abrir o catálogo
    ("lançamento gravado não se edita; corrige-se por estorno com motivo").
-2. **Por quê** — o fundamento técnico do item e, **somente se a base estiver `confirmado` na Tabela B**,
-   o `texto_citavel` dela. Base `nao-confirmado` ⇒ use exatamente esta frase:
-   > **Base legal:** ainda não confirmada no catálogo — confira na fonte antes de citar. O fundamento
-   > técnico vale por si: {fundamento}.
+2. **Por quê** — o fundamento técnico do item, com as suas palavras, e no fim o campo **Base legal:**, que
+   fecha o parágrafo com **exatamente um** destes três textos, sem nada acrescentado:
+   - base `confirmado` na Tabela B ⇒ o `texto_citavel` dela;
+   - base `nao-confirmado` ⇒ `**Base legal:** ainda não confirmada no catálogo — confira na fonte antes de citar.`
+   - item sem base no catálogo (coluna `base` = `—`) ⇒
+     `**Base legal:** o catálogo não aponta base legal para este item — o fundamento técnico vale por si.`
 
-   Item sem base no catálogo (coluna `base` = `—`) ⇒ use exatamente esta:
-   > **Base legal:** o catálogo não aponta base legal para este item — o fundamento técnico vale por si.
-
-   O campo **Base legal:** aparece uma vez por lacuna, fecha o parágrafo do **Por quê** e só traz um desses
-   três textos — o `texto_citavel` confirmado, ou uma das duas frases acima, sem nada acrescentado. O
-   `{fundamento}` é uma frase só, sem ponto no meio (nada de "ex.", "art." ou sigla com ponto). Nunca cite artigo,
-   parágrafo, inciso ou norma que não esteja `confirmado` no catálogo — nem de memória, nem
-   "aproximadamente", nem em outro lugar do relatório.
+   O campo aparece uma vez por lacuna. O fundamento técnico vem **antes** dele, nunca dentro. Nunca cite
+   lei, decreto, norma, artigo, parágrafo ou inciso que não seja o `texto_citavel` de uma base `confirmado`
+   — nem de memória, nem "aproximadamente", nem em outro lugar do relatório.
 3. **Requisito (EARS)** — no padrão Unwanted: **If** {ação proibida}, **then** the system **shall** {recusar …}.
 4. **Como provar** — o `prova_manual` do item adaptado aos nomes do DEFINE; quando a forma de entrega pede
    script, o `prova_script` adaptado, **sem mexer na inversão**.
