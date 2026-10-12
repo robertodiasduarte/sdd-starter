@@ -406,7 +406,9 @@ begin
   raise exception 'GOVERNANCA G07 REPROVADA: o autor aprovou o proprio lancamento';
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
-  if sqlstate not in ('P0001', '23514', '42501') then
+  -- 42501 NÃO é prova aqui: com RLS de identidade (aprovador_id = id da sessão) a recusa vem de "a sessão não
+  -- é o autor", não da segregação. Se a sua segregação é por RLS, rode como o AUTOR e acrescente '42501'.
+  if sqlstate not in ('P0001', '23514') then
     raise exception 'GOVERNANCA G07 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   raise notice 'G07 ok: %', sqlerrm;
@@ -482,9 +484,12 @@ begin
     join pg_namespace n on n.oid = c.relnamespace
    where n.nspname not in ('pg_catalog', 'information_schema') and n.nspname not like 'pg\_%'
      and a.attnum > 0 and not a.attisdropped
-     -- tipo-base: um domínio "moeda" sobre double precision também é ponto flutuante
-     and coalesce(nullif((select t.typbasetype from pg_type t where t.oid = a.atttypid), 0), a.atttypid)
-         in ('real'::regtype, 'double precision'::regtype)
+     -- tipo-base, em qualquer profundidade: domínio sobre domínio sobre double precision também é ponto flutuante
+     and exists (with recursive cadeia(t) as (
+                   select a.atttypid
+                   union all
+                   select ty.typbasetype from pg_type ty join cadeia on ty.oid = cadeia.t where ty.typbasetype <> 0)
+                 select 1 from cadeia where t in ('real'::regtype, 'double precision'::regtype))
      and a.attname ~* '(valor|preco|saldo|total|montante|debito|credito|juros|multa|desconto|aliquota|imposto|tributo|tarifa|salario)';
   if v_col is not null then
     raise exception 'GOVERNANCA G09 REPROVADA: ponto flutuante em %', v_col;
@@ -547,9 +552,11 @@ exception when others then
   end if;
   get stacked diagnostics v_cons = constraint_name;
   -- o índice violado tem de CONTER a chave natural: conflito na PK ou em outra UNIQUE não prova nada
-  -- (pela definição do índice: vale também UNIQUE por expressão, como lower(chave_natural))
+  -- só as colunas de CHAVE do índice (as do INCLUDE não participam da unicidade); por definição de cada
+  -- coluna, vale também UNIQUE por expressão, como lower(chave_natural)
   if not exists (select 1 from pg_index i join pg_class ic on ic.oid = i.indexrelid
-                  where ic.relname = v_cons and pg_get_indexdef(i.indexrelid) ~* '\mchave_natural\M') then
+                   cross join generate_series(1, i.indnkeyatts) k
+                  where ic.relname = v_cons and pg_get_indexdef(i.indexrelid, k, true) ~* '\mchave_natural\M') then
     raise exception 'GOVERNANCA G10 REPROVADA: o conflito foi em % , que nao contem a chave natural', v_cons;
   end if;
   raise notice 'G10 ok: %', sqlerrm;
