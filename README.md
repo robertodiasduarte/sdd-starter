@@ -24,7 +24,7 @@ Se você quer a versão avançada deste fluxo — com Verify Gate executável, c
 | [`sdd-build`](skills/sdd-build/) | Implementar | Os três artefatos + projeto gravável | Código funcionando + `BUILD_REPORT_{FEATURE}.md` |
 | [`sdd-handoff`](skills/sdd-handoff/) | Fechar o ciclo | O trabalho da sessão | `HANDOFF_{FEATURE}.md` + prompt de retomada |
 
-E quatro skills **complementares**, que não entram na sequência — elas alimentam as fases:
+E cinco skills **complementares**, que não entram na sequência — elas alimentam as fases:
 
 | Skill | Para quê | Entrada | Saída |
 |---|---|---|---|
@@ -32,6 +32,7 @@ E quatro skills **complementares**, que não entram na sequência — elas alime
 | [`sdd-prompt-builder`](skills/sdd-prompt-builder/) | Escrever o prompt de produção do seu app | O que o prompt precisa fazer + o contrato de saída | O prompt pronto, com fórmulas e regra para dado ausente |
 | [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Faxina e deriva do seu harness, em qualquer motor | A raiz do repositório | `AUDITORIA_SDD_<data>.md` (read-only: não altera nada) |
 | [`ux-review-builder`](skills/ux-review-builder/) | Criar o padrão de experiência do seu projeto e a sua `ux-review` — a revisão que roda entre o Define e o Design | Uma entrevista sobre público, referências e o que é inaceitável | `UX_STANDARD.md` + skill `ux-review` + `UX_REVIEW_TEMPLATE.md` |
+| [`sdd-governanca`](skills/sdd-governanca/) | Saber o que o sistema vai ter de provar numa fiscalização — para app que trata dinheiro, tributo ou dado pessoal | O DEFINE, depois do Define e antes do Design | `GOVERNANCA_REVIEW_{FEATURE}.md` com as lacunas, a decisão de cada uma e os requisitos aplicados no DEFINE |
 
 E quatro skills para **preparar o ambiente e trabalhar em frentes isoladas** no seu repositório (Claude Code ou Codex no terminal):
 
@@ -111,7 +112,7 @@ If you want the advanced version of this workflow — with an executable Verify 
 | [`sdd-build`](skills/sdd-build/) | Implement | All three artifacts + writable project | Working code + `BUILD_REPORT_{FEATURE}.md` |
 | [`sdd-handoff`](skills/sdd-handoff/) | Close the cycle | The session's work | `HANDOFF_{FEATURE}.md` + resume prompt |
 
-Plus four **complementary** skills that are not part of the sequence — they feed the phases:
+Plus five **complementary** skills that are not part of the sequence — they feed the phases:
 
 | Skill | Purpose | Input | Output |
 |---|---|---|---|
@@ -119,6 +120,7 @@ Plus four **complementary** skills that are not part of the sequence — they fe
 | [`sdd-prompt-builder`](skills/sdd-prompt-builder/) | Write your app's production prompt | What the prompt must do + the output contract | The ready prompt, with formulas and a rule for missing data |
 | [`sdd-auditoria-harness`](skills/sdd-auditoria-harness/) | Cleanup and drift of your harness, on any engine | The repository root | `AUDITORIA_SDD_<date>.md` (read-only: changes nothing) |
 | [`ux-review-builder`](skills/ux-review-builder/) | Build your project's UX standard and your own `ux-review` — the review that runs between Define and Design | An interview on audience, references and what is unacceptable | `UX_STANDARD.md` + `ux-review` skill + `UX_REVIEW_TEMPLATE.md` |
+| [`sdd-governanca`](skills/sdd-governanca/) | Know what the system will have to prove in a tax audit — for apps that handle money, taxes or personal data | The DEFINE, after Define and before Design | `GOVERNANCA_REVIEW_{FEATURE}.md` with the gaps, the decision on each one and the requirements applied to the DEFINE |
 
 And four skills to **prepare the environment and work in isolated workstreams** in your repository (Claude Code or Codex in the terminal):
 

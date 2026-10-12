@@ -4,14 +4,14 @@ license: MIT
 description: "Conduz a fase Define de um fluxo SDD/AgentSpec a partir do arquivo Markdown gerado pelo Brainstorm e de interações de clarificação com o usuário. Extrai e estrutura problema, usuários, objetivos, métricas, escopo, restrições e contexto técnico; escreve testes de aceitação em EARS, resolve ambiguidades, calcula Clarity Score e define um Verify Gate objetivo. Use após o SDD Brainstorm by RDD para gerar um DEFINE_{FEATURE_NAME}.md pronto para o gate seguinte."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.0"
+  version: "1.0.1"
   updated: "2026-10"
 ---
 
 # SDD Define
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-define v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-define v1.0.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -39,6 +39,8 @@ Usar quando:
 - o usuário quiser transformar o Brainstorm em requisitos formais e verificáveis;
 - ainda forem necessárias clarificações pontuais antes de Design;
 - for necessário formalizar critérios de sucesso, acceptance tests, escopo e Verify Gate.
+
+O app trata dinheiro, tributo ou dado pessoal? Depois deste DEFINE e antes do Design, rode a skill complementar `sdd-governanca`: ela recomenda os requisitos de governança que faltam, e a decisão de cada um é sua.
 
 Não usar quando:
 - o usuário ainda estiver explorando o problema, público ou direção da solução; nesse caso, executar primeiro o SDD Brainstorm by RDD;

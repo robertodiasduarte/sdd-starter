@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Governança by RDD"
+  short_description: "Recomenda os requisitos de governança que faltam num DEFINE financeiro, contábil ou fiscal."
+  default_prompt: "Use a skill sdd-governanca para revisar o DEFINE enviado contra o catálogo de governança, entregando o relatório com a cobertura, as lacunas e a decisão de cada uma."
