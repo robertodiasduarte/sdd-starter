@@ -161,12 +161,20 @@ begin;
 do $$
 declare v_id bigint;
 begin
-  insert into lancamento (historico) values ('controle G02') returning id into v_id;
-  insert into lancamento_linha (lancamento_id, natureza, valor) values (v_id, 'D', 100.00);
-  insert into lancamento_linha (lancamento_id, natureza, valor) values (v_id, 'C', 100.00);
-  set constraints all immediate;
+  begin
+    insert into lancamento (historico) values ('controle G02') returning id into v_id;
+    insert into lancamento_linha (lancamento_id, natureza, valor) values (v_id, 'D', 100.00);
+    insert into lancamento_linha (lancamento_id, natureza, valor) values (v_id, 'C', 100.00);
+    set constraints all immediate;
+    raise exception 'GOVERNANCA_CONTROLE_OK';
+  exception when others then
+    if sqlerrm <> 'GOVERNANCA_CONTROLE_OK' then
+      raise exception 'GOVERNANCA G02 REPROVADA: a preparacao falhou, um lancamento balanceado nao grava (%): %', sqlstate, sqlerrm;
+    end if;
+  end;
 exception when others then
-  raise exception 'GOVERNANCA G02 REPROVADA: a preparacao falhou, um lancamento balanceado nao grava (%): %', sqlstate, sqlerrm;
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G02 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
 do $$
 declare v_id bigint;
@@ -220,15 +228,25 @@ exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
   raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
--- Controle: o MESMO insert numa competência ABERTA (o mês seguinte ao último fechado) tem de gravar. Senão
--- CHECK, RLS ou coluna obrigatória alheios ao fechamento recusariam a tentativa no lugar da regra.
+-- Controle: o MESMO insert numa competência ABERTA tem de gravar (e é desfeito). Senão CHECK, RLS ou coluna
+-- obrigatória alheios ao fechamento recusariam a tentativa no lugar da regra. Usa a competência aberta mais
+-- recente de `periodo`; sem nenhuma, o mês seguinte ao último fechado (ajuste se o seu modelo exigir outra).
 do $$
 declare v_aberta date;
 begin
-  v_aberta := ((select max(competencia) from periodo where situacao = 'fechado') + interval '1 month')::date;
-  insert into lancamento (historico, competencia) values ('controle G03', v_aberta);
+  select competencia into v_aberta from periodo where situacao <> 'fechado' order by competencia desc limit 1;
+  v_aberta := coalesce(v_aberta, ((select max(competencia) from periodo where situacao = 'fechado') + interval '1 month')::date);
+  begin
+    insert into lancamento (historico, competencia) values ('controle G03', v_aberta);
+    raise exception 'GOVERNANCA_CONTROLE_OK';
+  exception when others then
+    if sqlerrm <> 'GOVERNANCA_CONTROLE_OK' then
+      raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou, o mesmo lancamento numa competencia aberta nao grava (%): %', sqlstate, sqlerrm;
+    end if;
+  end;
 exception when others then
-  raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou, o mesmo lancamento numa competencia aberta nao grava (%): %', sqlstate, sqlerrm;
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
 do $$
 declare v_comp date;
@@ -360,7 +378,7 @@ exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
   raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
--- Controle: a aprovação por OUTRO usuário tem de gravar. Senão CHECK, RLS ou coluna obrigatória alheios à
+-- Controle: a aprovação por OUTRO usuário tem de gravar (e é desfeita, para não virar a 2ª aprovação). Senão CHECK, RLS ou coluna obrigatória alheios à
 -- segregação recusariam a tentativa no lugar da regra. Se aprovador_id tiver chave estrangeira para uma tabela
 -- de usuários, troque o gen_random_uuid() pelo id de um usuário real que não seja o autor.
 do $$
@@ -368,9 +386,17 @@ declare v_id bigint; v_autor uuid; v_outro uuid;
 begin
   select id, criado_por into v_id, v_autor from lancamento where criado_por is not null limit 1;
   select aprovador_id into v_outro from aprovacao where aprovador_id is distinct from v_autor and aprovador_id is not null limit 1;
-  insert into aprovacao (lancamento_id, aprovador_id) values (v_id, coalesce(v_outro, gen_random_uuid()));
+  begin
+    insert into aprovacao (lancamento_id, aprovador_id) values (v_id, coalesce(v_outro, gen_random_uuid()));
+    raise exception 'GOVERNANCA_CONTROLE_OK';
+  exception when others then
+    if sqlerrm <> 'GOVERNANCA_CONTROLE_OK' then
+      raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou, a aprovacao por outro usuario nao grava (%): %', sqlstate, sqlerrm;
+    end if;
+  end;
 exception when others then
-  raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou, a aprovacao por outro usuario nao grava (%): %', sqlstate, sqlerrm;
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
 do $$
 declare v_id bigint; v_autor uuid;
@@ -496,9 +522,17 @@ end $$;
 -- recusam por conta própria a inserção da tentativa.
 do $$
 begin
-  insert into lancamento (historico, chave_natural) values ('controle G10', 'controle-g10-' || txid_current());
+  begin
+    insert into lancamento (historico, chave_natural) values ('controle G10', 'controle-g10-' || txid_current());
+    raise exception 'GOVERNANCA_CONTROLE_OK';
+  exception when others then
+    if sqlerrm <> 'GOVERNANCA_CONTROLE_OK' then
+      raise exception 'GOVERNANCA G10 REPROVADA: a preparacao falhou, um lancamento com chave nova nao grava (%): %', sqlstate, sqlerrm;
+    end if;
+  end;
 exception when others then
-  raise exception 'GOVERNANCA G10 REPROVADA: a preparacao falhou, um lancamento com chave nova nao grava (%): %', sqlstate, sqlerrm;
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G10 REPROVADA: a preparacao falhou (%): %', sqlstate, sqlerrm;
 end $$;
 do $$
 declare v_cons text;
@@ -512,8 +546,11 @@ exception when others then
     raise exception 'GOVERNANCA G10 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
   get stacked diagnostics v_cons = constraint_name;
-  if exists (select 1 from pg_constraint where conname = v_cons and contype = 'p') then
-    raise exception 'GOVERNANCA G10 REPROVADA: o conflito foi na chave primaria (%), nao na chave natural', v_cons;
+  -- o índice violado tem de CONTER a chave natural: conflito na PK ou em outra UNIQUE não prova nada
+  -- (pela definição do índice: vale também UNIQUE por expressão, como lower(chave_natural))
+  if not exists (select 1 from pg_index i join pg_class ic on ic.oid = i.indexrelid
+                  where ic.relname = v_cons and pg_get_indexdef(i.indexrelid) ~* '\mchave_natural\M') then
+    raise exception 'GOVERNANCA G10 REPROVADA: o conflito foi em % , que nao contem a chave natural', v_cons;
   end if;
   raise notice 'G10 ok: %', sqlerrm;
 end $$;
