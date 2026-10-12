@@ -54,8 +54,10 @@ recusa esperada. Ao lado, vai o **roteiro de prova** do catálogo (`prova_manual
 com o resultado esperado, para você executar e marcar quando o sistema estiver pronto.
 
 Se o seu projeto roda o Verify Gate por comando (Claude Code ou Codex com testes automatizados), peça
-também o `prova_script` do item: ele já vem invertido — sai `0` só quando o banco **recusa** a ação proibida.
-Adapte só os nomes de tabela e coluna e **não mexa na inversão**.
+também o `prova_script` do item: ele já vem invertido — sai `0` só quando o banco **recusa** a ação proibida,
+e reprova quando a aceita ou quando o nome de tabela ou coluna não confere. Adapte só os nomes e **não mexa
+na inversão nem na guarda de schema**. Rode contra um banco de desenvolvimento, de teste ou um branch —
+**nunca contra produção**: mesmo com `rollback`, a tentativa trava a linha e dispara os triggers.
 
 ## Regras que não se negociam
 
@@ -63,7 +65,8 @@ Adapte só os nomes de tabela e coluna e **não mexa na inversão**.
   número de lei, nem "aproximadamente". O relatório usa a frase padrão do procedimento e fica com o
   fundamento técnico.
 - **Uma decisão por lacuna**: aplicar · recusar (com motivo) · adiar. Nunca "aplicar todos".
-- **Sem tema financeiro, sem relatório**: N.A. em uma mensagem, sem arquivo.
+- **Sem tema financeiro, sem relatório**: N.A. em uma mensagem, sem arquivo. A triagem é pelo sentido, não só
+  pela palavra — e, em dúvida, não é N.A.
 - **Quem escreveu o Define não se revisa**: rode esta skill numa conversa nova.
 
 ## Onde entregar

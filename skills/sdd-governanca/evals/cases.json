@@ -10,7 +10,8 @@
         "Responder N.A. em 1 mensagem, com o motivo",
         "0 requisitos recomendados",
         "Sem arquivo: nem GOVERNANCA_REVIEW nem GOVERNANCA_PADRAO são criados",
-        "Não fazer as 5 perguntas do padrão do projeto"
+        "Não fazer as 5 perguntas do padrão do projeto",
+        "Palavra da lista com outro sentido (o verbo impor, NF dentro de um código) não dispara a revisão; tema de dinheiro sem a palavra (valor_bruto, compra paga) dispara"
       ]
     },
     {
@@ -81,6 +82,7 @@
       "input": "A mesma lacuna G01 do caso lacuna-ledger, aplicada uma vez num projeto em que o Verify Gate do DEFINE é executado por script e outra vez num projeto em que o profissional lê e marca o aceite.",
       "expected": [
         "Gate executado por script: entrega o prova_script adaptado, sem mexer na inversão, e acrescenta a chamada ao cmd do bloco verify_gate existente — nunca cria um 2º bloco",
+        "O script adaptado mantém a guarda de schema (nome de tabela ou coluna errado reprova, nunca passa como recusa) e o cmd roda contra banco de teste, nunca produção",
         "Aceite lido e marcado: entrega o prova_manual como roteiro do AT",
         "O requisito EARS é o mesmo nas duas formas"
       ]

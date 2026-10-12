@@ -15,16 +15,23 @@
 
 ## Passo 1 — Triagem por gatilhos
 
-Procure no DEFINE estes gatilhos (sem diferenciar maiúsculas, singular ou plural):
+Procure no DEFINE estes temas — **pelo sentido, não só pela palavra** (sem diferenciar maiúsculas, singular ou plural):
 
-`dinheiro` · `saldo` · `lançamento` · `nota fiscal` / `NF` · `tributo` / `imposto` · `folha` · `dado pessoal` / `CPF` / `CNPJ`
+`dinheiro` · `valor` · `preço` · `pagamento` · `cobrança` · `compra` · `boleto` · `fatura` · `saldo` · `lançamento` · `nota fiscal` / `NF` · `tributo` / `imposto` · `folha` · `dado pessoal` / `CPF` / `CNPJ`
 
-**Nenhum gatilho** ⇒ responda com **uma mensagem só**, sem criar arquivo nenhum, e encerre:
+- Palavra igual com outro sentido **não conta**: "imposto" do verbo impor ("o limite imposto pelo plano"),
+  "NF" dentro de um código ou de outra palavra.
+- O tema conta mesmo sem a palavra da lista: uma coluna `valor_bruto`, "o cliente pagou a mensalidade", "a fatura do
+  cliente" tratam dinheiro.
+- **Em dúvida, não é N.A.**: siga para o passo 2 — cada item sem relação com a feature sai `N.A.` com o motivo.
+  N.A. indevido na triagem pula a revisão inteira; N.A. por item custa uma linha.
+
+**Nenhum tema** ⇒ responda com **uma mensagem só**, sem criar arquivo nenhum, e encerre:
 
 > Revisão de governança: **N.A.** — o Define não trata dinheiro, saldo, lançamento, nota fiscal, tributo,
 > folha nem dado pessoal. Siga para a próxima fase.
 
-**Um ou mais gatilhos** ⇒ registre quais encontrou (e onde, por linha ou AT) e siga para o passo 2.
+**Um ou mais temas** ⇒ registre quais encontrou (e onde, por linha ou AT) e siga para o passo 2.
 
 ## Passo 2 — Padrão do projeto
 
