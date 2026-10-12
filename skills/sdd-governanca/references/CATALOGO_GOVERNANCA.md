@@ -70,8 +70,8 @@
 |----|---------|--------|----------|-------|---------|--------|--------|---------------|
 | B1 | Código Civil, art. 1.183 (escrituração) | lei | a conferir | https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm | — | nao-confirmado | — | — |
 | B2 | ITG 2000 (R1) — escrituração contábil, retificação de lançamento | ato técnico | a conferir | https://cfc.org.br/ | — | nao-confirmado | — | — |
-| B3 | Código Tributário Nacional, art. 195, parágrafo único (conservação de livros) | lei | a conferir | https://www.planalto.gov.br/ccivil_03/leis/l5172compilado.htm | — | nao-confirmado | — | — |
-| B4 | Lei Geral de Proteção de Dados, art. 16, I (conservação para obrigação legal) | lei | a conferir | https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm | — | nao-confirmado | — | — |
+| B3 | Código Tributário Nacional (CTN), art. 195, parágrafo único (conservação de livros) | lei | a conferir | https://www.planalto.gov.br/ccivil_03/leis/l5172compilado.htm | — | nao-confirmado | — | — |
+| B4 | Lei Geral de Proteção de Dados (LGPD), art. 16, I (conservação para obrigação legal) | lei | a conferir | https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm | — | nao-confirmado | — | — |
 
 ## Provas por item
 
@@ -94,6 +94,9 @@
 > mecanismo recusa com outro código, acrescente esse código à lista do item; nunca troque por "qualquer erro".
 
 ### G01 — prova
+
+Se o seu mecanismo for privilégio **por coluna** (e não trigger de linha), repita o UPDATE do script para
+cada coluna do lançamento — o script de referência testa uma coluna porque o trigger recusa a linha inteira.
 
 **prova_manual:** 1) abra um lançamento gravado; 2) tente alterar o valor; 3) tente excluir; 4) as duas
 tentativas são recusadas com mensagem clara; 5) o estorno cria um lançamento novo, com motivo, apontando
@@ -134,20 +137,33 @@ rollback;
 
 ### G02 — prova
 
-**prova_manual:** 1) monte um lançamento com débito de 100,00 e crédito de 90,00; 2) tente gravar;
-3) a gravação é recusada e nada fica salvo.
+**prova_manual:** 1) grave um lançamento com débito e crédito de 100,00 (tem de gravar); 2) monte outro só com
+o débito de 100,00; 3) tente gravar; 4) a gravação é recusada e nada fica salvo.
 
 **prova_script** (`forma: negativa`):
 
 ```sql
 -- G02 — passa SÓ se o banco RECUSAR um lançamento desbalanceado.
 begin;
+-- Preparação com CONTROLE: um lançamento BALANCEADO tem de gravar. Se nem ele grava, o script não confere
+-- com o schema (coluna obrigatória, CHECK alheio) e nada do que vem depois provaria a regra.
 do $$
 declare v_id bigint;
 begin
+  insert into lancamento (historico) values ('controle G02') returning id into v_id;
+  insert into lancamento_linha (lancamento_id, natureza, valor) values (v_id, 'D', 100.00);
+  insert into lancamento_linha (lancamento_id, natureza, valor) values (v_id, 'C', 100.00);
+  set constraints all immediate;
+exception when others then
+  raise exception 'GOVERNANCA G02 REPROVADA: a preparacao falhou, um lancamento balanceado nao grava (%): %', sqlstate, sqlerrm;
+end $$;
+do $$
+declare v_id bigint;
+begin
+  -- a MESMA linha que o controle gravou (D 100,00), sozinha: qualquer CHECK que deixou o controle passar
+  -- deixa esta passar também — só o balanceamento pode recusá-la
   insert into lancamento (historico) values ('teste G02') returning id into v_id;
   insert into lancamento_linha (lancamento_id, natureza, valor) values (v_id, 'D', 100.00);
-  insert into lancamento_linha (lancamento_id, natureza, valor) values (v_id, 'C', 90.00);
   set constraints all immediate;
   raise exception 'GOVERNANCA G02 REPROVADA: lancamento desbalanceado foi aceito';
 exception when others then
@@ -192,13 +208,23 @@ rollback;
 ### G04 — prova
 
 **prova_manual:** 1) faça um estorno pela aplicação; 2) confira 1 linha nova na trilha com quem, quando
-(UTC), antes, depois e motivo; 3) tente inserir na trilha direto pelo cliente; 4) é recusado.
+(UTC), antes, depois e motivo; 3) tente inserir, alterar e apagar linhas da trilha direto pelo cliente; 4) as
+três tentativas são recusadas.
 
 **prova_script** (`forma: negativa` — troque `papel_da_aplicacao` pelo papel que o app usa):
 
 ```sql
--- G04 — passa SÓ se o papel da aplicação NÃO conseguir escrever direto na trilha.
+-- G04 — passa SÓ se o papel da aplicação NÃO conseguir inserir, alterar nem apagar a trilha.
 begin;
+do $$
+begin
+  if not exists (select 1 from auditoria) then
+    raise exception 'GOVERNANCA G04 REPROVADA: trilha vazia, nada a provar — grave 1 evento de teste';
+  end if;
+exception when others then
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  raise exception 'GOVERNANCA G04 REPROVADA: a preparacao falhou, a trilha nao confere com o schema (%): %', sqlstate, sqlerrm;
+end $$;
 set local role papel_da_aplicacao;
 do $$
 begin
@@ -209,7 +235,29 @@ exception when others then
   if sqlstate not in ('42501', 'P0001') then
     raise exception 'GOVERNANCA G04 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
   end if;
-  raise notice 'G04 ok: %', sqlerrm;
+  raise notice 'G04 ok (insert recusado): %', sqlerrm;
+end $$;
+do $$
+begin
+  update auditoria set motivo = 'alterado';
+  raise exception 'GOVERNANCA G04 REPROVADA: o cliente alterou a trilha de auditoria';
+exception when others then
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  if sqlstate not in ('42501', 'P0001') then
+    raise exception 'GOVERNANCA G04 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
+  end if;
+  raise notice 'G04 ok (update recusado): %', sqlerrm;
+end $$;
+do $$
+begin
+  delete from auditoria;
+  raise exception 'GOVERNANCA G04 REPROVADA: o cliente apagou a trilha de auditoria';
+exception when others then
+  if sqlerrm like 'GOVERNANCA G%' then raise; end if;
+  if sqlstate not in ('42501', 'P0001') then
+    raise exception 'GOVERNANCA G04 REPROVADA: a tentativa falhou por outro motivo, nao pela regra (%): %', sqlstate, sqlerrm;
+  end if;
+  raise notice 'G04 ok (delete recusado): %', sqlerrm;
 end $$;
 rollback;
 ```
