@@ -85,8 +85,9 @@ Grave o relatório pelo template. Ele abre com a **cobertura em uma linha** e ca
    Item sem base no catálogo (coluna `base` = `—`) ⇒ use exatamente esta:
    > **Base legal:** o catálogo não aponta base legal para este item — o fundamento técnico vale por si.
 
-   O campo **Base legal:** aparece uma vez por lacuna e só com um desses três textos — o `texto_citavel`
-   confirmado, ou uma das duas frases acima, sem nada acrescentado dentro do campo. Nunca cite artigo,
+   O campo **Base legal:** aparece uma vez por lacuna, fecha o parágrafo do **Por quê** e só traz um desses
+   três textos — o `texto_citavel` confirmado, ou uma das duas frases acima, sem nada acrescentado. O
+   `{fundamento}` é uma frase só, sem ponto no meio (nada de "ex.", "art." ou sigla com ponto). Nunca cite artigo,
    parágrafo, inciso ou norma que não esteja `confirmado` no catálogo — nem de memória, nem
    "aproximadamente", nem em outro lugar do relatório.
 3. **Requisito (EARS)** — no padrão Unwanted: **If** {ação proibida}, **then** the system **shall** {recusar …}.
