@@ -560,7 +560,8 @@ exception when others then
   if not exists (select 1 from pg_index i join pg_class ic on ic.oid = i.indexrelid
                    cross join generate_series(1, i.indnkeyatts) k
                   where ic.relname = v_cons
-                    and i.indrelid in (select relid from pg_partition_tree('lancamento'::regclass))
+                    and i.indrelid in (select 'lancamento'::regclass
+                                       union select relid from pg_partition_tree('lancamento'::regclass))
                     and pg_get_indexdef(i.indexrelid, k, true) ~* '\mchave_natural\M') then
     raise exception 'GOVERNANCA G10 REPROVADA: o conflito foi em % , que nao contem a chave natural', v_cons;
   end if;
