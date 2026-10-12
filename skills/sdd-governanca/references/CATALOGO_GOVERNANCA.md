@@ -204,6 +204,15 @@ begin
   if not has_table_privilege('periodo', 'SELECT') then
     raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou, este papel nao le periodo — rode com um papel que leia a tabela';
   end if;
+  if not has_table_privilege('lancamento', 'INSERT') then
+    raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou, este papel nao insere em lancamento — rode o gate com o papel que a aplicacao usa para gravar';
+  end if;
+  if exists (select 1 from pg_attribute a
+              where a.attrelid = 'lancamento'::regclass and a.attnum > 0 and not a.attisdropped and a.attidentity = ''
+                and pg_get_serial_sequence('lancamento', a.attname) is not null
+                and not has_sequence_privilege(current_user, pg_get_serial_sequence('lancamento', a.attname), 'USAGE')) then
+    raise exception 'GOVERNANCA G03 REPROVADA: a preparacao falhou, o papel nao usa a sequencia do id de lancamento — a tentativa falharia pela sequencia, nao pela regra';
+  end if;
   if not exists (select 1 from periodo where situacao = 'fechado') then
     raise exception 'GOVERNANCA G03 REPROVADA: nenhuma competencia fechada para testar, nada a provar';
   end if;
@@ -244,6 +253,14 @@ cada ação de negócio gera 1 linha na trilha — não se prova por SQL sem con
 begin;
 do $$
 begin
+  if has_table_privilege('papel_da_aplicacao', 'auditoria', 'INSERT') then
+    if exists (select 1 from pg_attribute a
+                where a.attrelid = 'auditoria'::regclass and a.attnum > 0 and not a.attisdropped and a.attidentity = ''
+                  and pg_get_serial_sequence('auditoria', a.attname) is not null
+                  and not has_sequence_privilege('papel_da_aplicacao', pg_get_serial_sequence('auditoria', a.attname), 'USAGE')) then
+      raise exception 'GOVERNANCA G04 REPROVADA: a preparacao falhou, o papel nao usa a sequencia do id de auditoria — a tentativa falharia pela sequencia, nao pela regra';
+    end if;
+  end if;
   if not exists (select 1 from auditoria) then
     raise exception 'GOVERNANCA G04 REPROVADA: trilha vazia, nada a provar — grave 1 evento de teste';
   end if;
@@ -317,8 +334,17 @@ begin
   if not has_table_privilege('lancamento', 'SELECT') then
     raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou, este papel nao le lancamento — rode com um papel que leia a tabela';
   end if;
-  if not exists (select 1 from lancamento) then
-    raise exception 'GOVERNANCA G07 REPROVADA: lancamento vazia, nada a provar — grave 1 lancamento de teste';
+  if not has_table_privilege('aprovacao', 'INSERT') then
+    raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou, este papel nao insere em aprovacao — rode o gate com o papel que a aplicacao usa para gravar';
+  end if;
+  if exists (select 1 from pg_attribute a
+              where a.attrelid = 'aprovacao'::regclass and a.attnum > 0 and not a.attisdropped and a.attidentity = ''
+                and pg_get_serial_sequence('aprovacao', a.attname) is not null
+                and not has_sequence_privilege(current_user, pg_get_serial_sequence('aprovacao', a.attname), 'USAGE')) then
+    raise exception 'GOVERNANCA G07 REPROVADA: a preparacao falhou, o papel nao usa a sequencia do id de aprovacao — a tentativa falharia pela sequencia, nao pela regra';
+  end if;
+  if not exists (select 1 from lancamento where criado_por is not null) then
+    raise exception 'GOVERNANCA G07 REPROVADA: nenhum lancamento com autor, nada a provar — grave 1 lancamento de teste com autor';
   end if;
 exception when others then
   if sqlerrm like 'GOVERNANCA G%' then raise; end if;
@@ -327,7 +353,7 @@ end $$;
 do $$
 declare v_id bigint; v_autor uuid;
 begin
-  select id, criado_por into v_id, v_autor from lancamento limit 1;
+  select id, criado_por into v_id, v_autor from lancamento where criado_por is not null limit 1;
   insert into aprovacao (lancamento_id, aprovador_id) values (v_id, v_autor);
   raise exception 'GOVERNANCA G07 REPROVADA: o autor aprovou o proprio lancamento';
 exception when others then
@@ -395,16 +421,21 @@ begin;
 do $$
 declare v_col text;
 begin
-  if not exists (select 1 from information_schema.columns
-                  where table_schema not in ('pg_catalog', 'information_schema') and table_schema not like 'pg\_%') then
+  -- pg_catalog, não information_schema: a view esconde as tabelas a que este papel não tem acesso
+  if not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
+                  where c.relkind in ('r', 'p') and n.nspname not in ('pg_catalog', 'information_schema')
+                    and n.nspname not like 'pg\_%') then
     raise exception 'GOVERNANCA G09 REPROVADA: nenhuma tabela do usuario, nada a provar';
   end if;
   -- colunas de VALOR: acrescente ao padrao os nomes que o seu schema usa para dinheiro
-  select string_agg(table_schema || '.' || table_name || '.' || column_name, ', ') into v_col
-    from information_schema.columns
-   where table_schema not in ('pg_catalog', 'information_schema') and table_schema not like 'pg\_%'
-     and data_type in ('real', 'double precision')
-     and column_name ~* '(valor|preco|saldo|total|montante|debito|credito|juros|multa|desconto|aliquota|imposto|tributo|tarifa|salario)';
+  select string_agg(n.nspname || '.' || c.relname || '.' || a.attname, ', ') into v_col
+    from pg_attribute a
+    join pg_class c on c.oid = a.attrelid and c.relkind in ('r', 'p')
+    join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname not in ('pg_catalog', 'information_schema') and n.nspname not like 'pg\_%'
+     and a.attnum > 0 and not a.attisdropped
+     and a.atttypid in ('real'::regtype, 'double precision'::regtype)
+     and a.attname ~* '(valor|preco|saldo|total|montante|debito|credito|juros|multa|desconto|aliquota|imposto|tributo|tarifa|salario)';
   if v_col is not null then
     raise exception 'GOVERNANCA G09 REPROVADA: ponto flutuante em %', v_col;
   end if;
