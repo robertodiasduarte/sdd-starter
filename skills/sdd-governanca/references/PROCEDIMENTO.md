@@ -81,7 +81,9 @@ Grave o relatório pelo template. Ele abre com a **cobertura em uma linha** e ca
 
 ## Passo 5 — Decisão por item
 
-Pergunte **uma lacuna por vez**. Cada pergunta traz o que muda no app e a severidade, e oferece três saídas:
+Pergunte **uma lacuna por vez**. Cada pergunta traz o que muda no app e a severidade e, quando um AT do DEFINE
+contradiz o requisito (ex.: "o analista corrige o valor de um lançamento gravado" × lançamento que não se apaga),
+mostra esse AT **antes e depois** da reescrita. Oferece três saídas:
 
 - **Aplicar** — o requisito entra no DEFINE.
 - **Recusar** — o requisito não entra; **o motivo é obrigatório**. Recusa sem motivo: repita a pergunta
@@ -94,12 +96,15 @@ Nunca ofereça "aplicar todos". Nunca aplique sem a resposta do profissional.
 
 Para cada lacuna aplicada:
 
+- **reescreva primeiro o AT que contradiz o requisito** (o "antes e depois" que o profissional aprovou no passo 5) —
+  nunca deixe no DEFINE um AT que permite o que o AT novo proíbe. Se a reescrita mudar o que a feature faz além
+  do que a pergunta mostrou, pare e pergunte de novo;
 - acrescente um AT novo em `## Acceptance Tests` com o próximo número livre, o padrão EARS do requisito e
   a prova na coluna do gate;
 - registre a mudança no histórico de revisões do DEFINE;
 - recalcule o Clarity Score e anote antes e depois.
 
-O relatório fecha com a seção *Aplicado no DEFINE* (lacuna → AT novo) e com as duas linhas fixas:
+O relatório fecha com a seção *Aplicado no DEFINE* (lacuna → AT novo, e o AT reescrito quando houve) e com as duas linhas fixas:
 
 > A skill recomenda; o profissional decide e responde.
 >

@@ -48,9 +48,9 @@
 
 ## Aplicado no DEFINE
 
-| Lacuna | AT novo | Clarity Score antes → depois |
-|---|---|---|
-| {Gnn} | {AT-0nn} | {x/15 → y/15} |
+| Lacuna | AT novo | AT reescrito (antes → depois) | Clarity Score antes → depois |
+|---|---|---|---|
+| {Gnn} | {AT-0nn} | {AT-0mm: "…" → "…" · ou —} | {x/15 → y/15} |
 
 ---
 
