@@ -1,5 +1,9 @@
 # Changelog — sdd-kb
 
+## 2.0.1 — out/2026
+
+- A `description` do SKILL.md volta a caber no teto de 1024 caracteres do padrão Agent Skills (tinha 1042 desde a 2.0.0). O upload do `.zip` no ChatGPT e no claude.ai recusava a skill com "field 'description' in SKILL.md must be at most 1024 characters". Conteúdo da skill inalterado.
+
 ## 2.0.0 — out/2026
 
 **Perfil normativo**, para bases de legislação e normas que alimentam agentes e software.

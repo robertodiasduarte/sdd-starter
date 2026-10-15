@@ -9,7 +9,9 @@ Checks, for each skills/<name>/SKILL.md:
   2. the body has the identification line
      `<name> vX.Y.Z · <mês>/<ano> · versão atual: <URL>` matching the metadata;
   3. manifest.json and evals/cases.json, when present, carry the same "version";
-  4. with --base REF: a skill whose folder changed since REF has a version greater than the one
+  4. description has at most 1024 characters (Agent Skills spec; the claude.ai and ChatGPT
+     upload refuses the .zip above it);
+  5. with --base REF: a skill whose folder changed since REF has a version greater than the one
      in REF (a new skill, or one without version in REF, passes), and updated is not older.
 
 Usage:
@@ -41,6 +43,29 @@ def meta(text: str, key: str) -> str | None:
     return m.group(1).strip() if m else None
 
 
+DESC_MAX = 1024
+
+
+def description(text: str) -> str | None:
+    fm = re.match(r"\A---\n(.*?)\n---\n", text, re.S)
+    if not fm:
+        return None
+    linhas = fm.group(1).splitlines()
+    for i, linha in enumerate(linhas):
+        if not linha.startswith("description:"):
+            continue
+        v = linha[len("description:"):].strip()
+        if v[:1] in ("|", ">"):
+            return " ".join(l.strip() for l in linhas[i + 1:] if l.startswith((" ", "\t")))
+        if v.startswith('"'):
+            try:
+                return json.loads(v)
+            except ValueError:
+                return v[1:-1]
+        return v.strip("'")
+    return None
+
+
 def git(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True)
 
@@ -58,6 +83,11 @@ def check_skill(d: Path, base: str | None) -> list[str]:
         return [f"{name}: metadata.version ausente ou fora de X.Y.Z ({v!r})"]
     if not u or not UPDATED.match(u):
         return [f"{name}: metadata.updated ausente ou fora de AAAA-MM ({u!r})"]
+    desc = description(text)
+    if not desc:
+        erros.append(f"{name}: description ausente no frontmatter")
+    elif len(desc) > DESC_MAX:
+        erros.append(f"{name}: description tem {len(desc)} caracteres; o teto do upload é {DESC_MAX}")
     ano, mes = u.split("-")
     linha = f"`{name} v{v} · {MESES[int(mes) - 1]}/{ano} · versão atual: {URL}`"
     if linha not in text:
@@ -96,7 +126,7 @@ def main() -> int:
         erros += check_skill(d, base)
     if erros:
         print("\n".join(f"FAIL: {e}" for e in erros))
-        print("check-versions: FAIL — suba metadata.version (e a linha de identificação) da skill alterada.")
+        print("check-versions: FAIL — corrija os itens acima (skill alterada sobe metadata.version e a linha de identificação; description cabe em 1024 caracteres).")
         return 1
     print(f"PASS: check-versions — {len(skills)} skills com versão coerente" + (f", comparadas a {base}." if base else "."))
     return 0
