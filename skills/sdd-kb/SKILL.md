@@ -1,17 +1,17 @@
 ---
 name: sdd-kb
 license: MIT
-description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Cria o índice do projeto na primeira vez e registra cada domínio novo. Para legislação e normas (perfil normativo), registra a vigência de cada regra, o degrau normativo e o SHA-256 de cada fonte, os conflitos entre fontes e um mapa regra → fonte → implementação → teste para software que consome a base. Recomendada antes de iniciar um fluxo SDD, para as fases seguintes partirem do terreno já mapeado. A revisão do conteúdo é sempre do profissional — a IA organiza e redige, mas quem responde pelo que fica registrado é quem tem a responsabilidade técnica. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais, instruções ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
+description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Cria o índice do projeto na primeira vez e registra cada domínio novo. Para legislação e normas (perfil normativo), registra a vigência de cada regra, a fonte com SHA-256, os conflitos entre fontes e o mapa regra → fonte → teste. Recomendada antes de iniciar um fluxo SDD. A revisão do conteúdo é sempre do profissional: a IA organiza e redige, quem tem a responsabilidade técnica responde pelo que fica registrado. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
 metadata:
   author: Roberto Dias Duarte
-  version: "2.0.0"
+  version: "2.0.1"
   updated: "2026-10"
 ---
 
 # SDD KB
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-kb v2.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-kb v2.0.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
