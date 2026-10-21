@@ -1,12 +1,13 @@
 {
   "name": "ux-review-builder",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "caminhos_implementados": [
     "Criação de UX_STANDARD.md",
     "Evolução versionada de UX_STANDARD.md",
     "Geração da skill ux-review",
     "Geração de UX_REVIEW_TEMPLATE.md",
-    "Validação estrutural dos três artefatos"
+    "Validação estrutural dos três artefatos",
+    "Lentes cognitivas na ux-review gerada (recomendam e alertam, não bloqueiam)"
   ],
   "pasta_do_sdd": "sdd/ na raiz do projeto, ou a pasta do SDD que o projeto já usa; documentos lado a lado, sem subpastas",
   "testes_escritos": [

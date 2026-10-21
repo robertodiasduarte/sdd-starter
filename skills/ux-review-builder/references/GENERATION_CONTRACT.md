@@ -16,6 +16,8 @@ Deve:
 - revisar clareza, eficiência, confiança, acessibilidade, responsividade, estados, continuidade, acabamento e padrões específicos do projeto;
 - citar IDs canônicos nos achados quando aplicável;
 - classificar `MUST`, `SHOULD`, `COULD`, `WONT`, `CONFORME` e `NAO AVALIAVEL`;
+- aplicar as lentes cognitivas (7 lentes + sinal de validação real) como recomendação e alerta, com a regra existente que manda em cada uma, sem gerar `MUST` nem mudar o resultado do gate;
+- mapear, na jornada, a linha Interrupção → Retomada;
 - bloquear o Design quando houver `MUST` não resolvido ou não aceito explicitamente;
 - nunca alterar o `UX_STANDARD.md` automaticamente;
 - gravar `UX_REVIEW_{FEATURE}.md` na mesma pasta, a partir do modelo;
@@ -32,6 +34,7 @@ Agnóstico de projeto, com:
 - conformidade canônica;
 - achados com ID de regra, prioridade, evidência e recomendação;
 - checagem dos princípios universais e dos North Stars do projeto;
+- lentes cognitivas, fora do gate, e a linha das lentes no resultado do gate;
 - estratégia visual baseada no UX_STANDARD, sem tokens de outro projeto;
 - interações e estados obrigatórios;
 - copy;
@@ -43,4 +46,4 @@ Agnóstico de projeto, com:
 
 ## Coerência cruzada
 
-Os três artefatos usam os mesmos IDs, categorias e classificações. Se um conceito existir no modelo mas não puder ser sustentado pelo `UX_STANDARD.md`, marcar como `NAO AVALIAVEL` ou `não se aplica` — nunca inventar regra.
+Os três artefatos usam os mesmos IDs, categorias e classificações. O status das lentes cognitivas (`OK`, `RECOMENDAÇÃO`, `ALERTA`, `N.A.`) é uma classificação à parte, que não substitui nem se mistura com a das regras canônicas. Se um conceito existir no modelo mas não puder ser sustentado pelo `UX_STANDARD.md`, marcar como `NAO AVALIAVEL` ou `não se aplica` — nunca inventar regra.

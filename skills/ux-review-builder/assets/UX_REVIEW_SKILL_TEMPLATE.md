@@ -1,6 +1,6 @@
 ---
 name: "ux-review"
-description: "Revisa a UX/CX de uma feature depois do Define e antes do Design, usando o UX_STANDARD.md canônico do projeto e o UX_REVIEW_TEMPLATE.md. Use quando houver uma feature especificada que precise de jornada, conformidade com regras canônicas, estados, acessibilidade, responsividade, copy, riscos, priorização e handoff para o Design. Os achados citam IDs canônicos quando aplicável; qualquer MUST bloqueia o Design até correção ou aceite explícito. Não altera o UX_STANDARD.md automaticamente e não substitui a auditoria do sistema."
+description: "Revisa a UX/CX de uma feature depois do Define e antes do Design, usando o UX_STANDARD.md canônico do projeto e o UX_REVIEW_TEMPLATE.md. Use quando houver uma feature especificada que precise de jornada, conformidade com regras canônicas, estados, acessibilidade, responsividade, copy, riscos, priorização e handoff para o Design. Os achados citam IDs canônicos quando aplicável; qualquer MUST bloqueia o Design até correção ou aceite explícito. Aplica também lentes cognitivas que recomendam e alertam, sem bloquear. Não altera o UX_STANDARD.md automaticamente e não substitui a auditoria do sistema."
 license: "MIT"
 metadata:
   author: "Roberto Dias Duarte"
@@ -48,6 +48,8 @@ Usar: Before -> Entry -> Core Action -> Feedback -> Recovery -> Completion -> Fo
 
 Em cada etapa, registrar intenção, emoção/risco, fricção, feedback necessário e recuperação.
 
+Depois de Recovery, analisar também **Interrupção → Retomada**: se a pessoa sai no meio, o que ela perde e como volta. É linha de análise da jornada, não estado obrigatório.
+
 ### 3. Avaliar a conformidade canônica
 
 Para cada regra relevante do UX_STANDARD, marcar `CONFORME`, `MUST`, `SHOULD`, `COULD`, `WONT` ou `NAO AVALIAVEL`. Citar o ID da regra e a evidência concreta.
@@ -70,19 +72,41 @@ Tratar loading, empty, error, success, partial data, permission denied e disable
 
 Usar somente se o UX_STANDARD ou o objetivo da feature justificar progresso, marcos, feedback positivo ou outra mecânica. Não recomendar engajamento manipulativo.
 
-### 8. Produzir o handoff para o Design
+### 8. Aplicar as lentes cognitivas (não bloqueiam)
+
+As lentes não bloqueiam. Uma lente **nunca gera MUST** e **não entra no cálculo** do resultado (`READY/BLOCKED FOR DESIGN`). Uma lente **nunca rebaixa** uma regra: se o achado já viola a regra da última coluna, registre a severidade dessa regra em Universal Principles Check ou em UX/CX Findings, citada à parte — a lente só anota o ângulo.
+
+Todo status diferente de `N.A.` exige evidência: a frase que mostra, no DEFINE ou na tela, por que a lente recebeu aquele status. Sem evidência, não use `OK`; registre `RECOMENDAÇÃO: verificar <o quê> no Design`.
+
+Status: `OK` (a tela já atende) · `RECOMENDAÇÃO` (SHOULD ou COULD; segue no handoff marcada `(lente Lx)`) · `ALERTA` (aplicar a lente ao pé da letra pioraria esta tela; não bloqueia) · `N.A.` (não se aplica, com o motivo; lentes N.A. podem ir juntas numa linha). Feature sem interface: `N.A. — sem interface: <motivo>`, em 1 linha.
+
+| Lente | Pergunta | Alerta embutido | Regra existente que manda |
+|---|---|---|---|
+| L1 Alcance (Fitts) | A ação principal está perto de onde a decisão acontece? O card ou a linha inteira é clicável quando a pessoa espera isso? Alvo de 44 px é o recomendado. | — | UX-CORE-005 (alvo abaixo do piso de 24×24 px, WCAG 2.2 AA) · UX-CORE-003 |
+| L2 Escolhas por passo (Hick-Hyman) | Quantas opções competem em cada decisão? Cabe mostrar o resto só quando for pedido? | Para quem usa todo dia, densidade é recurso: não esconder opção de uso diário. | UX-CORE-003 |
+| L3 Retomada (Zeigarnik) | Quem sai no meio perde o que preencheu? Ao voltar, a tela mostra o que falta e como continuar? | Sem lembrete insistente ou que culpe a pessoa. "Em andamento" é análise aqui, não estado obrigatório. | UX-CORE-002 (estado ambíguo: "foi salvo?") |
+| L4 Convenção (Jakob) | Ícone, gesto ou padrão fora do que a pessoa conhece de outros produtos tem justificativa? | Criatividade não pode exigir reaprender ação básica. | UX-CORE-008 |
+| L5 Progresso real (Gradiente de meta) | O progresso exibido vem do estado real e mostra o que falta? | Progresso inflado para motivar é dark pattern. | UX-CORE-009 |
+| L6 Destaque único (Von Restorff) | Só o que importa se destaca? | `ALERTA` só quando há destaques competindo entre si. | UX-CORE-003 · estratégia visual do UX_STANDARD |
+| L7 Agrupamento (Miller) | Campos e informações estão em grupos com nome? | 7±2 não é regra de contagem: não cortar campo necessário para caber num número. | — |
+| S Sinal de validação real | Que número observável, depois da entrega, diz se funcionou (conclusão por etapa, abandono, tempo, pergunta ao suporte)? | Recomendação para o handoff, nunca critério de aceite. | — |
+
+### 9. Produzir o handoff para o Design
 
 Escrever requisitos de comportamento, componentes necessários, estados, copy, direção visual, acessibilidade, responsividade e critérios de aceite.
 
+Cada `RECOMENDAÇÃO` de lente vira 1 linha `(lente Lx)` no handoff, com a prioridade que já carrega; o sinal de validação real vira a linha "Como medir depois".
+
 Não desenhar a arquitetura técnica nem substituir o Design.
 
-### 9. Determinar o resultado do gate
+### 10. Determinar o resultado do gate
 
 - Sem `MUST`: `READY FOR DESIGN`, mantendo SHOULD/COULD no handoff.
 - Com `MUST` não resolvido: `BLOCKED FOR DESIGN`.
 - Com `MUST` aceito explicitamente: registrar a exceção e o responsável; não marcar como conforme.
+- As lentes não mudam o resultado: registrar no Gate Outcome a linha com a contagem de `RECOMENDAÇÃO` e `ALERTA`.
 
-### 10. Tratar a evolução do padrão
+### 11. Tratar a evolução do padrão
 
 Se a revisão mostrar que o UX_STANDARD precisa mudar, registrar uma `Proposta de evolução canônica`. Não editar a fonte canônica: encaminhar a mudança para o fluxo de governança (a meta-skill `ux-review-builder`, no modo Evolução).
 
@@ -98,6 +122,7 @@ Se a revisão mostrar que o UX_STANDARD precisa mudar, registrar uma `Proposta d
 - copy e feedback tratados;
 - conflito DEFINE x UX_STANDARD bloqueado;
 - `MUST` bloqueia o Design, salvo aceite explícito;
+- lentes cognitivas aplicadas sem gerar `MUST` nem mudar o resultado do gate, com evidência em todo status diferente de `N.A.`;
 - nenhuma mudança automática no UX_STANDARD;
 - handoff concreto para o Design;
 - relatório gravado na pasta do SDD, sem subpastas;
@@ -122,6 +147,8 @@ Se a revisão mostrar que o UX_STANDARD precisa mudar, registrar uma `Proposta d
 **Conforme.** `UX-STATE-004` exige confirmação inequívoca de sucesso e o DEFINE especifica mensagem persistente e próximo passo. Registrar `CONFORME` com a evidência.
 
 **MUST.** O fluxo permite enviar duas vezes sem indicar processamento, violando `UX-CORE-002` e `UX-CORE-007`. Registrar `MUST`, a recomendação e `BLOCKED FOR DESIGN`.
+
+**Lente em alerta.** A tela de conferência é usada todo dia pela mesma equipe e o DEFINE propõe esconder os filtros atrás de "mais opções". Marcar `Escolhas por passo (Hick-Hyman)` como `ALERTA`: aqui a densidade é recurso, e esconder custaria um clique a mais por dia. O resultado do gate não muda.
 
 **Não avaliável.** O UX_STANDARD exige foco visível, mas não há mockup nem comportamento implementado. Marcar `NAO AVALIAVEL`; não afirmar conformidade.
 

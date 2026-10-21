@@ -4,6 +4,10 @@
 Structural validation only. It does not judge visual quality, accessibility compliance,
 or correctness of project-specific UX decisions.
 
+Output: {"pass", "errors", "warnings", "scope"}. Only errors fail; warnings never change pass or the
+exit code. LENTES_COGNITIVAS_AUSENTES warns that a template or child skill predates 1.3.0 (no cognitive
+lenses section) — older bundles keep passing.
+
 --root  folder with UX_STANDARD.md and UX_REVIEW_TEMPLATE.md (the SDD folder, or the download folder)
 --skill folder of the generated ux-review skill (default: the first ux-review folder found in
         the root or in the project root — the parent of sdd/, or of .claude/ for .claude/sdd/ —
@@ -27,6 +31,7 @@ CITATION_SECTIONS = ("excec", "historico")
 # to a subfolder would never find the DEFINE nor be found by the Design phase.
 SUBFOLDER_RE = re.compile(r"\b(features|architecture|templates|reviews)/|\bsdd/[^\s/`'\"]+/")
 HARDCODED_PATH_RE = re.compile(r"\bsdd/")
+LENS_MARKER = "lentes cognitivas"
 
 
 def plain(text: str) -> str:
@@ -57,6 +62,7 @@ def read(path: Path) -> str:
 
 def validate(root: Path, skill_dir: Path | None = None) -> dict:
     errors: list[str] = []
+    warnings: list[str] = []
     standard_path = root / "UX_STANDARD.md"
     review_template_path = root / "UX_REVIEW_TEMPLATE.md"
     if skill_dir is None:
@@ -117,6 +123,8 @@ def validate(root: Path, skill_dir: Path | None = None) -> dict:
             errors.append("STATUS_NAO_AVALIAVEL_AUSENTE")
         if "BLOCKED FOR DESIGN" not in review_template:
             errors.append("GATE_BLOQUEANTE_AUSENTE")
+        if LENS_MARKER not in plain(review_template):
+            warnings.append("LENTES_COGNITIVAS_AUSENTES:UX_REVIEW_TEMPLATE.md")
 
     if child_skill is not None:
         required_child = ["UX_STANDARD.md", "UX_REVIEW_TEMPLATE.md", "MUST", "NAO AVALIAVEL"]
@@ -130,10 +138,13 @@ def validate(root: Path, skill_dir: Path | None = None) -> dict:
             errors.append("SUBPASTA_SDD_NA_FILHA")
         if "nao altera" not in child_plain and "nao editar" not in child_plain:
             errors.append("PROTECAO_FONTE_CANONICA_AUSENTE")
+        if LENS_MARKER not in child_plain:
+            warnings.append("LENTES_COGNITIVAS_AUSENTES:ux-review")
 
     return {
         "pass": not errors,
         "errors": errors,
+        "warnings": warnings,
         "scope": "estrutura dos tres artefatos; nao prova qualidade subjetiva ou conformidade externa",
     }
 
