@@ -45,6 +45,7 @@
 | Core Action | {TEXT} | {TEXT} | {TEXT} | {TEXT} | {TEXT} |
 | Feedback | {TEXT} | {TEXT} | {TEXT} | {TEXT} | {TEXT} |
 | Recovery | {TEXT} | {TEXT} | {TEXT} | {TEXT} | {TEXT} |
+| Interrupção → Retomada | {Sair no meio preserva o que foi feito? Como a pessoa volta?} | {TEXT} | {TEXT} | {TEXT} | {TEXT} |
 | Completion | {TEXT} | {TEXT} | {TEXT} | {TEXT} | {TEXT} |
 | Follow-up | {TEXT} | {TEXT} | {TEXT} | {TEXT} | {TEXT} |
 
@@ -137,6 +138,21 @@ Validar somente o sistema definido no `UX_STANDARD.md`. Não introduzir tokens, 
 
 Se não for apropriada: `Gamification decision: Not recommended because {reason}.`
 
+## Lentes cognitivas (não bloqueiam)
+
+> Lente nunca gera MUST, nunca rebaixa uma regra e não entra no cálculo do resultado (`READY/BLOCKED FOR DESIGN`). Todo status diferente de `N.A.` exige evidência. Status: `OK` · `RECOMENDAÇÃO` (SHOULD ou COULD) · `ALERTA` · `N.A.`; lentes `N.A.` podem ir juntas numa linha, com o motivo. A linha Interrupção → Retomada da jornada é análise, não estado obrigatório.
+
+| Lente | Status | Evidência |
+|---|---|---|
+| Alcance (Fitts) | OK / RECOMENDAÇÃO / ALERTA / N.A. | {EVIDENCE} |
+| Escolhas por passo (Hick-Hyman) | {STATUS} | {EVIDENCE} |
+| Retomada (Zeigarnik) | {STATUS} | {EVIDENCE} |
+| Convenção (Jakob) | {STATUS} | {EVIDENCE} |
+| Progresso real (Gradiente de meta) | {STATUS} | {EVIDENCE} |
+| Destaque único (Von Restorff) | {STATUS} | {EVIDENCE} |
+| Agrupamento (Miller) | {STATUS} | {EVIDENCE} |
+| Sinal de validação real | {STATUS} | {METRIC_TO_WATCH_AFTER_DELIVERY} |
+
 ## Design Handoff
 
 ### UX requirements
@@ -157,6 +173,10 @@ Se não for apropriada: `Gamification decision: Not recommended because {reason}
 ### Accessibility/responsiveness
 - {A11Y_RESP_REQUIREMENT}
 
+### Cognitive lenses
+- (lente {Lx}) {SHOULD_OR_COULD_RECOMMENDATION}
+- Como medir depois: {VALIDATION_SIGNAL}
+
 ### Acceptance notes
 - [ ] {ACCEPTANCE_NOTE}
 
@@ -175,6 +195,8 @@ Apenas sugestões. Não editar `UX_STANDARD.md` neste fluxo.
 **MUST abertos:** {COUNT}
 
 **MUST aceitos explicitamente como exceção:** {COUNT}
+
+**Lentes cognitivas:** {N} RECOMENDAÇÃO · {M} ALERTA — não mudam o resultado.
 
 Regra: qualquer MUST não resolvido ou não aceito explicitamente mantém `BLOCKED FOR DESIGN`.
 

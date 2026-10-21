@@ -57,6 +57,8 @@ Antes de alterar a fonte canônica:
 6. atualizar versão e histórico;
 7. regenerar os artefatos dependentes quando necessário.
 
+Regra nova que nasce de uma lente cognitiva (as 7 lentes e o sinal de validação real da `ux-review`) entra com severidade SHOULD ou COULD. Para bloquear o Design, o responsável escreve uma regra própria em `MUST`, por este modo, com ID, critério verificável e versão — a lente sozinha nunca vira bloqueio.
+
 ## Autoridade da ux-review
 
 A `ux-review` pode apontar lacuna no padrão e sugerir regra nova. Não pode editar o `UX_STANDARD.md` automaticamente. Uma revisão de feature não é canal implícito de governança do produto.
@@ -73,3 +75,5 @@ Classificações:
 - `NAO AVALIAVEL`: evidência insuficiente para concluir.
 
 Um `MUST` aceito como exceção continua sendo uma violação aceita, não conformidade.
+
+As lentes cognitivas têm classificação própria (`OK`, `RECOMENDAÇÃO`, `ALERTA`, `N.A.`) e ficam fora deste gate: não geram `MUST`, não entram no cálculo de `READY/BLOCKED FOR DESIGN` e nunca rebaixam uma regra canônica.

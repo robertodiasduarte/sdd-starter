@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "cases": [
     {
       "id": "create-vague-briefing",
@@ -67,6 +67,48 @@
       "expected": [
         "Marcar NAO AVALIAVEL",
         "Não marcar CONFORME"
+      ]
+    },
+    {
+      "id": "lente-nao-bloqueia",
+      "type": "child_behavior",
+      "input": "A feature não viola nenhuma regra do UX_STANDARD, mas Escolhas por passo (Hick-Hyman) e Agrupamento (Miller) recebem RECOMENDAÇÃO.",
+      "expected": [
+        "Registrar as duas lentes como RECOMENDAÇÃO (SHOULD ou COULD) com evidência",
+        "Manter READY FOR DESIGN",
+        "Registrar no Gate Outcome que as lentes não mudam o resultado",
+        "Levar as recomendações ao handoff marcadas (lente Lx)"
+      ]
+    },
+    {
+      "id": "lente-nao-rebaixa-must",
+      "type": "child_behavior",
+      "input": "O DEFINE mostra uma barra de progresso que começa em 40% antes de qualquer etapa concluída, para motivar.",
+      "expected": [
+        "Classificar MUST por UX-CORE-009, citado à parte",
+        "Marcar BLOCKED FOR DESIGN",
+        "Registrar Progresso real (Gradiente de meta) só como ângulo cognitivo, sem rebaixar o MUST"
+      ]
+    },
+    {
+      "id": "lente-alerta-usuario-avancado",
+      "type": "child_behavior",
+      "input": "Tela de conferência usada todo dia pela mesma equipe; o DEFINE propõe esconder os filtros atrás de 'mais opções'.",
+      "expected": [
+        "Marcar Escolhas por passo (Hick-Hyman) como ALERTA",
+        "Explicar que densidade é recurso para uso diário",
+        "Não gerar MUST nem mudar o resultado do gate"
+      ]
+    },
+    {
+      "id": "evolucao-lente-vira-should",
+      "type": "positive",
+      "input": "Quero que a lente de Retomada vire regra do meu UX_STANDARD.",
+      "expected": [
+        "Entrar em modo Evolução",
+        "Propor a regra com severidade SHOULD ou COULD",
+        "Explicar que bloquear exige uma regra própria em MUST, decidida pelo responsável",
+        "Solicitar nova confirmação"
       ]
     }
   ]

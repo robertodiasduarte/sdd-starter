@@ -1,5 +1,8 @@
 import importlib.util
+import json
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -19,6 +22,7 @@ CHILD_MIN = (
     "UX_STANDARD.md UX_REVIEW_TEMPLATE.md MUST NAO AVALIAVEL "
     "Os documentos ficam em `sdd/` (ou `.claude/sdd/`), sem subpastas. nao editar"
 )
+CORE = "\n".join(f"UX-CORE-{i:03d}" for i in range(1, 11)) + "\n"
 
 
 def write_bundle(root: Path, standard: str, template: str, child: str) -> None:
@@ -144,6 +148,48 @@ class ValidatorTests(unittest.TestCase):
             shutil.copy(assets / "UX_REVIEW_SKILL_TEMPLATE.md", skill / "SKILL.md")
             result = validator.validate(docs, skill)
             self.assertTrue(result["pass"], result)
+
+    def test_bundle_without_lenses_passes_with_warnings(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            write_bundle(root, CORE, REVIEW_TEMPLATE_MIN, CHILD_MIN)
+            result = validator.validate(root)
+            self.assertTrue(result["pass"], result)
+            self.assertEqual(result["errors"], [])
+            self.assertIn("LENTES_COGNITIVAS_AUSENTES:UX_REVIEW_TEMPLATE.md", result["warnings"])
+            self.assertIn("LENTES_COGNITIVAS_AUSENTES:ux-review", result["warnings"])
+
+    def test_shipped_templates_have_no_lens_warning(self):
+        with tempfile.TemporaryDirectory() as td:
+            docs = Path(td) / "sdd"
+            skill = Path(td) / "ux-review"
+            docs.mkdir()
+            skill.mkdir()
+            assets = SKILL_ROOT / "assets"
+            shutil.copy(assets / "UX_STANDARD_TEMPLATE.md", docs / "UX_STANDARD.md")
+            shutil.copy(assets / "UX_REVIEW_TEMPLATE.md", docs / "UX_REVIEW_TEMPLATE.md")
+            shutil.copy(assets / "UX_REVIEW_SKILL_TEMPLATE.md", skill / "SKILL.md")
+            result = validator.validate(docs, skill)
+            self.assertTrue(result["pass"], result)
+            self.assertEqual(result["warnings"], [])
+
+    def test_lens_warning_never_enters_errors(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            write_bundle(root, CORE.replace("UX-CORE-001", ""), REVIEW_TEMPLATE_MIN, CHILD_MIN)
+            result = validator.validate(root)
+            self.assertFalse(result["pass"])
+            self.assertFalse(any(e.startswith("LENTES_") for e in result["errors"]), result)
+            self.assertTrue(any(w.startswith("LENTES_COGNITIVAS_AUSENTES") for w in result["warnings"]))
+
+    def test_cli_exits_zero_with_warnings(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            write_bundle(root, CORE, REVIEW_TEMPLATE_MIN, CHILD_MIN)
+            proc = subprocess.run([sys.executable, str(SCRIPT), "--root", str(root)],
+                                  capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertTrue(json.loads(proc.stdout)["warnings"])
 
 
 if __name__ == "__main__":

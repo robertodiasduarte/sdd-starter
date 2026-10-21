@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0 - 2026-10
+
+- A `ux-review` gerada aplica 7 lentes cognitivas — Alcance (Fitts), Escolhas por passo (Hick-Hyman), Retomada (Zeigarnik), Convenção (Jakob), Progresso real (Gradiente de meta), Destaque único (Von Restorff), Agrupamento (Miller) — e o sinal de validação real. Elas recomendam e alertam, nunca bloqueiam: não geram `MUST`, não mudam o resultado do gate e nunca rebaixam uma regra existente; cada lente aponta a regra que manda quando há sobreposição (ex.: alvo abaixo de 24 px continua `MUST` pela `UX-CORE-005`).
+- Jornada ganha a linha Interrupção → Retomada (análise, não estado obrigatório).
+- O relatório ganha a seção de lentes, a linha das lentes no `Gate Outcome` e as recomendações `(lente Lx)` no handoff.
+- Modo Evolução: regra derivada de lente nasce SHOULD ou COULD; bloquear exige regra própria.
+- Validador: campo `warnings`. `LENTES_COGNITIVAS_AUSENTES` avisa modelo anterior à 1.3.0 e não reprova — bundles 1.2 continuam passando.
+- 4 testes e 4 cenários comportamentais novos.
+
 ## 1.2.0 - 2026-10
 
 - Versão e data no frontmatter (`metadata.updated`) e linha de identificação na primeira resposta, para quem baixou o .zip saber se a cópia envelheceu.
