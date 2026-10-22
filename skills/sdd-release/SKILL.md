@@ -204,9 +204,10 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
    execute antes. (Com deploy automático, o próprio push na principal já publica.)
 6. **Confirme que funcionou — pelo commit que você publicou, não pelo último run.** Não diga "publicado"
    porque o comando não deu erro. Com deploy por workflow e `gh` disponível:
-   - `gh run list --commit <SHA publicado> --json databaseId,status,conclusion,workflowName` (igual no
-     PowerShell). Olhe o run **do workflow que publica**, não o mais recente da lista geral: com dois pushes
-     seguidos, "o último run" pode ser de outro commit.
+   - `gh run list --commit <SHA publicado> --branch <principal> --json databaseId,status,conclusion,workflowName,event`
+     (igual no PowerShell). Olhe o run **do workflow que publica**, disparado por `push` na principal — não o
+     mais recente da lista geral (com dois pushes seguidos, é de outro commit) nem um run do mesmo SHA em
+     outra branch ou de PR, que pode ter pulado o deploy.
    - `completed` + `success` ⇒ "No ar: o deploy do seu commit `<sha curto>` terminou (run N)".
    - `queued` ou `in_progress` ⇒ espere e olhe de novo; ainda não está no ar.
    - `cancelled` ⇒ com fila, um push mais novo pode ter substituído o seu. `GIT_TERMINAL_PROMPT=0 git fetch

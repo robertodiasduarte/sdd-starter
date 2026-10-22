@@ -120,7 +120,8 @@ alcance() {
     [ -n "${ssh_cmd}" ] && export GIT_SSH_COMMAND="${ssh_cmd}"
     git -c http.lowSpeedLimit=1 -c http.lowSpeedTime=8 ls-remote --heads origin </dev/null 2>&1 &
     p=$!
-    ( sleep 10; kill -TERM -- "-${p}" ) >/dev/null 2>&1 &
+    # TERM no grupo e, 1 s depois, KILL: um descendente que ignora o TERM seguraria o teto.
+    ( sleep 10; kill -TERM -- "-${p}"; sleep 1; kill -KILL -- "-${p}" ) >/dev/null 2>&1 &
     w=$!
     wait "${p}"; rc=$?
     kill "${w}" 2>/dev/null
