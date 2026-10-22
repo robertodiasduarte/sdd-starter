@@ -417,6 +417,16 @@ class TestFrente(Base):
         self.bloqueia(out, rc)
         self.assertIn("sem internet", out)
 
+    def test_frente_bloqueia_login_do_editor(self):
+        self.origin(f"http://127.0.0.1:{self.srv401.server_address[1]}/x.git")
+        askpass = self.tmp / "askpass.sh"
+        askpass.write_text("#!/bin/sh\nsleep 60\n", encoding="utf-8")
+        askpass.chmod(0o755)
+        rc, out, t = self.roda("--frente", GIT_ASKPASS=str(askpass))
+        self.bloqueia(out, rc)
+        self.assertLessEqual(t, 12, out)
+        self.assertIn("A janela de login do editor está esperando resposta", out)
+
     def test_frente_nao_olha_dado_exposto(self):
         # O pré-voo só decide se a frente pode nascer; o diagnóstico completo é o modo normal.
         self.escreve(".env", "SENHA=x\n")
