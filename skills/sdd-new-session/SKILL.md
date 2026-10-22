@@ -52,7 +52,9 @@ de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
 - Sem a skill ou sem bash (PowerShell puro), faça as mesmas 3 checagens à mão, nesta ordem, parando na
   primeira que falhar:
   1. `git remote` vazio ⇒ *"O repositório não tem remoto — a frente nasce dele."* com
-     `git remote add origin <url do repositório>`.
+     `git remote add origin <url do repositório>`. Há remoto, mas nenhum chamado `origin` (um fork com só
+     `upstream`, por exemplo) ⇒ *"O repositório tem remoto, mas nenhum chamado origin — a frente nasce do
+     origin."* com `git remote rename <nome> origin` (ou `git remote add origin <url>`). Não é login.
   2. `GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin` (PowerShell:
      `$env:GIT_TERMINAL_PROMPT=0; git ls-remote --heads origin`) — se passar de 10 segundos sem resposta,
      interrompa. Parado com o terminal de um editor (`GIT_ASKPASS` definido — VS Code, Cursor) ⇒ *"A janela
@@ -63,7 +65,8 @@ de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
      no GitHub."* com `gh auth login` (alternativas, numa linha: chave SSH ou o gerenciador de credenciais
      do git). `Host key verification failed` ⇒ `ssh -T git@<host>` e responder `yes` — não é login.
      `Could not resolve host`, `timed out`, ou parado sem editor ⇒ sem internet ou rede bloqueada (não fale
-     em senha).
+     em senha). Qualquer outra mensagem ⇒ *"Não consegui ler o remoto:"* com a 1ª linha do erro e
+     `git remote -v` — não chute a causa.
   3. Nenhuma branch listada ⇒ *"O repositório remoto ainda não tem nenhum commit — a frente nasce dele."*
      com o primeiro commit e `GIT_TERMINAL_PROMPT=0 git push -u origin <branch atual>`.
   Qualquer bloqueio termina com *"Nada foi criado. Depois de resolver, peça a frente de novo."*
