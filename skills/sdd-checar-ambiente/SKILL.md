@@ -40,7 +40,7 @@ aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identifica
 - **Somente leitura.** Não instale, não configure, não conserte, não crie arquivo. Entregue o comando;
   quem roda é o usuário, depois de ver o que está autorizando. Saídas de rede, as duas só de leitura:
   uma consulta anônima ao GitHub, de até 3 segundos, para saber se o repositório é público (se falhar,
-  não diga nada sobre isso); e um `git ls-remote` no remoto, de até 10 segundos, **sem pedir senha**,
+  não diga nada sobre isso); e uma consulta `ls-remote` ao remoto, de até 10 segundos, **sem pedir senha**,
   para saber se a credencial e a rede chegam lá e se ele já tem algum commit.
 - **Nunca deixe o git pedir senha no terminal**: o agente ficaria esperando uma resposta que ninguém vê.
   Todo comando que fala com o remoto roda com `GIT_TERMINAL_PROMPT=0 git …` no bash/zsh; no PowerShell,
