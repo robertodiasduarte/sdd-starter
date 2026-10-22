@@ -55,15 +55,18 @@ de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
      `git remote add origin <url do repositório>`. Há remoto, mas nenhum chamado `origin` (um fork com só
      `upstream`, por exemplo) ⇒ *"O repositório tem remoto, mas nenhum chamado origin — a frente nasce do
      origin."* com `git remote rename <nome> origin` (ou `git remote add origin <url>`). Não é login.
-  2. `GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin` (PowerShell:
-     `$env:GIT_TERMINAL_PROMPT=0; git ls-remote --heads origin`) — se passar de 10 segundos sem resposta,
+  2. `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never git ls-remote --heads origin` (PowerShell:
+     `$env:GIT_TERMINAL_PROMPT=0; $env:GCM_INTERACTIVE='never'; git ls-remote --heads origin` — o
+     `GCM_INTERACTIVE` impede a janela do gerenciador de credenciais do Windows, sem desligar a credencial
+     já guardada) — se passar de 10 segundos sem resposta,
      interrompa. Parado com o terminal de um editor (`GIT_ASKPASS` definido — VS Code, Cursor) ⇒ *"A janela
      de login do editor está esperando resposta."*: responder a janela, ou `gh auth login` para não depender
      dela; parado sem editor ⇒ rede. Erro de login (`could not read Username`, `Authentication failed`,
      `Permission denied (publickey)`, `Repository not found`) ⇒ *"O GitHub não deixou este computador ler
      o repositório: ou o endereço está errado, ou o repositório é privado e este computador não está logado
      no GitHub."* com `gh auth login` (alternativas, numa linha: chave SSH ou o gerenciador de credenciais
-     do git). `Host key verification failed` ⇒ `ssh -T git@<host>` e responder `yes` — não é login.
+     do git); remoto fora do GitHub ⇒ *"O remoto `<host>` recusou o acesso deste computador (login ou
+     permissão)."*, com o login daquele serviço — nunca `gh auth login`. `Host key verification failed` ⇒ `ssh -T git@<host>` e responder `yes` — não é login.
      `Could not resolve host`, `timed out`, ou parado sem editor ⇒ sem internet ou rede bloqueada (não fale
      em senha). Qualquer outra mensagem ⇒ *"Não consegui ler o remoto:"* com a 1ª linha do erro e
      `git remote -v` — não chute a causa.
@@ -159,7 +162,9 @@ Receba o nome da tarefa em linguagem natural e, na ordem:
 2. **Aborte se a branch ou a pasta já existirem** (`git show-ref --verify refs/heads/<slug>`,
    `GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin <slug>`, e a pasta `<pasta_das_frentes>/<slug>`). Não invente outro
    nome: peça outro ao usuário. Nada pode ter sido criado antes desta checagem.
-3. `GIT_TERMINAL_PROMPT=0 git fetch origin <branch-base>` e
+3. `GIT_TERMINAL_PROMPT=0 git fetch origin "+refs/heads/<branch-base>:refs/remotes/origin/<branch-base>"`
+   (refspec explícito: num clone de uma branch só, o fetch só com o nome da branch não atualiza
+   `origin/<branch-base>`) e
    `git worktree add <pasta_das_frentes>/<slug> -b <slug> origin/<branch-base>` — a partir do estado
    **remoto**, não do local, que pode estar atrasado. `<branch-base>` é a principal (A, B) ou `develop` (C).
    Cenário C sem `origin/develop` (`GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin develop` vazio)? Pare antes de criar
