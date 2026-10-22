@@ -11,6 +11,10 @@ name: Auto Release
 # write-workflows/choose-when-workflows-run/trigger-a-workflow), entao o desenho
 # "empurra a tag e deixa o release.yml publicar" criaria a tag e NUNCA publicaria,
 # sem erro no log. O release.yml segue servindo as tags manuais (minor/major).
+#
+# ⛔ Os testes rodam AQUI, antes do zip. O ci.yml roda em paralelo e nao segura nada: um
+# zip com teste vermelho chegaria a releases/latest. Os steps de checagem sao copia do
+# ci.yml (mesmo `run:`); um check novo la sem copia aqui reprova a asserção do gate.
 
 on:
   push:
@@ -27,6 +31,7 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 10   # ~32 s medidos (publicacao + testes); o default de 360 min prenderia o runner
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -35,12 +40,35 @@ jobs:
       - name: Content safety gate
         run: bash scripts/publish-check.sh
 
+      - name: Validators compile
+        run: python3 -m py_compile skills/*/scripts/*.py scripts/*.py
+
+      - name: Shell scripts parse
+        run: bash -n scripts/package.sh scripts/publish-check.sh skills/*/scripts/*.sh
+
+      - name: Skill tests
+        run: |
+          for t in skills/*/tests; do
+            echo "== $t"
+            python3 -B -m unittest discover -s "$t" -p 'test_*.py'
+          done
+
+      - name: KB validator gate
+        run: bash skills/sdd-kb/scripts/gate.sh
+
       # Fail-closed: skill alterada sem subir metadata.version nao vira Release, porque o zip
       # publicado diria ao aluno uma versao que nao muda quando o conteudo muda.
-      - name: Version gate
-        env:
-          BASE: ${{ github.event.before }}
-        run: python3 scripts/check-versions.py --base "$BASE"
+      # Base = a ultima release publicada (a tag), nunca github.event.before: com a fila
+      # (concurrency: auto-release), um push cancelado teria o diff engolido. for-each-ref e nao
+      # `git tag | head -1`: com pipefail, o head fechando o pipe derrubaria o step (SIGPIPE).
+      - name: Version gate (contra a ultima release publicada)
+        run: |
+          set -euo pipefail
+          tag="$(git for-each-ref --count=1 --sort=-v:refname --format='%(refname:short)' 'refs/tags/v*')"
+          [ -n "$tag" ] || { echo "::error::nenhuma tag v* — sem base para o version gate"; exit 1; }
+          base="$(git rev-list -n1 "$tag")"
+          echo "base: $tag ($base)"
+          python3 scripts/check-versions.py --base "$base" --base-obrigatoria
 
       - name: Compute next patch tag
         id: tag

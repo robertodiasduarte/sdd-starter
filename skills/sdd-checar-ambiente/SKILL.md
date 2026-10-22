@@ -1,10 +1,10 @@
 ---
 name: sdd-checar-ambiente
 license: MIT
-description: "Diagnostica, sem alterar nada, se este computador e este repositório estão prontos para trabalhar com SDD: repositório git, agente de código, identidade do git, worktrees órfãs, dependências, editor e dado exposto (senha, certificado A1 ou chave privada já salvos no git; .env fora do .gitignore; npm sem ignore-scripts; repositório público). Responde em uma linha quando está tudo certo e, quando não está, lista o que impede primeiro, cada item com o comando exato que resolve. Use quando o usuário pedir para checar o ambiente, antes de abrir a primeira frente de trabalho num projeto, ou quando algo estranho acontecer (commit que falha, comando não encontrado, worktree que sumiu)."
+description: "Diagnostica, sem alterar nada, se este computador e este repositório estão prontos para trabalhar com SDD: repositório git, agente de código, identidade do git, acesso ao remoto (credencial, rede, repositório ainda vazio), worktrees órfãs, dependências, editor e dado exposto (senha, certificado A1 ou chave privada já salvos no git; .env fora do .gitignore; npm sem ignore-scripts; repositório público). Responde em uma linha quando está tudo certo e, quando não está, lista o que impede primeiro, cada item com o comando exato que resolve. Use quando o usuário pedir para checar o ambiente, antes de abrir a primeira frente de trabalho num projeto, ou quando algo estranho acontecer (commit que falha, comando não encontrado, worktree que sumiu)."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.0"
+  version: "1.1.0"
   updated: "2026-10"
 ---
 
@@ -32,15 +32,20 @@ no projeto ou na pasta global do agente.)
 script: blocos `🔴 Dado exposto`, `🔴 Impede o trabalho` e `⚠️ Vale arrumar` só se tiverem itens, e por
 último a linha `✅ Pronto: repo …` (ou `✅ Repo …` quando houver problema). Checagem que passou ou não se
 aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identificação desta skill:
-`sdd-checar-ambiente v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 (o script faz isso sozinho, lendo a versão deste arquivo).
 
 ## Regras
 
 - **Somente leitura.** Não instale, não configure, não conserte, não crie arquivo. Entregue o comando;
-  quem roda é o usuário, depois de ver o que está autorizando. A única saída de rede é uma consulta
-  anônima ao GitHub, de até 3 segundos, para saber se o repositório é público; se falhar, não diga nada
-  sobre isso.
+  quem roda é o usuário, depois de ver o que está autorizando. Saídas de rede, as duas só de leitura:
+  uma consulta anônima ao GitHub, de até 3 segundos, para saber se o repositório é público (se falhar,
+  não diga nada sobre isso); e um `git ls-remote` no remoto, de até 10 segundos, **sem pedir senha**,
+  para saber se a credencial e a rede chegam lá e se ele já tem algum commit.
+- **Nunca deixe o git pedir senha no terminal**: o agente ficaria esperando uma resposta que ninguém vê.
+  Todo comando que fala com o remoto roda com `GIT_TERMINAL_PROMPT=0 git …` no bash/zsh; no PowerShell,
+  `$env:GIT_TERMINAL_PROMPT=0; git …`. A janela de login do editor (VS Code, Cursor) **não** é desligada:
+  quem está logado no GitHub por ela alcança o remoto sem janela nenhuma.
 - **Não invente problema.** Sem `.env.example` versionado, não reclame de `.env` ausente. Sem
   `package.json`, não fale de `node_modules` nem de npm. Sem `.env` na pasta, não fale de `.gitignore`.
   Repositório público, sozinho, não é problema. Um `.pem` com certificado público não é segredo. Um
@@ -67,8 +72,23 @@ aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identifica
 - `git config user.name` e `git config user.email`. Sem os dois, o primeiro commit falha com uma
   mensagem que não diz claramente o que fazer. O comando que resolve:
   `git config --global user.name "Seu Nome"` e `git config --global user.email "voce@exemplo.com"`.
-- `git remote -v` — há remoto? Qual é a branch principal dele (`git remote show origin`, linha
-  "HEAD branch")?
+- `git remote -v` — há remoto? Qual é a branch principal dele (`GIT_TERMINAL_PROMPT=0 git remote show origin`,
+  linha "HEAD branch")?
+- **O remoto responde?** `GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin` (PowerShell:
+  `$env:GIT_TERMINAL_PROMPT=0; git ls-remote --heads origin`), com teto de 10 segundos. Leia o resultado:
+  - lista de branches ⇒ tudo certo;
+  - nada listado e nenhum erro ⇒ o repositório remoto ainda não tem nenhum commit (⚠️): o primeiro
+    commit e `GIT_TERMINAL_PROMPT=0 git push -u origin <branch atual>`;
+  - `could not read Username`, `Authentication failed`, `Permission denied (publickey)`,
+    `Repository not found` ⇒ 🔴 credencial: no GitHub, "ou o endereço está errado, ou o repositório é
+    privado e este computador não está logado"; o comando é `gh auth login` (sem `gh`: instalar em
+    https://cli.github.com); alternativas, numa linha só: chave SSH ou o gerenciador de credenciais do git;
+  - `Host key verification failed` ⇒ 🔴 este computador nunca confirmou a identidade do servidor por SSH:
+    `ssh -T git@<host>` e responder `yes` — não é problema de login;
+  - `Could not resolve host`, `timed out`, `Failed to connect` ou nenhuma resposta em 10 segundos ⇒ ⚠️ sem
+    internet ou rede bloqueada — **não** fale em senha nem em login;
+  - parou sem resposta e o terminal é de um editor (`GIT_ASKPASS` definido) ⇒ 🔴 a janela de login do
+    editor está esperando resposta: responder a janela, ou `gh auth login`.
 
 **4. Frentes de trabalho (worktrees)**
 - `git worktree list` — a 1ª linha é o checkout principal, **não é frente**. Frentes abertas = as linhas
@@ -113,6 +133,11 @@ aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identifica
   `true` ⇒ ⚠️, `npm config set ignore-scripts true`, avisando que um pacote que dependa de script de
   instalação volta com `npm rebuild <pacote> --ignore-scripts=false`.
 
+**Pré-voo de uma frente nova.** A skill `sdd-new-session` roda `bash <pasta desta skill>/scripts/checar.sh --frente`:
+só git, repositório, remoto e acesso ao remoto. Qualquer achado vira 🔴, o script sai com código 1 e a
+última linha é "Nada foi criado. Depois de resolver, peça a frente de novo."; saudável, sai 0 com uma linha
+`✅ Pronto para abrir a frente: …`.
+
 Para um alarme que barra o próximo commit com dado de cliente, a skill é a `sdd-higiene-dado` (instala
 com OK); esta aqui só diagnostica.
 
@@ -128,7 +153,7 @@ ordem, **omitindo os vazios**:
 3. **⚠️ Vale arrumar** — `.env` fora do `.gitignore`, npm sem `ignore-scripts` (estes primeiro),
    worktree órfã, frente integrada ainda aberta, `.env` ausente.
 4. **✅ Resumo em uma linha**, terminando com a identificação desta skill — ex.:
-   `✅ Pronto: repo meu-app, branch main, 2 frentes abertas, Claude Code 2.1 · sdd-checar-ambiente v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+   `✅ Pronto: repo meu-app, branch main, 2 frentes abertas, Claude Code 2.1 · sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Se estiver tudo certo, a resposta inteira é **exatamente a linha ✅** — nenhuma frase antes nem
 depois: nada de "Tudo limpo", de lista do que foi verificado ou de oferta de ajuda. Ambiente saudável
@@ -139,7 +164,7 @@ não merece parágrafo; quem quer detalhe pergunta.
 Saudável:
 
 ```text
-✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
+✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
 ```
 
 Com o certificado A1 salvo no git de um repositório público:
@@ -150,7 +175,7 @@ Com o certificado A1 salvo no git de um repositório público:
   git rm --cached "certificados/empresa.pfx" && echo "certificados/empresa.pfx" >> .gitignore
   Depois, revogue o certificado com a autoridade certificadora e emita outro.
 
-✅ Repo meu-app (público no GitHub), branch main, nenhuma frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
+✅ Repo meu-app (público no GitHub), branch main, nenhuma frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
 ```
 
 Com dois problemas:
@@ -165,7 +190,7 @@ Com dois problemas:
   git worktree remove ../meu-app-frentes/relatorio-mensal
   git branch -d relatorio-mensal
 
-✅ Repo meu-app, branch main, 1 frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
+✅ Repo meu-app, branch main, 1 frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
 ```
 
 ---

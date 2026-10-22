@@ -17,6 +17,8 @@ Checks, for each skills/<name>/SKILL.md:
 Usage:
   python3 scripts/check-versions.py                    # structural checks only
   python3 scripts/check-versions.py --base origin/main # plus the bump check
+  python3 scripts/check-versions.py --base <sha> --base-obrigatoria
+      # the auto-release: a base that does not resolve is a FAIL, never "structural checks only"
 Exit 0 = PASS, 1 = FAIL. Standard library only.
 """
 from __future__ import annotations
@@ -115,9 +117,18 @@ def check_skill(d: Path, base: str | None) -> list[str]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", help="git ref to compare against (e.g. origin/main)")
+    ap.add_argument("--base-obrigatoria", action="store_true",
+                    help="base ausente ou que não resolve a um commit reprova (o auto-release publica com ela)")
     a = ap.parse_args()
     base = a.base
+    if a.base_obrigatoria and not base:
+        print("FAIL: --base-obrigatoria sem --base")
+        return 1
     if base and git("rev-parse", "--verify", "--quiet", f"{base}^{{commit}}").returncode != 0:
+        if a.base_obrigatoria:
+            # Sem base, o gate de bump não roda: um zip com conteúdo novo sairia com a versão velha.
+            print(f"FAIL: base {base!r} indisponível — sem ela não dá para saber o que mudou desde a última release.")
+            return 1
         print(f"check-versions: base {base!r} indisponível; só as checagens estruturais.")
         base = None
     erros: list[str] = []

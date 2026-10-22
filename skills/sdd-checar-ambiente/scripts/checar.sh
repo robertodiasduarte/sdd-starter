@@ -8,11 +8,18 @@
 # Blocos vazios não aparecem. Ambiente saudável = só a linha ✅.
 #
 # Não instala, não configura, não grava nada. Roda em bash (macOS, Linux, Git Bash no Windows).
-# Única saída de rede: uma consulta anônima ao GitHub (3s no máximo) para saber se o repositório
-# é público. Se falhar, nada é dito sobre isso.
+# Saídas de rede, as duas somente leitura e com teto de tempo:
+#   - uma consulta anônima ao GitHub (3 s) para saber se o repositório é público — se falhar, nada é dito;
+#   - um `git ls-remote` no origin (10 s), sem pedir senha, para saber se a credencial e a rede
+#     alcançam o remoto e se ele já tem algum commit.
 # Uso: bash checar.sh            (de dentro da pasta do projeto)
+#      bash checar.sh --frente   (pré-voo da sdd-new-session: só git, repositório, remoto e alcance;
+#                                 todo achado vira 🔴 e a resposta diz que nada foi criado)
 
 set -u
+
+MODO=normal
+[ "${1:-}" = "--frente" ] && MODO=frente
 
 EXPOSTO=""
 IMPEDE=""
@@ -22,7 +29,11 @@ add_exposto() { EXPOSTO="${EXPOSTO}- $1"$'\n'"  $2"$'\n'; }
 add_impede()  { IMPEDE="${IMPEDE}- $1"$'\n'"  $2"$'\n'; }
 add_arrumar_dado() { ARRUMAR_DADO="${ARRUMAR_DADO}- $1"$'\n'"  $2"$'\n'; }
 add_arrumar() { ARRUMAR="${ARRUMAR}- $1"$'\n'"  $2"$'\n'; }
+# Achado de remoto: no pré-voo da frente impede; no diagnóstico geral, depende do caso.
+add_remoto()  { if [ "${MODO}" = frente ]; then add_impede "$1" "$2"; else add_arrumar "$1" "$2"; fi; }
 tem() { command -v "$1" >/dev/null 2>&1; }
+# O pré-voo da frente sai 1 quando bloqueia (a skill para pelo código); o diagnóstico geral sai sempre 0.
+sair() { if [ "${MODO}" = frente ] && [ -n "${IMPEDE}" ]; then exit 1; fi; exit 0; }
 
 # Identificação desta skill, lida do SKILL.md ao lado (fonte única da versão).
 SKILL_MD="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/SKILL.md"
@@ -37,6 +48,16 @@ IDENT=""
 
 relatorio() {   # $1 = linha de resumo (sem o ✅)
   ARRUMAR="${ARRUMAR_DADO}${ARRUMAR}"
+  if [ "${MODO}" = frente ]; then
+    # Pré-voo: só o que impede abrir a frente. Bloqueio nunca termina em ✅ (pareceria liberado).
+    if [ -n "${IMPEDE}" ]; then
+      printf '🔴 Impede o trabalho\n%s\n' "${IMPEDE}"
+      printf 'Nada foi criado. Depois de resolver, peça a frente de novo.\n'
+    else
+      printf '✅ Pronto para abrir a frente: %s%s\n' "$1" "${IDENT}"
+    fi
+    return
+  fi
   [ -n "${EXPOSTO}" ] && printf '🔴 Dado exposto\n%s\n' "${EXPOSTO}"
   [ -n "${IMPEDE}" ] && printf '🔴 Impede o trabalho\n%s\n' "${IMPEDE}"
   [ -n "${ARRUMAR}" ] && printf '⚠️ Vale arrumar\n%s\n' "${ARRUMAR}"
@@ -49,59 +70,161 @@ relatorio() {   # $1 = linha de resumo (sem o ✅)
 
 # ── 2. agentes (antes do git: vale mesmo fora de repositório) ─────────────────
 AGENTES=""
-if tem claude; then AGENTES="Claude Code $(claude --version 2>/dev/null | head -1 | awk '{print $1}')"; fi
-if tem codex; then
-  v="$(codex --version 2>/dev/null | head -1 | awk '{print $NF}')"
-  AGENTES="${AGENTES:+${AGENTES}, }Codex ${v}"
+if [ "${MODO}" = normal ]; then
+  if tem claude; then AGENTES="Claude Code $(claude --version 2>/dev/null | head -1 | awk '{print $1}')"; fi
+  if tem codex; then
+    v="$(codex --version 2>/dev/null | head -1 | awk '{print $NF}')"
+    AGENTES="${AGENTES:+${AGENTES}, }Codex ${v}"
+  fi
+  [ -n "${AGENTES}" ] || AGENTES="nenhum agente de código no terminal"
 fi
-[ -n "${AGENTES}" ] || AGENTES="nenhum agente de código no terminal"
 
 # ── 1. onde estou ────────────────────────────────────────────────────────────
 if ! tem git; then
   add_impede "O git não está instalado — sem ele não há frentes nem publicação." \
              "Instale em https://git-scm.com/downloads e abra o terminal de novo."
-  relatorio "${AGENTES}"; exit 0
+  relatorio "${AGENTES}"; sair
 fi
 RAIZ="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [ -z "${RAIZ}" ]; then
   add_impede "Esta pasta não é um repositório git — provavelmente o terminal foi aberto na pasta errada." \
              "cd <pasta do projeto>   (ou, se o projeto ainda não tem git: git init)"
-  relatorio "pasta $(basename "$(pwd)"), ${AGENTES}"; exit 0
+  relatorio "pasta $(basename "$(pwd)")${AGENTES:+, ${AGENTES}}"; sair
 fi
 # sed, não awk '{print $2}': caminho com espaço ("Ana Silva/Projetos/…") quebraria no 1º espaço.
 REPO="$(basename "$(git worktree list --porcelain | sed -n 's/^worktree //p' | head -1)")"
 BRANCH="$(git branch --show-current 2>/dev/null)"; BRANCH="${BRANCH:-HEAD destacado}"
 
 # ── 3. git utilizável ────────────────────────────────────────────────────────
-[ -n "$(git config user.name 2>/dev/null)" ] || add_impede \
-  "O git não tem nome configurado — o primeiro commit vai falhar." \
-  "git config --global user.name \"Seu Nome\""
-[ -n "$(git config user.email 2>/dev/null)" ] || add_impede \
-  "O git não tem e-mail configurado — o primeiro commit vai falhar." \
-  "git config --global user.email \"voce@exemplo.com\""
+if [ "${MODO}" = normal ]; then
+  [ -n "$(git config user.name 2>/dev/null)" ] || add_impede \
+    "O git não tem nome configurado — o primeiro commit vai falhar." \
+    "git config --global user.name \"Seu Nome\""
+  [ -n "$(git config user.email 2>/dev/null)" ] || add_impede \
+    "O git não tem e-mail configurado — o primeiro commit vai falhar." \
+    "git config --global user.email \"voce@exemplo.com\""
+fi
+
+# Alcance do origin, somente leitura: `ls-remote` não muda nada. Sem prompt de senha (o agente
+# travaria esperando uma resposta que ninguém vê) e com teto de 10 s. O ls-remote roda num grupo de
+# processos próprio (set -m) e o vigia mata o GRUPO: matar só o git deixaria um neto (ssh com
+# ProxyCommand) segurando a saída — medido, o neto terminava com rc 0 e parecia sucesso.
+# Imprime a saída do git e, na última linha, __rc=<código>.
+alcance() {
+  local ssh_cmd=""
+  if [ -z "${GIT_SSH_COMMAND:-}" ] && [ -z "$(git config core.sshCommand 2>/dev/null)" ]; then
+    ssh_cmd="ssh -o BatchMode=yes -o ConnectTimeout=8"
+  fi
+  ( set -m
+    export GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never
+    [ -n "${ssh_cmd}" ] && export GIT_SSH_COMMAND="${ssh_cmd}"
+    git -c http.lowSpeedLimit=1 -c http.lowSpeedTime=8 ls-remote --heads origin </dev/null 2>&1 &
+    p=$!
+    ( sleep 10; kill -TERM -- "-${p}" ) >/dev/null 2>&1 &
+    w=$!
+    wait "${p}"; rc=$?
+    kill "${w}" 2>/dev/null
+    echo "__rc=${rc}" ) 2>/dev/null
+}
+
+# Host do remoto, para as mensagens (https://h/…, ssh://[u@]h[:p]/…, u@h:…). Outro formato ⇒ vazio.
+host_de() {
+  printf '%s' "$1" | sed -n -E 's#^[a-z+]+://([^@/]+@)?([^/:]+).*#\2#p; s#^[^@/]+@([^:/]+):.*#\1#p' | head -1
+}
 
 PRINCIPAL=""
+URL_ORIGIN=""
 if [ -z "$(git remote 2>/dev/null)" ]; then
-  add_arrumar "O repositório não tem remoto — nada que você fizer sai desta máquina." \
-              "git remote add origin <url do repositório>"
+  add_remoto "O repositório não tem remoto — nada que você fizer sai desta máquina, e as frentes nascem dele." \
+             "git remote add origin <url do repositório>"
 else
   PRINCIPAL="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
   if [ -z "${PRINCIPAL}" ]; then
     for b in main master; do git show-ref --verify --quiet "refs/remotes/origin/${b}" && { PRINCIPAL="${b}"; break; }; done
   fi
+  # A URL crua (git config), não a de `git remote get-url`, que já aplica os insteadOf.
+  URL_ORIGIN="$(git config --get remote.origin.url 2>/dev/null)"
 fi
 
 # Repositório público? Só GitHub; consulta anônima (repo privado responde 404 sem login).
 # Público sozinho não é problema: só aparece no resumo, e agrava o 🔴 Dado exposto.
 PUBLICO=0
-SLUG="$(git remote get-url origin 2>/dev/null \
+SLUG="$(printf '%s' "${URL_ORIGIN}" \
   | sed -n -E 's#^(https?://([^@/]+@)?|ssh://([^@/]+@)?|git@)github\.com[:/]([^/]+/[^/]+)$#\4#p' | sed 's#\.git$##; s#/$##')"
-if [ -n "${SLUG}" ]; then
+if [ -n "${SLUG}" ] && [ "${MODO}" = normal ]; then
   if tem curl; then
     [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 "${SDD_CHECAR_GITHUB_API:-https://api.github.com}/repos/${SLUG}" 2>/dev/null)" = "200" ] && PUBLICO=1
   elif tem gh; then
     [ "$(gh repo view "${SLUG}" --json visibility -q .visibility 2>/dev/null)" = "PUBLIC" ] && PUBLICO=1
   fi
+fi
+
+if [ -n "${URL_ORIGIN}" ]; then
+  SAIDA="$(alcance)"
+  RC="$(printf '%s\n' "${SAIDA}" | sed -n 's/^__rc=//p' | tail -1)"
+  # Só as refs contam: stderr chega junto (avisos de redirecionamento ou de host novo não são refs).
+  REFS="$(printf '%s\n' "${SAIDA}" | grep -E "^[0-9a-f]{40}"$'\t'"refs/heads/" || true)"
+  ERRO="$(printf '%s\n' "${SAIDA}" | grep -v '^__rc=' | grep -v -E "^[0-9a-f]{40}"$'\t' || true)"
+  ERRO_MIN="$(printf '%s' "${ERRO}" | tr '[:upper:]' '[:lower:]')"
+  HOST="$(host_de "${URL_ORIGIN}")"
+  ONDE_HOST="${HOST:-o remoto}"
+  if [ "${RC}" = "0" ]; then
+    if [ -z "${REFS}" ]; then
+      if git rev-parse --verify --quiet HEAD >/dev/null 2>&1; then
+        PRIMEIRO="GIT_TERMINAL_PROMPT=0 git push -u origin ${BRANCH}"
+      else
+        PRIMEIRO="git add <arquivos do projeto> && git commit -m \"primeiro commit\" && GIT_TERMINAL_PROMPT=0 git push -u origin ${BRANCH}"
+      fi
+      add_remoto "O repositório remoto ainda não tem nenhum commit — as frentes nascem dele." "${PRIMEIRO}"
+    elif [ -z "${PRINCIPAL}" ]; then
+      for b in main master; do
+        printf '%s\n' "${REFS}" | grep -q "refs/heads/${b}\$" && { PRINCIPAL="${b}"; break; }
+      done
+      [ -n "${PRINCIPAL}" ] || PRINCIPAL="$(printf '%s\n' "${REFS}" | head -1 | sed 's#.*refs/heads/##')"
+    fi
+  else
+    case "${ERRO_MIN}" in
+      *"host key verification failed"*|*"remote host identification has changed"*)
+        CMD="ssh -T git@${ONDE_HOST}   (responda yes quando ele perguntar)"
+        [ "${HOST}" = "github.com" ] && CMD="${CMD}"$'\n'"  Confira a impressão digital em https://docs.github.com/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints"
+        add_impede "Este computador ainda não confirmou a identidade de ${ONDE_HOST} para SSH." "${CMD}" ;;
+      *"could not read username"*|*"could not read password"*|*"authentication failed"*|*"terminal prompts disabled"*|*"permission denied (publickey"*|*"repository not found"*|*"403"*)
+        if tem gh; then CMD="gh auth login"; else CMD="Instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
+        CMD="${CMD}"$'\n'"  Alternativas: chave SSH (ssh-keygen e cadastrar a chave pública no GitHub) ou o gerenciador de credenciais do git."
+        if [ -n "${SLUG}" ] && [ "${PUBLICO}" -eq 1 ]; then
+          MSG="O GitHub não deixou este computador ler ${SLUG}: confira o endereço do remoto e a sua permissão no repositório."
+        elif [ -n "${SLUG}" ]; then
+          MSG="O GitHub não deixou este computador ler ${SLUG}: ou o endereço está errado, ou o repositório é privado e este computador não está logado no GitHub."
+        else
+          MSG="O remoto ${ONDE_HOST} recusou o acesso deste computador (login ou permissão)."
+        fi
+        add_impede "${MSG}" "${CMD}" ;;
+      *"could not resolve host"*|*"operation too slow"*|*"timed out"*|*"failed to connect"*|*"connection refused"*|*"network is unreachable"*|*"connect to host"*)
+        add_remoto "Não consegui falar com ${ONDE_HOST} agora (sem internet ou rede bloqueada)." \
+                   "Quando a conexão voltar, rode de novo — sem o remoto não dá para abrir frente nem publicar." ;;
+      *)
+        if { [ "${RC}" = "143" ] || [ "${RC}" = "137" ] || [ -z "${ERRO}" ]; } \
+           && [ -n "${GIT_ASKPASS:-}${SSH_ASKPASS:-}$(git config core.askPass 2>/dev/null)" ]; then
+          # O askpass do editor (VS Code/Cursor) não é desligado: quem está logado no GitHub por ele alcança
+          # o remoto sem janela nenhuma. Se o vigia cortou com ele presente, a janela ficou esperando.
+          if tem gh; then CMD="Responda a janela do editor, ou rode: gh auth login"
+          else CMD="Responda a janela do editor, ou instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
+          add_impede "A janela de login do editor está esperando resposta (o git pediu usuário e senha para ${ONDE_HOST})." "${CMD}"
+        elif [ "${RC}" = "143" ] || [ "${RC}" = "137" ] || [ -z "${ERRO}" ]; then
+          # Morto pelo vigia (ou sem nenhuma mensagem): o remoto não respondeu dentro do teto.
+          add_remoto "Não consegui falar com ${ONDE_HOST} agora (sem internet ou rede bloqueada)." \
+                     "Quando a conexão voltar, rode de novo — sem o remoto não dá para abrir frente nem publicar."
+        else
+          add_remoto "Não consegui ler o remoto: $(printf '%s\n' "${ERRO}" | grep -v '^[[:space:]]*$' | head -1)" \
+                     "git remote -v   (confira o endereço do origin)"
+        fi ;;
+    esac
+  fi
+fi
+
+if [ "${MODO}" = frente ]; then
+  relatorio "repo ${REPO}, principal ${PRINCIPAL:-a descobrir}"
+  sair
 fi
 
 # ── 4. frentes (worktrees) ───────────────────────────────────────────────────

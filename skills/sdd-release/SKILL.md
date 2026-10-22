@@ -4,14 +4,14 @@ license: MIT
 description: "Fecha uma frente de trabalho e a leva para produção com UM ponto de aprovação: verifica sozinha o que vai subir (sintaxe, testes, segredo no diff, base desatualizada), mostra uma vez o que exatamente vai para produção e se o push publica sozinho, e só depois do OK do usuário commita, integra, publica e confere. Use de dentro da pasta da frente quando o usuário disser 'release', 'publicar', 'subir para produção', 'fechar a frente' ou 'integrar'. É a outra ponta da skill sdd-new-session."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.0"
+  version: "1.1.0"
   updated: "2026-10"
 ---
 
 # Release — fechar a frente com um OK
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-release v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-release v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Verificar o que vai subir, mostrar **uma vez** o que vai para produção e — só depois do OK — integrar e
 publicar.
@@ -24,6 +24,14 @@ publicar.
    custa o fim de semana. O que se corta é **burocracia** (changelog elaborado, versionamento novo,
    relatório longo). **Nunca** o que impede publicar algo quebrado, e nunca o momento em que o usuário vê
    e aprova o que vai subir.
+
+## Regra de todo comando que fala com o remoto
+
+`fetch`, `push`, `pull`, `ls-remote` e `remote show` rodam **sem pedir senha**: `GIT_TERMINAL_PROMPT=0 git …`
+no bash/zsh; no PowerShell, `$env:GIT_TERMINAL_PROMPT=0; git …`. Sem isso, um remoto que exige login faz o
+git pedir a senha no terminal, e você fica esperando uma resposta que o usuário não vê — com o OK já dado.
+Ao usuário, mostre só a forma do shell em uso. Se um desses comandos ficar parado, olhe se o editor
+(VS Code, Cursor) abriu uma janela de login do GitHub — ela é um jeito legítimo de logar e não é desligada.
 
 ## Passo 0 — Onde estou
 
@@ -38,7 +46,7 @@ publicar.
 Só o que `sdd/ambiente.md` não disser:
 
 ```bash
-git remote show origin
+GIT_TERMINAL_PROMPT=0 git remote show origin
 git log --oneline -20
 git tag --list
 ls .github/workflows/
@@ -75,6 +83,10 @@ Grave o que descobriu em `sdd/ambiente.md` do checkout principal (chaves `deploy
 
 Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
 
+0. **Identidade do git.** `git config user.name` e `git config user.email` — os dois preenchidos. Faltou
+   algum? Pare aqui, com os comandos `git config --global user.name "Seu Nome"` e
+   `git config --global user.email "voce@exemplo.com"`: o commit da Fase 3 falharia **depois** do OK, e o
+   usuário teria aprovado algo que não sobe.
 1. **O que exatamente vai subir** — inclusive o que ainda não foi commitado:
    - `git status --short --untracked-files=all` — arquivos modificados e **novos** (`??`, um por arquivo,
      nunca a pasta inteira agrupada) em relação ao último commit. **Esta
@@ -106,7 +118,7 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
    chave que entrou num commit e saiu no seguinte some do diff agregado, mas o push envia os dois
    commits. Achou no histórico? Pare: reescrever histórico é decisão do usuário, nunca desta skill.
    Uma chave publicada não se despublica, nem apagando o commit depois.
-5. **A base andou?** `git fetch origin <alvo>` e `git rev-list --count HEAD..origin/<alvo>`. **Não
+5. **A base andou?** `GIT_TERMINAL_PROMPT=0 git fetch origin <alvo>` e `git rev-list --count HEAD..origin/<alvo>`. **Não
    integre agora**: um `git merge` aqui criaria commit antes do OK (e recusaria a pasta com mudanças não
    commitadas). Só registre: "a base andou N commits" vai no bloco do OK, e a Fase 3 integra a base
    atualizada e **roda os testes de novo antes de qualquer push**.
@@ -129,6 +141,10 @@ inicial", não "altera handler.js">
 
 **O push publica sozinho?** <sim, o workflow X publica ao receber o push na main | não: <por quê>>
 
+**O deploy espera os testes?** <sim — os testes rodam no mesmo job, antes da publicação (ou: o job de
+publicação tem `needs:` no de testes) | não — o workflow X publica sem esperar os testes do Y: um teste
+vermelho não impede a publicação | não se aplica: o push não publica>
+
 **Verificações:** sintaxe <ok|pulada: motivo> · testes <ok|pulados: motivo> · segredo <nenhum, no
 diff e nos arquivos novos> · base <atualizada | andou N commits: será integrada e testada de novo antes do push>
 
@@ -139,8 +155,12 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 ```
 
 - Verificação ausente dita como ausente é informação; em silêncio, é falsa segurança.
+- **"O deploy espera os testes?"** se descobre lendo `.github/workflows/*`: os testes estão no mesmo job,
+  antes do passo que publica, ou o job que publica tem `needs:` apontando para o de testes? Um step de
+  teste com `continue-on-error: true`, `|| true` ou que termina sempre em `exit 0` **não** segura nada —
+  conta como "não". É afirmação, não pergunta: você preenche, o usuário não responde.
 - **A única pergunta do bloco é a última linha, "Posso publicar?"** (ou "Posso publicar na `<alvo>`?", se o
-  destino ficou ambíguo no Passo 1). A sugestão de revisão
+  destino ficou ambíguo no Passo 1). As linhas com `?` antes dela são rótulos que você preenche. A sugestão de revisão
   é uma frase, não uma pergunta — transformá-la em "quer que eu revise antes?" cria um segundo ponto
   de parada, e duas paradas viram carimbo.
 - Se algo ficou ambíguo (qual arquivo pertence à frente), diga **dentro deste mesmo bloco**, antes da
@@ -158,30 +178,53 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
    de skills não versionadas, que ficam de fora de propósito.
    Nunca `git add -A`, nunca `git add -u`: com duas frentes abertas na mesma máquina, eles arrastam o
    trabalho da outra.
-3. **Base atualizada, testada de novo.** Se a base andou: `git fetch origin <alvo>`,
+3. **Base atualizada, testada de novo.** Se a base andou: `GIT_TERMINAL_PROMPT=0 git fetch origin <alvo>`,
    `git merge origin/<alvo>` **na frente**, e rode os testes de novo. Conflito ou teste vermelho: **pare
    antes de qualquer push**, diga o que quebrou — nada foi publicado.
 4. **Integrar pelo cenário, sempre a partir da frente:**
-   - A (Trunk-Based, `<alvo>` = principal): `git push origin HEAD:<principal>`. O push sai **da frente**, que contém exatamente
+   - A (Trunk-Based, `<alvo>` = principal): `GIT_TERMINAL_PROMPT=0 git push origin HEAD:<principal>`. O push sai **da frente**, que contém exatamente
      o que foi aprovado mais a base remota — nunca do checkout principal, onde um commit local que ninguém
      aprovou iria junto. Recusado porque a base andou (`non-fast-forward`/`fetch first`)? Volte ao
-     item 3 (nunca force). Recusado por outro motivo (permissão, branch protegida)? Pare e mostre o erro.
-   - B (GitHub Flow): `git push -u origin <branch-da-frente>` e abra o PR para a principal — **e pare aí**.
-     A integração é o merge do PR, depois da revisão.
-   - C (GitFlow): `git push -u origin <branch-da-frente>` e abra o PR para `develop` — **e pare aí**. A
-     frente não vai direto para a principal.
+     item 3 (nunca force). Recusado por permissão (`403`, `Permission denied`, `could not read Username`)
+     ou por branch protegida (`protected branch`, `GH006`)? Pare e diga o que conferir, nesta ordem:
+     `gh auth status` (está logado, e com a conta certa?); o seu papel no repositório (publicar exige
+     permissão de escrita); e se a principal é protegida — aí o caminho é o do cenário B (push da branch +
+     PR), não insistir no push direto.
+   - B (GitHub Flow): `GIT_TERMINAL_PROMPT=0 git push -u origin <branch-da-frente>` e abra o PR para a
+     principal (`gh pr create`, se houver `gh`; sem ele, o próprio push acima imprime o link para abrir o
+     PR no navegador) — **e pare aí**. A integração é o merge do PR, depois da revisão.
+   - C (GitFlow): `GIT_TERMINAL_PROMPT=0 git push -u origin <branch-da-frente>` e abra o PR para `develop`
+     (mesmo caminho do B, com ou sem `gh`) — **e pare aí**. A frente não vai direto para a principal.
 5. **Deploy manual, se houver, só a partir da principal já integrada e atualizada** — nunca da branch da
    frente não publicada. O deploy roda numa árvore **idêntica ao que foi publicado**: no cenário A, a
    própria frente logo depois do push aceito — confira `git status --porcelain` vazio e
-   `git rev-parse HEAD` igual a `git rev-parse origin/<principal>` (após `git fetch`); se não bater,
+   `git rev-parse HEAD` igual a `git rev-parse origin/<principal>` (após `GIT_TERMINAL_PROMPT=0 git fetch`); se não bater,
    pare. Nunca do checkout principal, que pode ter mudança local ou commit que ninguém aprovou. Nos
    cenários B e C, entregue o comando de deploy para rodar **depois que o PR for integrado**; não o
    execute antes. (Com deploy automático, o próprio push na principal já publica.)
-6. **Confirme que funcionou.** Não diga "publicado" porque o comando não deu erro. Há CI? Veja o resultado
-   do workflow. Há URL? Veja se responde. Não há como confirmar? Diga isso: "publicado, sem verificação
+6. **Confirme que funcionou — pelo commit que você publicou, não pelo último run.** Não diga "publicado"
+   porque o comando não deu erro. Com deploy por workflow e `gh` disponível:
+   - `gh run list --commit <SHA publicado> --json databaseId,status,conclusion,workflowName` (igual no
+     PowerShell). Olhe o run **do workflow que publica**, não o mais recente da lista geral: com dois pushes
+     seguidos, "o último run" pode ser de outro commit.
+   - `completed` + `success` ⇒ "No ar: o deploy do seu commit `<sha curto>` terminou (run N)".
+   - `queued` ou `in_progress` ⇒ espere e olhe de novo; ainda não está no ar.
+   - `cancelled` ⇒ com fila, um push mais novo pode ter substituído o seu. `GIT_TERMINAL_PROMPT=0 git fetch
+     origin <principal>`, depois
+     `gh run list --workflow <arquivo do workflow> --branch <principal> --limit 20 --json databaseId,headSha,status,conclusion,createdAt`.
+     Só vale um run `success` criado depois do seu **e** de um commit que contém o seu
+     (`git merge-base --is-ancestor <seu SHA> <SHA dele>` sai 0) ⇒ "Seu commit `<sha>` foi incluído no
+     deploy de `<sha dele>` (run N)". Se o `merge-base` der erro (commit não encontrado), diga "não consegui
+     confirmar" — nunca "não foi incluído".
+   - `failure` ⇒ diga o que falhou. Para repetir o deploy, **nunca `gh run rerun` de um run antigo**: com
+     fila, ele roda depois do push mais novo e copia código velho por cima. Redispare na ponta
+     (`gh workflow run <arquivo> --ref <principal>`, se o workflow aceita disparo manual) ou com um push novo.
+   - Verde não prova teste: se o step de teste tem `continue-on-error`, `|| true` ou termina sempre em
+     `exit 0`, diga "o deploy terminou, mas o workflow não roda testes antes de publicar" — sem ✅.
+   Há URL? Veja se responde. Sem `gh` ou sem como confirmar? Diga isso: "publicado, sem verificação
    automática disponível" é honesto; "✅ tudo certo" sem ter olhado, não é.
 7. **Checkout principal e limpeza**, entregues como comandos (de dentro da worktree ela não consegue se
-   remover): no checkout principal, `git pull --ff-only` — se recusar, a principal local tem commits que
+   remover): no checkout principal, `GIT_TERMINAL_PROMPT=0 git pull --ff-only` — se recusar, a principal local tem commits que
    não foram publicados, e isso é dito, não resolvido por você; depois `git worktree remove "<pasta>"` (com aspas: o caminho pode ter espaço) e
    `git branch -d <branch>` (o `-d` minúsculo só apaga o que já foi integrado). Nos cenários B e C, a
    limpeza vem depois do merge do PR.
@@ -207,6 +250,12 @@ Resposta final em três linhas: o que subiu, onde está, o que falta.
 - **O push sai da frente, não do checkout principal**: lá pode haver commit local que não passou pelo OK.
 - **O resumo cobre o não commitado**: o commit acontece depois do OK, então o que se aprova tem de incluir
   o que ainda está só na pasta.
+- **A identidade é conferida antes do OK**: o commit só acontece na Fase 3; sem nome e e-mail ele falha
+  depois que o usuário já aprovou.
+- **O deploy é conferido pelo SHA**: com dois pushes seguidos, o "último run" é de outro commit, e um
+  run verde de outro commit não diz nada sobre o seu.
+- **Nunca `gh run rerun` de deploy antigo**: o rerun usa o commit daquele run — com fila, ele roda depois
+  do push mais novo e publica código velho por cima.
 - **A skill roda de dentro da frente** e não consegue remover a própria worktree no fim — a limpeza é do
   checkout principal.
 

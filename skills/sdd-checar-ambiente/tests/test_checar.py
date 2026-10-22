@@ -1,8 +1,11 @@
-"""Testes das checagens de dado exposto da sdd-checar-ambiente.
+"""Testes da sdd-checar-ambiente: dado exposto, alcance do remoto e o pré-voo --frente.
 
 Rodar: python3 -B -m unittest discover -s skills/sdd-checar-ambiente/tests -p "test_*.py"
 
-O GitHub é simulado por um servidor HTTP local (SDD_CHECAR_GITHUB_API): os testes não usam a rede.
+Os testes não usam a rede: a API do GitHub é um servidor HTTP local (SDD_CHECAR_GITHUB_API), os
+endereços github.com são reescritos (url.<local>.insteadOf) para repositórios bare na pasta temporária,
+e credencial recusada, rede pendurada e ssh são servidores ou comandos locais. A configuração global do
+git de quem roda (credential helper, insteadOf) fica de fora: GIT_CONFIG_GLOBAL vazio.
 Requer bash e git; o teste de npm é pulado se o npm não existir.
 """
 from __future__ import annotations
@@ -14,10 +17,12 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 import unittest
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "checar.sh"
+BASH = shutil.which("bash") or "bash"   # caminho absoluto: o teste do git fora do PATH troca o PATH
 
 
 def chave_privada_falsa() -> str:
@@ -40,16 +45,48 @@ class GitHubFalso(http.server.BaseHTTPRequestHandler):
         pass
 
 
+class CredencialRecusada(http.server.BaseHTTPRequestHandler):
+    """Repositório que exige login (HTTP 401), como um repo privado do GitHub sem credencial."""
+
+    def do_GET(self):  # noqa: N802
+        self.send_response(401)
+        self.send_header("WWW-Authenticate", 'Basic realm="repo"')
+        self.end_headers()
+
+    def log_message(self, *args):
+        pass
+
+
+class Pendurado(http.server.BaseHTTPRequestHandler):
+    """Aceita a conexão e nunca responde, como uma rede que engole os pacotes."""
+
+    def do_GET(self):  # noqa: N802
+        time.sleep(60)
+
+    def log_message(self, *args):
+        pass
+
+
+def servidor(handler):
+    srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    srv.daemon_threads = True
+    srv.block_on_close = False
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
+
+
 class Base(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.srv = http.server.HTTPServer(("127.0.0.1", 0), GitHubFalso)
-        threading.Thread(target=cls.srv.serve_forever, daemon=True).start()
+        cls.srv = servidor(GitHubFalso)
         cls.api = f"http://127.0.0.1:{cls.srv.server_address[1]}"
+        cls.srv401 = servidor(CredencialRecusada)
+        cls.srv_pendurado = servidor(Pendurado)
 
     @classmethod
     def tearDownClass(cls):
-        cls.srv.shutdown()
+        for s in (cls.srv, cls.srv401, cls.srv_pendurado):
+            s.shutdown()
 
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="checar-"))
@@ -63,6 +100,17 @@ class Base(unittest.TestCase):
         self.commit("README.md")
         # Sem remoto o relatório já tem um ⚠️; o padrão é um repositório privado (404 no GitHub falso).
         self.git("remote", "add", "origin", "https://github.com/escritorio/privado.git")
+        # "github.com" sem rede: cada repo do GitHub falso é um bare local com 1 commit na main.
+        self.gh = self.tmp / "gh"
+        for slug in ("escritorio/privado", "escritorio/publico"):
+            bare = self.gh / f"{slug}.git"
+            bare.parent.mkdir(parents=True, exist_ok=True)
+            subprocess.run(["git", "init", "-q", "--bare", str(bare)], check=True)
+            self.git("push", "-q", str(bare), "HEAD:refs/heads/main")
+        for prefixo in ("https://github.com/", "git@github.com:"):
+            self.git("config", "--add", f"url.file://{self.gh}/.insteadOf", prefixo)
+        self.global_vazio = self.tmp / "gitconfig-global"
+        self.global_vazio.write_text("", encoding="utf-8")
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
@@ -85,11 +133,23 @@ class Base(unittest.TestCase):
     def remoto(self, slug: str) -> None:
         self.git("remote", "set-url", "origin", f"git@github.com:{slug}.git")
 
+    def origin(self, url: str) -> None:
+        self.git("remote", "set-url", "origin", url)
+
+    def roda(self, *args: str, **env: str) -> tuple[int, str, float]:
+        e = {**os.environ, "SDD_CHECAR_GITHUB_API": self.api, "GIT_CONFIG_GLOBAL": str(self.global_vazio),
+             "GIT_CONFIG_NOSYSTEM": "1", **env}
+        for k in [k for k, v in e.items() if v is None]:
+            del e[k]
+        t0 = time.monotonic()
+        r = subprocess.run([BASH, str(SCRIPT), *args], cwd=self.raiz, capture_output=True, text=True,
+                           env=e, stdin=subprocess.DEVNULL, timeout=60)
+        return r.returncode, r.stdout, time.monotonic() - t0
+
     def checar(self, **env: str) -> str:
-        e = {**os.environ, "SDD_CHECAR_GITHUB_API": self.api, **env}
-        r = subprocess.run(["bash", str(SCRIPT)], cwd=self.raiz, capture_output=True, text=True, env=e)
-        self.assertEqual(r.returncode, 0, r.stderr)
-        return r.stdout
+        rc, out, _ = self.roda(**env)
+        self.assertEqual(rc, 0, out)
+        return out
 
 
 class TestDadoExposto(Base):
@@ -187,6 +247,173 @@ class TestDadoExposto(Base):
 
     def test_sem_package_json_nao_fala_de_npm(self):
         self.assertNotIn("npm", self.checar(npm_config_ignore_scripts="false"))
+
+
+class TestRemoto(Base):
+    def test_credencial_recusada_rapida(self):
+        self.origin(f"http://127.0.0.1:{self.srv401.server_address[1]}/escritorio/privado.git")
+        rc, out, t = self.roda()
+        self.assertEqual(rc, 0, out)
+        self.assertLess(t, 5, out)
+        self.assertTrue(out.startswith("🔴 Impede o trabalho"), out)
+        self.assertIn("recusou o acesso", out)
+        self.assertIn("gh auth login", out)
+        self.assertIn("chave SSH", out)
+        self.assertNotIn("Password", out)
+        self.assertNotIn("Username", out)
+
+    def test_credencial_github_privado_explica_as_duas_causas(self):
+        porta = self.srv401.server_address[1]
+        self.git("config", f"url.http://127.0.0.1:{porta}/x.git.insteadOf", "https://github.com/escritorio/privado.git")
+        out = self.checar()
+        self.assertIn("O GitHub não deixou este computador ler escritorio/privado", out)
+        self.assertIn("o repositório é privado e este computador não está logado no GitHub", out)
+
+    def test_rede_pendurada(self):
+        self.origin(f"http://127.0.0.1:{self.srv_pendurado.server_address[1]}/x.git")
+        rc, out, t = self.roda()
+        self.assertEqual(rc, 0, out)
+        self.assertLessEqual(t, 12, out)
+        self.assertIn("sem internet ou rede bloqueada", out)
+        for palavra in ("senha", "login", "credencial"):
+            self.assertNotIn(palavra, out.lower())
+
+    def test_ssh_pendurado_vigia(self):
+        # Neto que não é `exec` (sh -c com 2 comandos): matar só o filho deixaria o pipe aberto.
+        self.origin("ssh://git@exemplo.invalid/x.git")
+        rc, out, t = self.roda(GIT_SSH_COMMAND="sh -c 'sleep 60; :'")
+        self.assertEqual(rc, 0, out)
+        self.assertLessEqual(t, 12, out)
+        self.assertIn("sem internet ou rede bloqueada", out)
+        self.assertNotIn("✅ Pronto", out)
+
+    def test_host_ssh_desconhecido(self):
+        self.origin("ssh://git@exemplo.invalid/x.git")
+        out = self.checar(GIT_SSH_COMMAND="sh -c 'echo \"Host key verification failed.\" >&2; exit 255'")
+        self.assertIn("ainda não confirmou a identidade de exemplo.invalid", out)
+        self.assertIn("ssh -T git@exemplo.invalid", out)
+        self.assertNotIn("gh auth login", out)
+
+    def test_login_do_editor_esperando(self):
+        self.origin(f"http://127.0.0.1:{self.srv401.server_address[1]}/x.git")
+        registro = self.tmp / "askpass.log"
+        askpass = self.tmp / "askpass.sh"
+        askpass.write_text(f"#!/bin/sh\necho chamado >> '{registro}'\nsleep 60\n", encoding="utf-8")
+        askpass.chmod(0o755)
+        rc, out, t = self.roda(GIT_ASKPASS=str(askpass))
+        self.assertEqual(rc, 0, out)
+        self.assertLessEqual(t, 12, out)
+        self.assertIn("A janela de login do editor está esperando resposta", out)
+        self.assertNotIn("sem internet", out)
+
+    def test_remoto_vazio(self):
+        vazio = self.tmp / "vazio.git"
+        subprocess.run(["git", "init", "-q", "--bare", str(vazio)], check=True)
+        self.origin(str(vazio))
+        out = self.checar()
+        self.assertIn("⚠️ Vale arrumar", out)
+        self.assertIn("ainda não tem nenhum commit", out)
+        self.assertIn("GIT_TERMINAL_PROMPT=0 git push -u origin main", out)
+
+    def test_vazio_com_warning(self):
+        # O aviso do ssh (stderr, rc 0) não é ref: o remoto continua vazio.
+        vazio = self.tmp / "vazio.git"
+        subprocess.run(["git", "init", "-q", "--bare", str(vazio)], check=True)
+        embrulho = self.tmp / "ssh-com-aviso.sh"
+        embrulho.write_text("#!/bin/sh\necho \"Warning: Permanently added 'h' (ED25519) to the list of known hosts.\" >&2\n"
+                            f"exec git upload-pack '{vazio}'\n", encoding="utf-8")
+        embrulho.chmod(0o755)
+        self.origin("ssh://git@exemplo.invalid/x.git")
+        out = self.checar(GIT_SSH_COMMAND=str(embrulho))
+        self.assertIn("ainda não tem nenhum commit", out)
+
+    def test_sem_remoto_continua_aviso(self):
+        self.git("remote", "remove", "origin")
+        out = self.checar()
+        self.assertIn("⚠️ Vale arrumar", out)
+        self.assertIn("git remote add origin <url do repositório>", out)
+
+    def test_git_fora_do_path(self):
+        bin_ = self.tmp / "bin-sem-git"
+        bin_.mkdir()
+        for ferramenta in ("dirname", "grep", "sed", "cut", "tr", "head", "awk", "basename"):
+            achou = shutil.which(ferramenta)
+            if achou:
+                (bin_ / ferramenta).symlink_to(achou)
+        rc, out, _ = self.roda(PATH=str(bin_))
+        self.assertEqual(rc, 0, out)
+        self.assertIn("O git não está instalado", out)
+        self.assertIn("https://git-scm.com/downloads", out)
+
+    def test_comandos_impressos_sem_prompt(self):
+        vazio = self.tmp / "vazio.git"
+        subprocess.run(["git", "init", "-q", "--bare", str(vazio)], check=True)
+        self.origin(str(vazio))
+        saidas = [self.checar(), self.roda("--frente")[1]]
+        vistos = 0
+        for out in saidas:
+            for linha in out.splitlines():
+                if any(f"git {c}" in linha for c in ("push", "fetch", "pull", "ls-remote")):
+                    vistos += 1
+                    self.assertIn("GIT_TERMINAL_PROMPT=0", linha, out)
+        # Sem nenhum comando de rede impresso a regra seria vácua: o remoto vazio tem de ensinar o push.
+        self.assertGreaterEqual(vistos, 2, saidas)
+
+
+class TestFrente(Base):
+    NADA = "Nada foi criado. Depois de resolver, peça a frente de novo."
+
+    def bloqueia(self, out: str, rc: int) -> None:
+        self.assertEqual(rc, 1, out)
+        self.assertTrue(out.startswith("🔴 Impede o trabalho"), out)
+        self.assertEqual(out.strip().splitlines()[-1], self.NADA, out)
+        self.assertNotIn("✅", out)
+
+    def test_frente_saudavel_uma_linha(self):
+        rc, out, _ = self.roda("--frente")
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(len(out.strip().splitlines()), 1, out)
+        self.assertTrue(out.startswith("✅ Pronto para abrir a frente: repo meu-app, principal main"), out)
+
+    def test_frente_bloqueia_sem_remoto(self):
+        self.git("remote", "remove", "origin")
+        rc, out, _ = self.roda("--frente")
+        self.bloqueia(out, rc)
+        self.assertIn("git remote add origin", out)
+
+    def test_frente_bloqueia_vazio(self):
+        vazio = self.tmp / "vazio.git"
+        subprocess.run(["git", "init", "-q", "--bare", str(vazio)], check=True)
+        self.origin(str(vazio))
+        rc, out, _ = self.roda("--frente")
+        self.bloqueia(out, rc)
+
+    def test_frente_bloqueia_credencial(self):
+        self.origin(f"http://127.0.0.1:{self.srv401.server_address[1]}/x.git")
+        rc, out, _ = self.roda("--frente")
+        self.bloqueia(out, rc)
+        self.assertIn("gh auth login", out)
+
+    def test_frente_bloqueia_host_ssh(self):
+        self.origin("ssh://git@exemplo.invalid/x.git")
+        rc, out, _ = self.roda("--frente", GIT_SSH_COMMAND="sh -c 'echo \"Host key verification failed.\" >&2; exit 255'")
+        self.bloqueia(out, rc)
+        self.assertIn("ssh -T git@exemplo.invalid", out)
+        self.assertNotIn("gh auth login", out)
+
+    def test_frente_bloqueia_rede(self):
+        self.origin(f"http://127.0.0.1:{self.srv_pendurado.server_address[1]}/x.git")
+        rc, out, _ = self.roda("--frente")
+        self.bloqueia(out, rc)
+        self.assertIn("sem internet", out)
+
+    def test_frente_nao_olha_dado_exposto(self):
+        # O pré-voo só decide se a frente pode nascer; o diagnóstico completo é o modo normal.
+        self.escreve(".env", "SENHA=x\n")
+        self.commit(".env")
+        rc, out, _ = self.roda("--frente")
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn("Dado exposto", out)
 
 
 class TestSomenteLeitura(Base):
