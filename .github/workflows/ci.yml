@@ -30,7 +30,7 @@ jobs:
         run: python3 -m py_compile skills/*/scripts/*.py scripts/*.py
 
       - name: Shell scripts parse
-        run: bash -n scripts/package.sh scripts/publish-check.sh skills/*/scripts/*.sh
+        run: for f in scripts/package.sh scripts/publish-check.sh skills/*/scripts/*.sh; do bash -n "$f"; done
 
       - name: Skill tests
         run: |

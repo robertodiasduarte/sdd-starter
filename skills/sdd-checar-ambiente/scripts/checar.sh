@@ -137,6 +137,10 @@ URL_ORIGIN=""
 if [ -z "$(git remote 2>/dev/null)" ]; then
   add_remoto "O repositório não tem remoto — nada que você fizer sai desta máquina, e as frentes nascem dele." \
              "git remote add origin <url do repositório>"
+elif [ -z "$(git config --get remote.origin.url 2>/dev/null)" ]; then
+  # Há remoto, mas não o origin: as frentes e a publicação usam origin/<principal>.
+  add_remoto "O repositório tem remoto, mas nenhum chamado origin — as frentes nascem do origin." \
+             "git remote rename $(git remote | head -1) origin   (ou: git remote add origin <url do repositório>)"
 else
   PRINCIPAL="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
   if [ -z "${PRINCIPAL}" ]; then
@@ -188,7 +192,7 @@ if [ -n "${URL_ORIGIN}" ]; then
         CMD="ssh -T git@${ONDE_HOST}   (responda yes quando ele perguntar)"
         [ "${HOST}" = "github.com" ] && CMD="${CMD}"$'\n'"  Confira a impressão digital em https://docs.github.com/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints"
         add_impede "Este computador ainda não confirmou a identidade de ${ONDE_HOST} para SSH." "${CMD}" ;;
-      *"could not read username"*|*"could not read password"*|*"authentication failed"*|*"terminal prompts disabled"*|*"permission denied (publickey"*|*"repository not found"*|*"403"*)
+      *"could not read username"*|*"could not read password"*|*"authentication failed"*|*"terminal prompts disabled"*|*"permission denied (publickey"*|*"repository not found"*|*"returned error: 403"*)
         if tem gh; then CMD="gh auth login"; else CMD="Instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
         CMD="${CMD}"$'\n'"  Alternativas: chave SSH (ssh-keygen e cadastrar a chave pública no GitHub) ou o gerenciador de credenciais do git."
         if [ -n "${SLUG}" ] && [ "${PUBLICO}" -eq 1 ]; then

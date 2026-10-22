@@ -55,13 +55,15 @@ de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
      `git remote add origin <url do repositório>`.
   2. `GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin` (PowerShell:
      `$env:GIT_TERMINAL_PROMPT=0; git ls-remote --heads origin`) — se passar de 10 segundos sem resposta,
-     interrompa: é rede. Erro de login (`could not read Username`, `Authentication failed`,
+     interrompa. Parado com o terminal de um editor (`GIT_ASKPASS` definido — VS Code, Cursor) ⇒ *"A janela
+     de login do editor está esperando resposta."*: responder a janela, ou `gh auth login` para não depender
+     dela; parado sem editor ⇒ rede. Erro de login (`could not read Username`, `Authentication failed`,
      `Permission denied (publickey)`, `Repository not found`) ⇒ *"O GitHub não deixou este computador ler
      o repositório: ou o endereço está errado, ou o repositório é privado e este computador não está logado
      no GitHub."* com `gh auth login` (alternativas, numa linha: chave SSH ou o gerenciador de credenciais
      do git). `Host key verification failed` ⇒ `ssh -T git@<host>` e responder `yes` — não é login.
-     Sem resposta, `Could not resolve host` ou `timed out` ⇒ sem internet ou rede bloqueada (não fale em
-     senha).
+     `Could not resolve host`, `timed out`, ou parado sem editor ⇒ sem internet ou rede bloqueada (não fale
+     em senha).
   3. Nenhuma branch listada ⇒ *"O repositório remoto ainda não tem nenhum commit — a frente nasce dele."*
      com o primeiro commit e `GIT_TERMINAL_PROMPT=0 git push -u origin <branch atual>`.
   Qualquer bloqueio termina com *"Nada foi criado. Depois de resolver, peça a frente de novo."*

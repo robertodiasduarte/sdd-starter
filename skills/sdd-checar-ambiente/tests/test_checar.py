@@ -137,7 +137,10 @@ class Base(unittest.TestCase):
         self.git("remote", "set-url", "origin", url)
 
     def roda(self, *args: str, **env: str) -> tuple[int, str, float]:
-        e = {**os.environ, "SDD_CHECAR_GITHUB_API": self.api, "GIT_CONFIG_GLOBAL": str(self.global_vazio),
+        # O askpass do terminal de quem roda (VS Code/Cursor) mudaria a classificação e poderia abrir a
+        # janela de login de verdade: só entra quando o teste o define.
+        herdado = {k: v for k, v in os.environ.items() if k not in ("GIT_ASKPASS", "SSH_ASKPASS")}
+        e = {**herdado, "SDD_CHECAR_GITHUB_API": self.api, "GIT_CONFIG_GLOBAL": str(self.global_vazio),
              "GIT_CONFIG_NOSYSTEM": "1", **env}
         for k in [k for k, v in e.items() if v is None]:
             del e[k]
@@ -380,6 +383,13 @@ class TestFrente(Base):
         rc, out, _ = self.roda("--frente")
         self.bloqueia(out, rc)
         self.assertIn("git remote add origin", out)
+
+    def test_frente_bloqueia_sem_origin(self):
+        # Outro remoto não basta: a frente nasce de origin/<principal>.
+        self.git("remote", "rename", "origin", "upstream")
+        rc, out, _ = self.roda("--frente")
+        self.bloqueia(out, rc)
+        self.assertIn("nenhum chamado origin", out)
 
     def test_frente_bloqueia_vazio(self):
         vazio = self.tmp / "vazio.git"
