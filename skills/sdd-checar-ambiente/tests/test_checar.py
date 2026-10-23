@@ -309,6 +309,28 @@ class TestRemoto(Base):
         self.assertIn("A janela de login do editor está esperando resposta", out)
         self.assertNotIn("sem internet", out)
 
+    def test_rede_parada_com_editor_nao_e_janela_de_login(self):
+        # GIT_ASKPASS definido (terminal do VS Code/Cursor) não prova que o git pediu login: com a rede
+        # parada o askpass nunca é chamado, e a resposta é de rede — nunca "janela do editor".
+        registro = self.tmp / "askpass.log"
+        askpass = self.tmp / "askpass.sh"
+        askpass.write_text(f"#!/bin/sh\necho chamado >> '{registro}'\nsleep 60\n", encoding="utf-8")
+        askpass.chmod(0o755)
+        casos = (
+            ("ssh pendurado", "ssh://git@exemplo.invalid/x.git", ("--frente",), {"GIT_SSH_COMMAND": "sh -c 'sleep 60; :'"}),
+            ("servidor que aceita e não responde", f"http://127.0.0.1:{self.srv_pendurado.server_address[1]}/x.git", (), {}),
+        )
+        for nome, url, args, env in casos:
+            with self.subTest(nome):
+                self.origin(url)
+                rc, out, t = self.roda(*args, GIT_ASKPASS=str(askpass), **env)
+                self.assertEqual(rc, 1 if args else 0, out)
+                self.assertLessEqual(t, 12, out)
+                self.assertIn("sem internet ou rede bloqueada", out)
+                for palavra in ("janela", "senha", "login", "credencial"):
+                    self.assertNotIn(palavra, out.lower())
+                self.assertFalse(registro.exists(), "o askpass foi chamado")
+
     def test_remoto_vazio(self):
         vazio = self.tmp / "vazio.git"
         subprocess.run(["git", "init", "-q", "--bare", str(vazio)], check=True)

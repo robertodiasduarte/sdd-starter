@@ -55,19 +55,27 @@ de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
      `git remote add origin <url do repositório>`. Há remoto, mas nenhum chamado `origin` (um fork com só
      `upstream`, por exemplo) ⇒ *"O repositório tem remoto, mas nenhum chamado origin — a frente nasce do
      origin."* com `git remote rename <nome> origin` (ou `git remote add origin <url>`). Não é login.
-  2. `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never git ls-remote --heads origin` (PowerShell:
+  2. Com `GIT_ASKPASS` definido (terminal de VS Code ou Cursor), comece por um diagnóstico: a mesma consulta
+     sem a janela e sem credencial guardada, que não pede nada a ninguém, com teto de 10 segundos —
+     `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS= GCM_INTERACTIVE=never git -c credential.helper= -c core.askPass= ls-remote --heads origin`
+     (PowerShell: `$a=$env:GIT_ASKPASS; try { $env:GIT_TERMINAL_PROMPT=0; $env:GIT_ASKPASS=''; $env:GCM_INTERACTIVE='never'; git -c credential.helper= -c core.askPass= ls-remote --heads origin } finally { $env:GIT_ASKPASS=$a }`).
+     Parado ou erro de rede ⇒ é rede, não janela: `GIT_ASKPASS` definido não prova login nenhum (com a rede
+     parada o git nem chega a pedir senha). Qualquer outra resposta ⇒ o remoto respondeu; siga.
+     Depois (ou direto, sem `GIT_ASKPASS`), a consulta de verdade, com a janela do editor ligada (quem está
+     logado por ela passa): `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never git ls-remote --heads origin` (PowerShell:
      `$env:GIT_TERMINAL_PROMPT=0; $env:GCM_INTERACTIVE='never'; git ls-remote --heads origin` — o
      `GCM_INTERACTIVE` impede a janela do gerenciador de credenciais do Windows, sem desligar a credencial
      já guardada) — se passar de 10 segundos sem resposta,
-     interrompa. Parado com o terminal de um editor (`GIT_ASKPASS` definido — VS Code, Cursor) ⇒ *"A janela
-     de login do editor está esperando resposta."*: responder a janela, ou `gh auth login` para não depender
-     dela; parado sem editor ⇒ rede. Erro de login (`could not read Username`, `Authentication failed`,
+     interrompa. Parada **depois de o diagnóstico ter pedido login** (`could not read Username`,
+     `terminal prompts disabled`, `Permission denied (`) ⇒ *"A janela de login do editor está esperando
+     resposta."*: responder a janela, ou `gh auth login` para não depender dela; parada em qualquer outro
+     caso ⇒ rede. Erro de login (`could not read Username`, `Authentication failed`,
      `Permission denied (publickey)`, `Repository not found`) ⇒ *"O GitHub não deixou este computador ler
      o repositório: ou o endereço está errado, ou o repositório é privado e este computador não está logado
      no GitHub."* com `gh auth login` (alternativas, numa linha: chave SSH ou o gerenciador de credenciais
      do git); remoto fora do GitHub ⇒ *"O remoto `<host>` recusou o acesso deste computador (login ou
      permissão)."*, com o login daquele serviço — nunca `gh auth login`. `Host key verification failed` ⇒ `ssh -T git@<host>` e responder `yes` — não é login.
-     `Could not resolve host`, `timed out`, ou parado sem editor ⇒ sem internet ou rede bloqueada (não fale
+     `Could not resolve host`, `timed out`, ou parado sem prova de pedido de login ⇒ sem internet ou rede bloqueada (não fale
      em senha). Qualquer outra mensagem ⇒ *"Não consegui ler o remoto:"* com a 1ª linha do erro e
      `git remote -v` — não chute a causa.
   3. Nenhuma branch listada ⇒ *"O repositório remoto ainda não tem nenhum commit — a frente nasce dele."*

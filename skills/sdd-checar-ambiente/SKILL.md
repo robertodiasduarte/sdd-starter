@@ -41,7 +41,9 @@ aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identifica
   quem roda é o usuário, depois de ver o que está autorizando. Saídas de rede, as duas só de leitura:
   uma consulta anônima ao GitHub, de até 3 segundos, para saber se o repositório é público (se falhar,
   não diga nada sobre isso); e uma consulta `ls-remote` ao remoto, de até 10 segundos, **sem pedir senha**,
-  para saber se a credencial e a rede chegam lá e se ele já tem algum commit.
+  para saber se a credencial e a rede chegam lá e se ele já tem algum commit (com a janela de login de um
+  editor presente, uma 2ª `ls-remote` em paralelo, sem janela e sem credencial, separa janela esperando de
+  rede parada).
 - **Nunca deixe o git pedir senha no terminal**: o agente ficaria esperando uma resposta que ninguém vê.
   Todo comando que fala com o remoto roda com `GIT_TERMINAL_PROMPT=0 git …` no bash/zsh; no PowerShell,
   `$env:GIT_TERMINAL_PROMPT=0; git …`. A janela de login do editor (VS Code, Cursor) **não** é desligada:
@@ -87,8 +89,12 @@ aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identifica
     `ssh -T git@<host>` e responder `yes` — não é problema de login;
   - `Could not resolve host`, `timed out`, `Failed to connect` ou nenhuma resposta em 10 segundos ⇒ ⚠️ sem
     internet ou rede bloqueada — **não** fale em senha nem em login;
-  - parou sem resposta e o terminal é de um editor (`GIT_ASKPASS` definido) ⇒ 🔴 a janela de login do
-    editor está esperando resposta: responder a janela, ou `gh auth login`.
+  - parou sem resposta e o terminal é de um editor (`GIT_ASKPASS` definido) ⇒ `GIT_ASKPASS` sozinho não
+    prova login (com a rede parada o git nem pede senha). Repita sem a janela e sem credencial guardada,
+    também com teto de 10 s: `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS= git -c credential.helper= -c core.askPass= ls-remote --heads origin`.
+    Ela pediu login (`could not read Username`, `terminal prompts disabled`, `Permission denied (`) ⇒ 🔴 a
+    janela de login do editor está esperando resposta: responder a janela, ou `gh auth login`; parou de
+    novo ou deu erro de rede ⇒ ⚠️ sem internet ou rede bloqueada.
 
 **4. Frentes de trabalho (worktrees)**
 - `git worktree list` — a 1ª linha é o checkout principal, **não é frente**. Frentes abertas = as linhas

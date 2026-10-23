@@ -74,8 +74,9 @@ jobs:
         id: tag
         run: |
           set -euo pipefail
-          # -v:refname ordena por VERSAO (alfabetico poria v1.9.0 acima de v1.10.0).
-          latest="$(git tag -l 'v*' --sort=-v:refname | head -1)"
+          # -v:refname ordena por VERSAO (alfabetico poria v1.9.0 acima de v1.10.0); for-each-ref
+          # e nao `git tag | head -1`, que sob pipefail cai por SIGPIPE quando a lista de tags cresce.
+          latest="$(git for-each-ref --count=1 --sort=-v:refname --format='%(refname:short)' 'refs/tags/v*')"
           [ -n "$latest" ] || { echo "nenhuma tag v* encontrada"; exit 1; }
           IFS=. read -r maj min pat <<< "${latest#v}"
           echo "next=v${maj}.${min}.$((pat + 1))" >> "$GITHUB_OUTPUT"

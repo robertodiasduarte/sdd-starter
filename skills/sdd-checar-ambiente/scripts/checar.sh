@@ -11,7 +11,8 @@
 # Saídas de rede, as duas somente leitura e com teto de tempo:
 #   - uma consulta anônima ao GitHub (3 s) para saber se o repositório é público — se falhar, nada é dito;
 #   - um `git ls-remote` no origin (10 s), sem pedir senha, para saber se a credencial e a rede
-#     alcançam o remoto e se ele já tem algum commit.
+#     alcançam o remoto e se ele já tem algum commit. Com askpass de editor definido, um 2º `ls-remote`
+#     em paralelo, sem askpass e sem credencial, separa "janela de login esperando" de "rede parada".
 # Uso: bash checar.sh            (de dentro da pasta do projeto)
 #      bash checar.sh --frente   (pré-voo da sdd-new-session: só git, repositório, remoto e alcance;
 #                                 todo achado vira 🔴 e a resposta diz que nada foi criado)
@@ -110,6 +111,16 @@ fi
 # processos próprio (set -m) e o vigia mata o GRUPO: matar só o git deixaria um neto (ssh com
 # ProxyCommand) segurando a saída — medido, o neto terminava com rc 0 e parecia sucesso.
 # Imprime a saída do git e, na última linha, __rc=<código>.
+#
+# Askpass de editor (VS Code/Cursor) presente: "parado no teto" tem duas causas que o tempo sozinho não
+# separa — a janela de login esperando resposta, ou a rede que não responde (aí o askpass nem é chamado).
+# Uma 2ª consulta, em paralelo e só de diagnóstico, roda SEM askpass e SEM credencial guardada (não pede
+# nada a ninguém nem lê senha): se o remoto respondeu a ela pedindo login, a rede está boa e quem segura
+# a 1ª é a janela (__login=0). A 1ª consulta continua com o askpass do usuário — quem está logado pelo
+# editor alcança o remoto. Nada é gravado: o veredito volta pelo código de saída.
+TEM_ASKPASS=""
+[ -n "${GIT_ASKPASS:-}${SSH_ASKPASS:-}$(git config core.askPass 2>/dev/null)" ] && TEM_ASKPASS=1
+PEDIU_LOGIN='terminal prompts disabled|could not read (username|password)|permission denied \('
 alcance() {
   local ssh_cmd=""
   if [ -z "${GIT_SSH_COMMAND:-}" ] && [ -z "$(git config core.sshCommand 2>/dev/null)" ]; then
@@ -120,10 +131,26 @@ alcance() {
     [ -n "${ssh_cmd}" ] && export GIT_SSH_COMMAND="${ssh_cmd}"
     git -c http.lowSpeedLimit=1 -c http.lowSpeedTime=8 ls-remote --heads origin </dev/null 2>&1 &
     p=$!
+    q=""
+    if [ -n "${TEM_ASKPASS}" ]; then
+      # GIT_ASKPASS vazio desliga também o core.askPass e o SSH_ASKPASS (prompt.c); credential.helper
+      # vazio zera a lista de helpers. Só esta consulta; a de cima segue intacta.
+      ( unset SSH_ASKPASS; export GIT_ASKPASS="" SSH_ASKPASS_REQUIRE=never
+        git -c core.askPass= -c credential.helper= -c http.lowSpeedLimit=1 -c http.lowSpeedTime=8 \
+          ls-remote --heads origin </dev/null 2>&1 | grep -q -i -E "${PEDIU_LOGIN}" ) >/dev/null 2>&1 &
+      q=$!
+    fi
     # TERM no grupo e, 1 s depois, KILL: um descendente que ignora o TERM seguraria o teto.
-    ( sleep 10; kill -TERM -- "-${p}"; sleep 1; kill -KILL -- "-${p}" ) >/dev/null 2>&1 &
+    ( sleep 10; kill -TERM -- "-${p}" ${q:+"-${q}"}; sleep 1; kill -KILL -- "-${p}" ${q:+"-${q}"} ) >/dev/null 2>&1 &
     w=$!
     wait "${p}"; rc=$?
+    if [ -n "${q}" ]; then
+      if [ "${rc}" = 143 ] || [ "${rc}" = 137 ]; then
+        wait "${q}"; echo "__login=$?"   # o vigia já cortou as duas: não estica o teto
+      else
+        kill -TERM -- "-${q}"            # a consulta de verdade terminou: o diagnóstico sobra
+      fi
+    fi
     kill "${w}" 2>/dev/null
     echo "__rc=${rc}" ) 2>/dev/null
 }
@@ -169,7 +196,8 @@ if [ -n "${URL_ORIGIN}" ]; then
   RC="$(printf '%s\n' "${SAIDA}" | sed -n 's/^__rc=//p' | tail -1)"
   # Só as refs contam: stderr chega junto (avisos de redirecionamento ou de host novo não são refs).
   REFS="$(printf '%s\n' "${SAIDA}" | grep -E "^[0-9a-f]{40}"$'\t'"refs/heads/" || true)"
-  ERRO="$(printf '%s\n' "${SAIDA}" | grep -v '^__rc=' | grep -v -E "^[0-9a-f]{40}"$'\t' || true)"
+  LOGIN="$(printf '%s\n' "${SAIDA}" | sed -n 's/^__login=//p' | tail -1)"
+  ERRO="$(printf '%s\n' "${SAIDA}" | grep -v -E '^__(rc|login)=' | grep -v -E "^[0-9a-f]{40}"$'\t' || true)"
   ERRO_MIN="$(printf '%s' "${ERRO}" | tr '[:upper:]' '[:lower:]')"
   HOST="$(host_de "${URL_ORIGIN}")"
   ONDE_HOST="${HOST:-o remoto}"
@@ -208,10 +236,10 @@ if [ -n "${URL_ORIGIN}" ]; then
         add_remoto "Não consegui falar com ${ONDE_HOST} agora (sem internet ou rede bloqueada)." \
                    "Quando a conexão voltar, rode de novo — sem o remoto não dá para abrir frente nem publicar." ;;
       *)
-        if { [ "${RC}" = "143" ] || [ "${RC}" = "137" ] || [ -z "${ERRO}" ]; } \
-           && [ -n "${GIT_ASKPASS:-}${SSH_ASKPASS:-}$(git config core.askPass 2>/dev/null)" ]; then
+        if { [ "${RC}" = "143" ] || [ "${RC}" = "137" ]; } && [ "${LOGIN}" = "0" ]; then
           # O askpass do editor (VS Code/Cursor) não é desligado: quem está logado no GitHub por ele alcança
-          # o remoto sem janela nenhuma. Se o vigia cortou com ele presente, a janela ficou esperando.
+          # o remoto sem janela nenhuma. O vigia cortou E o remoto, consultado sem askpass, pediu login: a
+          # janela ficou esperando. Askpass definido sozinho não prova isso (rede parada nem o chama).
           if tem gh; then CMD="Responda a janela do editor, ou rode: gh auth login"
           else CMD="Responda a janela do editor, ou instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
           add_impede "A janela de login do editor está esperando resposta (o git pediu usuário e senha para ${ONDE_HOST})." "${CMD}"
