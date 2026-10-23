@@ -215,8 +215,8 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
      `gh run list --workflow <arquivo do workflow> --branch <principal> --limit 20 --json databaseId,headSha,status,conclusion,createdAt`.
      Só vale um run `success` criado depois do seu **e** de um commit que contém o seu
      (`git merge-base --is-ancestor <seu SHA> <SHA dele>` sai 0) ⇒ "Seu commit `<sha>` foi incluído no
-     deploy de `<sha dele>` (run N)". Se o `merge-base` der erro (commit não encontrado), diga "não consegui
-     confirmar" — nunca "não foi incluído".
+     deploy de `<sha dele>` (run N)". Sai 1 = aquele run **não** contém o seu commit (procure outro ou espere);
+     qualquer outro código (commit não encontrado) = "não consegui confirmar" — nunca "não foi incluído".
    - `failure` ⇒ diga o que falhou. Para repetir o deploy, **nunca `gh run rerun` de um run antigo**: com
      fila, ele roda depois do push mais novo e copia código velho por cima. Redispare na ponta
      (`gh workflow run <arquivo> --ref <principal>`, se o workflow aceita disparo manual) ou com um push novo.
