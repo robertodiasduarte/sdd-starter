@@ -284,6 +284,19 @@ class TestRemoto(Base):
         for palavra in ("senha", "login", "credencial"):
             self.assertNotIn(palavra, out.lower())
 
+    def test_rede_pendurada_inteira_api_e_remoto(self):
+        # Máquina sem rede ou atrás de firewall que descarta pacotes: a API do GitHub também não responde.
+        # A consulta à API (teto de 3 s) não pode somar ao teto do ls-remote (10 s). O remoto é do GitHub
+        # (a API é consultada) e só o vigia o corta: ssh que nunca responde. Um servidor HTTP pendurado não
+        # serve aqui — o lowSpeedTime do git (8 s) o corta antes do vigia e esconde a soma.
+        self.origin("ssh://git@github.com/escritorio/privado.git")
+        api = f"http://127.0.0.1:{self.srv_pendurado.server_address[1]}"
+        rc, out, t = self.roda(SDD_CHECAR_GITHUB_API=api, GIT_SSH_COMMAND="sh -c 'sleep 60; :'")
+        self.assertEqual(rc, 0, out)
+        self.assertLessEqual(t, 12, out)
+        self.assertIn("Não consegui falar com github.com agora (sem internet ou rede bloqueada).", out)
+        self.assertNotIn("público", out)
+
     def test_ssh_pendurado_vigia(self):
         # Neto que não é `exec` (sh -c com 2 comandos): matar só o filho deixaria o pipe aberto.
         self.origin("ssh://git@exemplo.invalid/x.git")

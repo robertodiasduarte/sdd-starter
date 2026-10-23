@@ -154,7 +154,8 @@ alcance() {
     # O git já saiu, mas um descendente que ignorou o TERM ainda seguraria a saída: KILL nos grupos antes de
     # cancelar o vigia (só os grupos desta consulta; ao término normal eles já estão vazios).
     kill -KILL -- "-${p}" ${q:+"-${q}"} 2>/dev/null
-    kill "${w}" 2>/dev/null
+    # O vigia também tem grupo próprio (set -m): matar só o subshell deixava o `sleep` dele órfão.
+    kill -- "-${w}" 2>/dev/null
     echo "__rc=${rc}" ) 2>/dev/null
 }
 
@@ -183,19 +184,28 @@ fi
 
 # Repositório público? Só GitHub; consulta anônima (repo privado responde 404 sem login).
 # Público sozinho não é problema: só aparece no resumo, e agrava o 🔴 Dado exposto.
+# Roda EM PARALELO com o ls-remote (abaixo): em sequência, rede parada somava 3 s ao teto de 10 s.
+# Imprime __publico=1 quando é público; nada quando não é ou quando a consulta falha.
 PUBLICO=0
 SLUG="$(printf '%s' "${URL_ORIGIN}" \
   | sed -n -E 's#^(https?://([^@/]+@)?|ssh://([^@/]+@)?|git@)github\.com[:/]([^/]+/[^/]+)$#\4#p' | sed 's#\.git$##; s#/$##')"
-if [ -n "${SLUG}" ] && [ "${MODO}" = normal ]; then
+publico() {
   if tem curl; then
-    [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 "${SDD_CHECAR_GITHUB_API:-https://api.github.com}/repos/${SLUG}" 2>/dev/null)" = "200" ] && PUBLICO=1
+    [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 "${SDD_CHECAR_GITHUB_API:-https://api.github.com}/repos/${SLUG}" 2>/dev/null)" = "200" ] && echo "__publico=1"
   elif tem gh; then
-    [ "$(gh repo view "${SLUG}" --json visibility -q .visibility 2>/dev/null)" = "PUBLIC" ] && PUBLICO=1
+    [ "$(gh repo view "${SLUG}" --json visibility -q .visibility 2>/dev/null)" = "PUBLIC" ] && echo "__publico=1"
   fi
-fi
+}
 
 if [ -n "${URL_ORIGIN}" ]; then
-  SAIDA="$(alcance)"
+  # A consulta à API vai para o fundo; a saída do ls-remote é guardada e só impressa depois do wait, para
+  # as duas não se misturarem no meio de uma linha. Teto total = o maior dos dois, não a soma.
+  SAIDA="$(
+    [ -n "${SLUG}" ] && [ "${MODO}" = normal ] && { publico </dev/null & }
+    s="$(alcance)"; wait; printf '%s\n' "${s}"
+  )"
+  [ -n "$(printf '%s\n' "${SAIDA}" | grep -x '__publico=1')" ] && PUBLICO=1
+  SAIDA="$(printf '%s\n' "${SAIDA}" | grep -v -x '__publico=1')"
   RC="$(printf '%s\n' "${SAIDA}" | sed -n 's/^__rc=//p' | tail -1)"
   # Só as refs contam: stderr chega junto (avisos de redirecionamento ou de host novo não são refs).
   REFS="$(printf '%s\n' "${SAIDA}" | grep -E "^[0-9a-f]{40}"$'\t'"refs/heads/" || true)"
