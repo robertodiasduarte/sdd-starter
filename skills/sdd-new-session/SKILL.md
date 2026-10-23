@@ -48,14 +48,17 @@ de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
 - Se existir a skill `sdd-checar-ambiente` na mesma pasta de skills desta (`.claude/skills/`,
   `.agents/skills/` ou a pasta global do agente) e houver bash, rode
   `bash <pasta das skills>/sdd-checar-ambiente/scripts/checar.sh --frente` e **repasse a saída como veio**.
-  Código de saída 1 (bloco `🔴 Impede o trabalho`) ⇒ **pare aí**. Código 0 ⇒ a única linha é o ✅; siga.
+  Código de saída 1 (bloco `🔴 Impede o trabalho`) ⇒ **pare aí**. Código 0 ⇒ a única linha é
+  `✅ Pronto para abrir a frente: …`; siga. Saiu 0 **sem** essa linha (um relatório completo, com ⚠️ ou
+  `✅ Repo …`)? A `sdd-checar-ambiente` instalada é anterior à 1.1.0 e não conhece o `--frente`: não conte
+  isso como pré-voo — faça as checagens à mão abaixo e sugira atualizar a skill.
 - Sem a skill ou sem bash (PowerShell puro), faça as mesmas 3 checagens à mão, nesta ordem, parando na
   primeira que falhar:
   1. `git remote` vazio ⇒ *"O repositório não tem remoto — a frente nasce dele."* com
      `git remote add origin <url do repositório>`. Há remoto, mas nenhum chamado `origin` (um fork com só
      `upstream`, por exemplo) ⇒ *"O repositório tem remoto, mas nenhum chamado origin — a frente nasce do
      origin."* com `git remote rename <nome> origin` (ou `git remote add origin <url>`). Não é login.
-  2. Com `GIT_ASKPASS` definido (terminal de VS Code ou Cursor), comece por um diagnóstico: a mesma consulta
+  2. Com janela de login do editor configurada (`GIT_ASKPASS` ou `SSH_ASKPASS` definidos, ou `git config core.askPass` não vazio — o terminal de VS Code ou Cursor), comece por um diagnóstico: a mesma consulta
      sem a janela e sem credencial guardada, que não pede nada a ninguém, com teto de 10 segundos —
      `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS= GCM_INTERACTIVE=never git -c credential.helper= -c core.askPass= ls-remote --heads origin`
      (PowerShell: `$a=$env:GIT_ASKPASS; try { $env:GIT_TERMINAL_PROMPT=0; $env:GIT_ASKPASS=''; $env:GCM_INTERACTIVE='never'; git -c credential.helper= -c core.askPass= ls-remote --heads origin } finally { $env:GIT_ASKPASS=$a }`).

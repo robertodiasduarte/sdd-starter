@@ -123,7 +123,7 @@ TEM_ASKPASS=""
 PEDIU_LOGIN='terminal prompts disabled|could not read (username|password)|permission denied \('
 alcance() {
   local ssh_cmd=""
-  if [ -z "${GIT_SSH_COMMAND:-}" ] && [ -z "$(git config core.sshCommand 2>/dev/null)" ]; then
+  if [ -z "${GIT_SSH_COMMAND:-}" ] && [ -z "${GIT_SSH:-}" ] && [ -z "$(git config core.sshCommand 2>/dev/null)" ]; then
     ssh_cmd="ssh -o BatchMode=yes -o ConnectTimeout=8"
   fi
   ( set -m
@@ -151,6 +151,9 @@ alcance() {
         kill -TERM -- "-${q}"            # a consulta de verdade terminou: o diagnóstico sobra
       fi
     fi
+    # O git já saiu, mas um descendente que ignorou o TERM ainda seguraria a saída: KILL nos grupos antes de
+    # cancelar o vigia (só os grupos desta consulta; ao término normal eles já estão vazios).
+    kill -KILL -- "-${p}" ${q:+"-${q}"} 2>/dev/null
     kill "${w}" 2>/dev/null
     echo "__rc=${rc}" ) 2>/dev/null
 }
@@ -222,8 +225,13 @@ if [ -n "${URL_ORIGIN}" ]; then
         [ "${HOST}" = "github.com" ] && CMD="${CMD}"$'\n'"  Confira a impressão digital em https://docs.github.com/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints"
         add_impede "Este computador ainda não confirmou a identidade de ${ONDE_HOST} para SSH." "${CMD}" ;;
       *"could not read username"*|*"could not read password"*|*"authentication failed"*|*"terminal prompts disabled"*|*"permission denied (publickey"*|*"repository not found"*|*"returned error: 403"*)
-        if tem gh; then CMD="gh auth login"; else CMD="Instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
-        CMD="${CMD}"$'\n'"  Alternativas: chave SSH (ssh-keygen e cadastrar a chave pública no GitHub) ou o gerenciador de credenciais do git."
+        if [ -n "${SLUG}" ]; then
+          if tem gh; then CMD="gh auth login"; else CMD="Instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
+          CMD="${CMD}"$'\n'"  Alternativas: chave SSH (ssh-keygen e cadastrar a chave pública no GitHub) ou o gerenciador de credenciais do git."
+        else
+          # Fora do GitHub, gh auth login não resolve: o login é o do próprio serviço.
+          CMD="Faça login em ${ONDE_HOST} do jeito desse serviço (token de acesso ou chave SSH cadastrada nele) e rode de novo."
+        fi
         if [ -n "${SLUG}" ] && [ "${PUBLICO}" -eq 1 ]; then
           MSG="O GitHub não deixou este computador ler ${SLUG}: confira o endereço do remoto e a sua permissão no repositório."
         elif [ -n "${SLUG}" ]; then

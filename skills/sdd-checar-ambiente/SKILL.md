@@ -89,7 +89,7 @@ aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identifica
     `ssh -T git@<host>` e responder `yes` — não é problema de login;
   - `Could not resolve host`, `timed out`, `Failed to connect` ou nenhuma resposta em 10 segundos ⇒ ⚠️ sem
     internet ou rede bloqueada — **não** fale em senha nem em login;
-  - parou sem resposta e o terminal é de um editor (`GIT_ASKPASS` definido) ⇒ `GIT_ASKPASS` sozinho não
+  - parou sem resposta e há janela de login de editor configurada (`GIT_ASKPASS`/`SSH_ASKPASS` definidos ou `core.askPass`) ⇒ `GIT_ASKPASS` sozinho não
     prova login (com a rede parada o git nem pede senha). Repita sem a janela e sem credencial guardada,
     também com teto de 10 s: `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS= git -c credential.helper= -c core.askPass= ls-remote --heads origin`.
     Ela pediu login (`could not read Username`, `terminal prompts disabled`, `Permission denied (`) ⇒ 🔴 a

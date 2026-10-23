@@ -260,8 +260,9 @@ class TestRemoto(Base):
         self.assertLess(t, 5, out)
         self.assertTrue(out.startswith("🔴 Impede o trabalho"), out)
         self.assertIn("recusou o acesso", out)
-        self.assertIn("gh auth login", out)
-        self.assertIn("chave SSH", out)
+        # 127.0.0.1 não é GitHub: o remédio é o login do próprio serviço, nunca gh auth login.
+        self.assertIn("Faça login em 127.0.0.1", out)
+        self.assertNotIn("gh auth login", out)
         self.assertNotIn("Password", out)
         self.assertNotIn("Username", out)
 
@@ -271,6 +272,8 @@ class TestRemoto(Base):
         out = self.checar()
         self.assertIn("O GitHub não deixou este computador ler escritorio/privado", out)
         self.assertIn("o repositório é privado e este computador não está logado no GitHub", out)
+        self.assertIn("gh auth login", out)
+        self.assertIn("chave SSH", out)
 
     def test_rede_pendurada(self):
         self.origin(f"http://127.0.0.1:{self.srv_pendurado.server_address[1]}/x.git")
@@ -424,7 +427,7 @@ class TestFrente(Base):
         self.origin(f"http://127.0.0.1:{self.srv401.server_address[1]}/x.git")
         rc, out, _ = self.roda("--frente")
         self.bloqueia(out, rc)
-        self.assertIn("gh auth login", out)
+        self.assertIn("Faça login em 127.0.0.1", out)
 
     def test_frente_bloqueia_host_ssh(self):
         self.origin("ssh://git@exemplo.invalid/x.git")
