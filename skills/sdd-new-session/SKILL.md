@@ -60,12 +60,14 @@ de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
      origin."* com `git remote rename <nome> origin` (ou `git remote add origin <url>`). Não é login.
   2. Com janela de login do editor configurada (`GIT_ASKPASS` ou `SSH_ASKPASS` definidos, ou `git config core.askPass` não vazio — o terminal de VS Code ou Cursor), comece por um diagnóstico: a mesma consulta
      sem a janela e sem credencial guardada, que não pede nada a ninguém, com teto de 10 segundos —
-     `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS= GCM_INTERACTIVE=never git -c credential.helper= -c core.askPass= ls-remote --heads origin`
+     `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS= GCM_INTERACTIVE=never GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=8" git -c credential.helper= -c core.askPass= ls-remote --heads origin`
      (PowerShell: `$a=$env:GIT_ASKPASS; try { $env:GIT_TERMINAL_PROMPT=0; $env:GIT_ASKPASS=''; $env:GCM_INTERACTIVE='never'; git -c credential.helper= -c core.askPass= ls-remote --heads origin } finally { $env:GIT_ASKPASS=$a }`).
      Parado ou erro de rede ⇒ é rede, não janela: `GIT_ASKPASS` definido não prova login nenhum (com a rede
      parada o git nem chega a pedir senha). Qualquer outra resposta ⇒ o remoto respondeu; siga.
      Depois (ou direto, sem `GIT_ASKPASS`), a consulta de verdade, com a janela do editor ligada (quem está
-     logado por ela passa): `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never git ls-remote --heads origin` (PowerShell:
+     logado por ela passa): `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=8" git ls-remote --heads origin`
+     (o `GIT_SSH_COMMAND` só se não houver ssh próprio configurado — `GIT_SSH_COMMAND`, `GIT_SSH` ou
+     `core.sshCommand`; com ele o ssh não fica parado pedindo frase-senha nem confirmação do host) (PowerShell:
      `$env:GIT_TERMINAL_PROMPT=0; $env:GCM_INTERACTIVE='never'; git ls-remote --heads origin` — o
      `GCM_INTERACTIVE` impede a janela do gerenciador de credenciais do Windows, sem desligar a credencial
      já guardada) — se passar de 10 segundos sem resposta,

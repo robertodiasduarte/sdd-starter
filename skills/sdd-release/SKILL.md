@@ -210,6 +210,9 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
      outra branch ou de PR, que pode ter pulado o deploy.
    - `completed` + `success` ⇒ "No ar: o deploy do seu commit `<sha curto>` terminou (run N)".
    - `queued` ou `in_progress` ⇒ espere e olhe de novo; ainda não está no ar.
+   - Lista vazia ⇒ o GitHub ainda não registrou o run: espere alguns segundos e consulte de novo; vazia depois
+     de ~2 min ⇒ diga que não achou o run do commit — nunca "nada a verificar". Nos cenários B e C, o SHA que
+     chega à principal é o do merge do PR: consulte por ele.
    - `cancelled` ⇒ com fila, um push mais novo pode ter substituído o seu. `GIT_TERMINAL_PROMPT=0 git fetch
      origin <principal>`, depois
      `gh run list --workflow <arquivo do workflow> --branch <principal> --limit 20 --json databaseId,headSha,status,conclusion,createdAt`.

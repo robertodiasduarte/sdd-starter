@@ -127,7 +127,9 @@ alcance() {
     ssh_cmd="ssh -o BatchMode=yes -o ConnectTimeout=8"
   fi
   ( set -m
-    export GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never
+    # LC_ALL/LANGUAGE=C: a classificação lê as mensagens do git em inglês; traduzidas, credencial recusada
+    # viraria "Não consegui ler o remoto" e a janela do editor viraria "sem internet".
+    export GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never LC_ALL=C LANGUAGE=C
     [ -n "${ssh_cmd}" ] && export GIT_SSH_COMMAND="${ssh_cmd}"
     git -c http.lowSpeedLimit=1 -c http.lowSpeedTime=8 ls-remote --heads origin </dev/null 2>&1 &
     p=$!
