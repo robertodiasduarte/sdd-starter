@@ -191,11 +191,11 @@ fi
 PUBLICO=0
 SLUG="$(printf '%s' "${URL_ORIGIN}" \
   | sed -n -E 's#^(https?://([^@/]+@)?|ssh://([^@/]+@)?|git@)github\.com[:/]([^/]+/[^/]+)$#\4#p' | sed 's#\.git$##; s#/$##')"
+# Só curl (vem com macOS, Linux e o Git for Windows): ele tem teto de 3 s. O `gh repo view` não tem
+# teto e seguraria o diagnóstico inteiro; sem curl, a visibilidade fica desconhecida e nada é dito.
 publico() {
   if tem curl; then
     [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 "${SDD_CHECAR_GITHUB_API:-https://api.github.com}/repos/${SLUG}" 2>/dev/null)" = "200" ] && echo "__publico=1"
-  elif tem gh; then
-    [ "$(gh repo view "${SLUG}" --json visibility -q .visibility 2>/dev/null)" = "PUBLIC" ] && echo "__publico=1"
   fi
 }
 
