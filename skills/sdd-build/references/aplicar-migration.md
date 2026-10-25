@@ -45,7 +45,9 @@ Nesta ordem, anotando o que encontrou:
 
 **Tipo de banco**
 - `supabase status` responde ⇒ há banco **local** (`supabase start`); a migration pode ser testada nele
-  primeiro (`supabase db reset` aplica tudo do zero localmente).
+  primeiro. ⚠️ `supabase db reset` **apaga o banco local inteiro** e o recria do zero (todas as migrations
+  + seed): os dados de teste que estavam lá somem. Só sugira com o aluno sabendo disso, e nunca contra o
+  remoto; para testar sem perder dados locais, `supabase migration up` aplica só o que falta.
 - Sem local, o remoto é o **único banco** do projeto — e conta como **produção**, mesmo que o aluno o
   chame de "teste". A confirmação diz isso.
 

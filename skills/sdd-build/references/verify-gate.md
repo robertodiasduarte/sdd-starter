@@ -64,10 +64,12 @@ histórico de um e a coluna não aparece no outro).
 
 Testar a hipótese pela leitura (seção 5 de [aplicar-migration.md](aplicar-migration.md)):
 - a versão consta em `supabase migration list --linked` / `list_migrations` **do projeto confirmado**?
-- o `select` em `information_schema`/`pg_proc`/`pg_policies` acha o objeto que o AT usa?
+- o `select` em `information_schema`/`pg_proc`/`pg_policies` mostra o **efeito esperado** da migration —
+  objeto criado aparece; objeto removido **não** aparece (ausência esperada); valor alterado está novo?
 
-Linha vazia ⇒ voltar à seção 11 da skill (descobrir o projeto, confirmar, aplicar, provar) e só então
-rerodar o gate. Só com a prova positiva em mãos é que `2` vira "defeito no código" e `3` vira "infra".
+Resultado contrário ao efeito esperado ⇒ voltar à seção 11 da skill (descobrir o projeto, confirmar,
+aplicar, provar) e só então rerodar o gate. Só com a prova do efeito em mãos é que `2` vira "defeito no
+código" e `3` vira "infra".
 
 ## smoke 403 / infra noise
 
