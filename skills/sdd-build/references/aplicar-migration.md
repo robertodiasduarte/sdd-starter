@@ -73,7 +73,11 @@ Antes de propor qualquer coisa:
 - CLI: `supabase migration list --linked` — a versão (o timestamp do nome do arquivo) aparece na coluna
   **Remote**? Então já foi aplicada.
 - MCP: `list_migrations(project_id)` devolve a versão.
-- Manual: o `select` de prova da seção 5 já acha o objeto.
+- Manual (sem histórico de migrations para ler): só conta como já aplicada com o registro do aluno ("rodei
+  este arquivo em <data>") **ou** quando **todos** os efeitos específicos desta migration já estão no banco
+  (a coluna nova existe, o valor novo está lá, o objeto removido não está). A existência de uma tabela que
+  já existia antes **não** prova nada — um `UPDATE` ou um `ALTER` pendente deixa o objeto no lugar e o
+  efeito da migration ausente.
 
 Já aplicada ⇒ **não reaplicar**. Registre na seção `## Migrations aplicadas` do BUILD_REPORT a linha com
 "já aplicada em <data>" (a data que a lista mostrar) e siga para a prova (seção 5) — aplicada não é o
@@ -114,8 +118,8 @@ Regras do bloco:
 - **Nome e ref** do projeto, sempre os dois. Local ou remoto. Se é o único banco, dizer que é produção.
 - **SQL inteiro**, nunca resumo — um bloco `sql` por migration que a prévia listou.
 - A linha ⛔ entra quando o SQL (sem comentários, sem diferenciar maiúsculas) contém `DROP TABLE`,
-  `DROP SCHEMA`, `DROP FUNCTION`, `DROP VIEW`, `DROP POLICY`, `DROP INDEX`, `ALTER TABLE … DROP COLUMN`,
-  `TRUNCATE`, ou `DELETE`/`UPDATE` sem `WHERE` no mesmo comando — e também quando o destino é o único
+  `DROP SCHEMA`, `DROP FUNCTION`, `DROP VIEW`, `DROP POLICY`, `DROP TRIGGER`, `DROP TYPE`, `DROP INDEX`,
+  `ALTER TABLE … DROP COLUMN`, `TRUNCATE`, ou `DELETE`/`UPDATE` sem `WHERE` no mesmo comando — e também quando o destino é o único
   banco do projeto. Diga o que ela faz com os dados ("apaga a coluna e o que havia nela").
 - A frase **não há undo** fica, mesmo sem DDL destrutivo: coluna nova também não se desfaz sozinha.
 - É a única pergunta do passo. A escolha do modo de execução (seção 4 da skill) aconteceu antes e é outra
@@ -150,8 +154,11 @@ select proname     from pg_proc     where proname = 'fn_cliente_valida_cnpj';
 select policyname  from pg_policies where tablename = 'cliente';
 ```
 
-  Linha vazia = o objeto não está lá — trate como **não aplicada** (projeto errado ou SQL sem efeito),
-  volte à descoberta do projeto. O `exit 0` do comando **não prova** nada: só a leitura prova.
+  A prova é do **efeito da migration**, não da existência de um objeto: migration que **cria** ⇒ o `select`
+  tem de achar (linha vazia = não aplicada); migration que **remove** (`DROP`, `DELETE`) ⇒ o `select` tem de
+  voltar vazio (**ausência esperada** = aplicada; a linha ainda lá = não aplicada); migration que **altera**
+  dado ⇒ ler o valor novo. Resultado contrário ao efeito esperado = **não aplicada** (projeto errado ou SQL
+  sem efeito): volte à descoberta do projeto. O `exit 0` do comando **não prova** nada: só a leitura prova.
 
 - **Função com lógica** (PL/pgSQL): o banco só valida nomes de coluna na **primeira execução**. Uma
   chamada de teste dentro de transação, desfeita em seguida:
