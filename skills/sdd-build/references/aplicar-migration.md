@@ -24,7 +24,9 @@ Quatro regras governam tudo abaixo:
 Nesta ordem, anotando o que encontrou:
 
 **Ferramenta**
-- `supabase --version` responde ⇒ **CLI** (caminho preferido: tem `--dry-run` e `migration list`).
+- `supabase --version` responde **e** `supabase db push --help` lista `--dry-run` ⇒ **CLI** (caminho
+  preferido: tem prévia e `migration list`). CLI antiga, sem `--dry-run`: sugira atualizar; se não der, siga
+  pelo **MCP** ou pelo **manual** (neles a prévia é o próprio bloco de confirmação) — não trave o passo.
 - Há um MCP do Supabase na sessão (ferramentas `list_projects`, `apply_migration`, `execute_sql`,
   `list_migrations`) ⇒ **MCP**.
 - Nenhum dos dois ⇒ **manual**: o aluno cola o SQL no SQL Editor do painel do Supabase, e você entrega o
@@ -58,6 +60,11 @@ Nesta ordem, anotando o que encontrou:
   **B** (`ref…`). Qual é o certo?". Não escolha; nada é aplicado até o aluno responder. Projetos
   diferentes em fontes diferentes é o sinal de que a máquina do aluno já apontou para o lugar errado uma
   vez.
+- **Depois da escolha, alinhe o vínculo antes de qualquer prévia:** `supabase link --project-ref <ref
+  escolhida>` e confira que `supabase/.temp/project-ref` passou a conter exatamente essa ref (e que
+  `supabase projects list` marca ● nela). O `--linked` de todos os comandos seguintes aponta para o vínculo,
+  não para a resposta do aluno: sem religar, a prévia e o push iriam para o projeto antigo mesmo com a
+  confirmação feita para o novo. Vínculo diferente da ref aprovada ⇒ pare.
 
 **Registro** — grave o que descobriu em `sdd/ambiente.md` do checkout principal (mesmo arquivo e
 formato das skills `sdd-new-session`/`sdd-release`, uma chave por linha):
@@ -132,7 +139,8 @@ Resposta diferente de um sim claro ⇒ não aplique; volte ao que o aluno pediu.
 ## 5. Aplicar e provar
 
 **Aplicar**
-- CLI: `supabase db push --linked`. Pediu senha? É a senha do banco do `supabase link`
+- CLI: antes, `supabase/.temp/project-ref` tem de ser **a mesma ref do bloco de confirmação** (é para onde o
+  `--linked` manda) — diferente ⇒ pare e religue. Depois, `supabase db push --linked`. Pediu senha? É a senha do banco do `supabase link`
   (`SUPABASE_DB_PASSWORD` evita o prompt) — nunca invente. `project not linked` ⇒
   `supabase link --project-ref <a ref confirmada>` e repita.
 - MCP: `apply_migration(project_id, name, query)` com o **arquivo inteiro** como `query` — nunca um trecho
