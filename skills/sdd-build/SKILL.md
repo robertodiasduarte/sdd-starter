@@ -1,17 +1,17 @@
 ---
 name: sdd-build
 license: MIT
-description: "Executar a fase Build de um fluxo SDD/AgentSpec a partir dos arquivos Markdown de Brainstorm, Define e Design e de interações com o usuário. Usar quando o usuário quiser implementar uma feature já especificada: ler os três artefatos, extrair e ordenar o File Manifest, recomendar e confirmar o modo de execução, alterar somente o código previsto, verificar incrementalmente, tratar drift e prompts LLM, executar o Verify Gate bloqueante do Define e gerar BUILD_REPORT_{FEATURE}.md com evidências. Requer acesso gravável ao projeto/código e deve terminar com o fluxo SDD concluído e o BUILD_REPORT validado."
+description: "Executar a fase Build de um fluxo SDD/AgentSpec a partir dos arquivos Markdown de Brainstorm, Define e Design e de interações com o usuário. Usar quando o usuário quiser implementar uma feature já especificada: ler os três artefatos, extrair e ordenar o File Manifest, recomendar e confirmar o modo de execução, alterar somente o código previsto, verificar incrementalmente, tratar drift e prompts LLM, aplicar no banco a migration que o manifest trouxer (com confirmação do projeto por nome e ref e prova por leitura), executar o Verify Gate bloqueante do Define e gerar BUILD_REPORT_{FEATURE}.md com evidências. Requer acesso gravável ao projeto/código e deve terminar com o fluxo SDD concluído e o BUILD_REPORT validado."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.0"
+  version: "1.1.0"
   updated: "2026-10"
 ---
 
 # SDD Build
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-build v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-build v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Executar implementação real. Não tratar Build como geração de um documento isolado.
 
@@ -27,17 +27,19 @@ Executar implementação real. Não tratar Build como geração de um documento 
 8. Executar cada tarefa de forma cirúrgica, com verificação incremental.
 9. Aplicar drift detection e o gate de prompts LLM quando necessário.
 10. Usar a retry ladder em falhas.
-11. Executar o Verify Gate do DEFINE como gate bloqueante.
-12. Executar verificações complementares configuradas no projeto.
-13. Perguntar sobre revisão externa pós-build quando o caso justificar e a capacidade existir.
-14. Gerar o BUILD_REPORT usando [assets/BUILD_REPORT_TEMPLATE.md](assets/BUILD_REPORT_TEMPLATE.md).
-15. Validar o relatório com `python scripts/validate_build_report.py <BUILD_REPORT.md>`.
-16. Encerrar um build completo somente com `Execute o **SDD Handoff by RDD**.`
+11. Aplicar a migration no banco — só quando o File Manifest tem migration — com confirmação do projeto (nome e ref) e prova por leitura, antes do Verify Gate.
+12. Executar o Verify Gate do DEFINE como gate bloqueante.
+13. Executar verificações complementares configuradas no projeto.
+14. Perguntar sobre revisão externa pós-build quando o caso justificar e a capacidade existir.
+15. Gerar o BUILD_REPORT usando [assets/BUILD_REPORT_TEMPLATE.md](assets/BUILD_REPORT_TEMPLATE.md).
+16. Validar o relatório com `python scripts/validate_build_report.py <BUILD_REPORT.md>`.
+17. Encerrar um build completo somente com `Execute o **SDD Handoff by RDD**.`
 
 Ler [references/build-protocol.md](references/build-protocol.md) no início da execução.
 Ler [references/execution-modes.md](references/execution-modes.md) ao selecionar o modo.
 Usar [assets/PROGRESS_TEMPLATE.md](assets/PROGRESS_TEMPLATE.md) se o usuário escolher Ralph.
 Usar [assets/WORKER_BRIEF_TEMPLATE.md](assets/WORKER_BRIEF_TEMPLATE.md) se o usuário escolher Briefs.
+Ler [references/aplicar-migration.md](references/aplicar-migration.md) quando o File Manifest tiver migration, antes de aplicá-la.
 Ler [references/verify-gate.md](references/verify-gate.md) antes do gate final.
 Ler [references/llm-prompt-gate.md](references/llm-prompt-gate.md) somente quando houver sinal de runtime LLM/prompt.
 Ler [references/retry-and-advisor.md](references/retry-and-advisor.md) quando houver falha repetida ou revisão externa formal.
@@ -285,7 +287,31 @@ Se nenhum comando existir, derivar um método observável apenas quando sustenta
 
 Registrar resultado por tarefa.
 
-## 11. Executar Verify Gate bloqueante
+## 11. Aplicar a migration no banco
+
+Só quando o File Manifest tem migration (`*.sql`, pasta `migrations/`, ou ação descrita como migration).
+Sem migration, pular sem mencionar banco.
+
+Ler [references/aplicar-migration.md](references/aplicar-migration.md) — o protocolo inteiro está lá. As
+regras, em resumo:
+
+1. **Descobrir sem perguntar:** ferramenta (CLI do Supabase no PATH · MCP do Supabase na sessão · nenhuma
+   ⇒ caminho manual pelo SQL Editor), projeto ligado (`supabase/.temp/project-ref`, `.env`, lista de
+   projetos — o `project_id` do `config.toml` é nome local, não a ref), banco local × remoto.
+2. **Projeto divergente para antes de tudo:** se o arquivo aponta para um projeto e a CLI/MCP está em
+   outro, mostre os dois (nome e ref) e não aplique nada até o aluno escolher.
+3. **Uma confirmação só**, com nome **e** ref do projeto, o SQL inteiro de toda migration pendente, e
+   aviso em destaque quando há DDL destrutivo ou quando o destino é o único banco (produção).
+4. **Aplicar antes do Verify Gate** — um passo por vez: aplicar, ler o resultado, provar, e só então o gate.
+5. **Provar por leitura** (`information_schema`, `pg_proc`, `pg_policies`, `migration list`); exit 0 do
+   comando não é prova. Migration já aplicada não é reaplicada — é registrada como "já aplicada em <data>".
+6. **Registrar:** chave `- banco:` em `sdd/ambiente.md` e a seção `## Migrations aplicadas` do
+   BUILD_REPORT (o validador a exige quando *Files Changed* lista `.sql`/`migrations/`).
+
+Nunca reescrever a migration para escapar de uma confirmação do servidor (`declined`); nunca aplicar SQL
+que o aluno não viu.
+
+## 12. Executar Verify Gate bloqueante
 
 Ler [references/verify-gate.md](references/verify-gate.md).
 
@@ -304,8 +330,10 @@ Interpretar:
 
 Nunca declarar sucesso com `2`, `3`, `5` ou `64`.
 Com `4`, exigir no relatório: quem validou, data e resultado.
+Com migration no manifest, `2` e `3` têm uma primeira hipótese antes de qualquer outra: a migration não foi
+aplicada, ou foi aplicada em outro projeto — repetir a prova por leitura da seção 11 antes de mexer em código.
 
-## 12. Verificações complementares
+## 13. Verificações complementares
 
 Depois do gate, executar quando configurado:
 - lint;
@@ -318,7 +346,7 @@ Esses checks complementam; não substituem o Verify Gate.
 
 Se uma verificação complementar falhar, o Build continua incompleto até resolução ou blocker explícito.
 
-## 13. Revisão pós-build
+## 14. Revisão pós-build
 
 Quando houver ferramenta externa disponível, recomendar revisão pós-build se:
 - segurança foi alterada;
@@ -333,7 +361,7 @@ Se houver findings:
 - registrar cada nota como APPLIED/REBUTTED;
 - após HIGH aplicado, repetir o Verify Gate.
 
-## 14. Gerar BUILD_REPORT
+## 15. Gerar BUILD_REPORT
 
 Usar [assets/BUILD_REPORT_TEMPLATE.md](assets/BUILD_REPORT_TEMPLATE.md) como única fonte estrutural do relatório.
 
@@ -345,6 +373,7 @@ Incluir:
 - summary;
 - task execution;
 - arquivos criados/modificados/excluídos;
+- migrations aplicadas (arquivo, projeto nome e ref, data/hora, prova por leitura) quando o manifest tem migration;
 - prompts gerados/refatorados quando aplicável;
 - drift;
 - Verification Results;
@@ -364,7 +393,7 @@ Se completo:
 - Final Status `COMPLETE`;
 - inserir a seção final padrão.
 
-## 15. Validar BUILD_REPORT
+## 16. Validar BUILD_REPORT
 
 Executar:
 
@@ -374,7 +403,7 @@ O script valida estrutura e coerência básica do relatório.
 
 Corrigir falhas antes de entregar.
 
-## 16. Salvar outputs
+## 17. Salvar outputs
 
 Código:
 - nos paths do File Manifest.
@@ -404,6 +433,9 @@ Antes de declarar Build completo:
 - [ ] Retry ladder respeitada.
 - [ ] `LLM Prompts=true` tem receipt para cada item do inventory.
 - [ ] Itens de segurança não foram delegados a worker barato.
+- [ ] Manifest com migration: projeto confirmado pelo aluno (nome e ref) e migration aplicada — ou registrada como já aplicada.
+- [ ] Manifest com migration: prova por leitura e seção `## Migrations aplicadas` no relatório.
+- [ ] Manifest com migration: chave `- banco:` gravada em `sdd/ambiente.md`.
 - [ ] Verify Gate está em `0`, ou `4` com receipt humano.
 - [ ] Checks complementares aplicáveis passam.
 - [ ] Acceptance Tests têm evidência.

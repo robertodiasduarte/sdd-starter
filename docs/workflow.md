@@ -40,12 +40,12 @@ If you have a UX review document, hand it to Design as optional input.
 
 ### 🔨 Build — implement exactly what was designed
 
-The only phase that needs write access to a project. It reads all three artifacts, confirms an execution mode with you, changes **only** what the File Manifest allows, verifies incrementally, detects drift between spec and reality, and finishes by running the **Verify Gate from the Define — as a blocking gate**. The output is working code plus a `BUILD_REPORT_*.md` with evidence.
+The only phase that needs write access to a project. It reads all three artifacts, confirms an execution mode with you, changes **only** what the File Manifest allows, verifies incrementally, detects drift between spec and reality, and finishes by running the **Verify Gate from the Define — as a blocking gate**. When the File Manifest includes a migration, it applies the migration to the database before the gate, after confirming the Supabase project with you by name and ref, and proves it by reading the schema back — never by the command's exit code. The output is working code plus a `BUILD_REPORT_*.md` with evidence (including which migrations were applied, where, and how that was proven).
 
 ## Rules that hold the flow together
 
 1. **Artifacts are the interface.** Each skill reads the previous artifacts and writes exactly one new one, from the canonical template in its `assets/` folder.
-2. **Next Step is explicit.** Every artifact ends with a single handoff line naming the next skill. The Build report ends by closing the flow: review the BUILD_REPORT and release through your own process.
+2. **Next Step is explicit.** Every artifact ends with a single handoff line naming the next skill. The Build report ends by closing the flow: review the BUILD_REPORT and ship with `sdd-release`, which also checks that a migration in the commit was applied to the database (and the other way round) before asking for your OK.
 3. **No inventing.** Skills are instructed to mark ambiguities and ask, never guess. Facts must trace back to an artifact or to your answers.
 4. **Gates are blocking.** A Define without a Verify Gate is not done; a Build that fails the Verify Gate is not complete — it's blocked, and the report says so.
 

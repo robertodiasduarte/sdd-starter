@@ -21,7 +21,7 @@ Se você quer a versão avançada deste fluxo — com Verify Gate executável, c
 | [`sdd-brainstorm`](skills/sdd-brainstorm/) | Explorar a ideia | Uma ideia, problema ou notas soltas | `BRAINSTORM_{FEATURE}.md` |
 | [`sdd-define`](skills/sdd-define/) | Formalizar requisitos | O arquivo de Brainstorm | `DEFINE_{FEATURE}.md` (testes de aceitação EARS, Clarity Score, Verify Gate) |
 | [`sdd-design`](skills/sdd-design/) | Arquitetar a solução | Brainstorm + Define | `DESIGN_{FEATURE}.md` (arquitetura, ADRs, File Manifest) |
-| [`sdd-build`](skills/sdd-build/) | Implementar | Os três artefatos + projeto gravável | Código funcionando + `BUILD_REPORT_{FEATURE}.md` |
+| [`sdd-build`](skills/sdd-build/) | Implementar — e, se o manifest tem migration, aplica a migration no banco depois de confirmar o projeto (nome e ref) | Os três artefatos + projeto gravável | Código funcionando + `BUILD_REPORT_{FEATURE}.md` (com as migrations aplicadas e a prova) |
 | [`sdd-handoff`](skills/sdd-handoff/) | Fechar o ciclo | O trabalho da sessão | `HANDOFF_{FEATURE}.md` + prompt de retomada |
 
 E cinco skills **complementares**, que não entram na sequência — elas alimentam as fases:
@@ -109,7 +109,7 @@ If you want the advanced version of this workflow — with an executable Verify 
 | [`sdd-brainstorm`](skills/sdd-brainstorm/) | Explore the idea | An idea, problem, or rough notes | `BRAINSTORM_{FEATURE}.md` |
 | [`sdd-define`](skills/sdd-define/) | Formalize requirements | The Brainstorm file | `DEFINE_{FEATURE}.md` (EARS acceptance tests, Clarity Score, Verify Gate) |
 | [`sdd-design`](skills/sdd-design/) | Architect the solution | Brainstorm + Define | `DESIGN_{FEATURE}.md` (architecture, ADRs, File Manifest) |
-| [`sdd-build`](skills/sdd-build/) | Implement | All three artifacts + writable project | Working code + `BUILD_REPORT_{FEATURE}.md` |
+| [`sdd-build`](skills/sdd-build/) | Implement — and, when the manifest has a migration, applies the migration to the database after confirming the project (name and ref) | All three artifacts + writable project | Working code + `BUILD_REPORT_{FEATURE}.md` (with the migrations applied and the proof) |
 | [`sdd-handoff`](skills/sdd-handoff/) | Close the cycle | The session's work | `HANDOFF_{FEATURE}.md` + resume prompt |
 
 Plus five **complementary** skills that are not part of the sequence — they feed the phases:

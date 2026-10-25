@@ -40,12 +40,12 @@ Se você tiver um documento de revisão de UX, entregue-o ao Design como entrada
 
 ### 🔨 Build — implemente exatamente o que foi desenhado
 
-A única fase que precisa de acesso de escrita a um projeto. Lê os três artefatos, confirma com você um modo de execução, altera **somente** o que o File Manifest permite, verifica incrementalmente, detecta drift entre especificação e realidade, e termina executando o **Verify Gate do Define — como gate bloqueante**. A saída é código funcionando mais um `BUILD_REPORT_*.md` com evidências.
+A única fase que precisa de acesso de escrita a um projeto. Lê os três artefatos, confirma com você um modo de execução, altera **somente** o que o File Manifest permite, verifica incrementalmente, detecta drift entre especificação e realidade, e termina executando o **Verify Gate do Define — como gate bloqueante**. Quando o File Manifest traz uma migration, ela aplica a migration no banco antes do gate, depois de confirmar com você o projeto do Supabase por nome e ref, e prova por leitura que ela entrou — nunca pelo exit code do comando. A saída é código funcionando mais um `BUILD_REPORT_*.md` com evidências (inclusive quais migrations foram aplicadas, onde, e como isso foi provado).
 
 ## Regras que seguram o fluxo
 
 1. **Artefatos são a interface.** Cada skill lê os artefatos anteriores e escreve exatamente um novo, a partir do template canônico da sua pasta `assets/`.
-2. **Next Step é explícito.** Todo artefato termina com uma única linha de handoff nomeando a próxima skill. O relatório de Build encerra o fluxo: revise o BUILD_REPORT e publique pelo seu próprio processo.
+2. **Next Step é explícito.** Todo artefato termina com uma única linha de handoff nomeando a próxima skill. O relatório de Build encerra o fluxo: revise o BUILD_REPORT e publique com a `sdd-release`, que também confere que a migration do commit foi aplicada no banco (e vice-versa) antes de pedir o seu OK.
 3. **Nada de inventar.** As skills são instruídas a marcar ambiguidades e perguntar, nunca adivinhar. Todo fato precisa rastrear até um artefato ou até as suas respostas.
 4. **Gates são bloqueantes.** Um Define sem Verify Gate não está pronto; um Build que falha no Verify Gate não está completo — está bloqueado, e o relatório diz isso.
 

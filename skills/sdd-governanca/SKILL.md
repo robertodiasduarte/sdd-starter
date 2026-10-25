@@ -5,14 +5,14 @@ license: "MIT"
 metadata:
   author: "Roberto Dias Duarte"
   methodology: "Metodologia de Roberto Dias Duarte"
-  version: "1.0.0"
+  version: "1.0.1"
   updated: "2026-10"
 ---
 
 # SDD Governança
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-governanca v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-governanca v1.0.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -44,8 +44,8 @@ Usar quando:
 
 Não usar quando:
 - o DEFINE não trata nenhum desses temas (a skill responde N.A. e encerra — rodar não custa nada);
-- o objetivo é auditar o banco de dados que já foi construído — para isso, use a skill `rdd-audita-schema`
-  depois do Build;
+- o objetivo é auditar o banco de dados que já foi construído — isso é outra tarefa; o passo *Aplicar a
+  migration* da `sdd-build` prova por leitura o que a migration criou, mas não audita o desenho do banco;
 - o objetivo é testar se o sistema no ar está seguro contra ataque — isso é segurança, não governança.
 
 ## Como a prova de cada requisito chega até você

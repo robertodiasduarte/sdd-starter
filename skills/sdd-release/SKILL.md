@@ -4,14 +4,14 @@ license: MIT
 description: "Fecha uma frente de trabalho e a leva para produção com UM ponto de aprovação: verifica sozinha o que vai subir (sintaxe, testes, segredo no diff, base desatualizada), mostra uma vez o que exatamente vai para produção e se o push publica sozinho, e só depois do OK do usuário commita, integra, publica e confere. Use de dentro da pasta da frente quando o usuário disser 'release', 'publicar', 'subir para produção', 'fechar a frente' ou 'integrar'. É a outra ponta da skill sdd-new-session."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.0"
+  version: "1.2.0"
   updated: "2026-10"
 ---
 
 # Release — fechar a frente com um OK
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-release v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-release v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Verificar o que vai subir, mostrar **uma vez** o que vai para produção e — só depois do OK — integrar e
 publicar.
@@ -77,7 +77,9 @@ E leia: `README.md`, `package.json` (seção `scripts`), `Makefile`, `.github/wo
   produção o que ainda está em desenvolvimento.
 
 Grave o que descobriu em `sdd/ambiente.md` do checkout principal (chaves `deploy`, `testes`, `sintaxe`,
-`versionamento`), criando o arquivo no formato da `sdd-new-session` se ele não existir.
+`versionamento`, `banco`), criando o arquivo no formato da `sdd-new-session` se ele não existir. A chave
+`banco` normalmente já foi gravada pela `sdd-build` ao aplicar a migration (ferramenta · projeto nome e ref ·
+como aplicar · como provar); projeto sem banco ⇒ `- banco: nenhum`.
 
 ## Fase 1 — Verificar (sozinha, sem perguntar)
 
@@ -107,10 +109,19 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
      está staged) e o `shasum` de cada arquivo novo (`??`) — no PowerShell, `Get-FileHash` —, onde
      `<base>` é `$(git merge-base origin/<alvo> HEAD)`. É o que o OK aprova; a Fase 3 confere antes de
      commitar. Um commit reescrito depois do OK muda o `HEAD` mesmo que o conteúdo final seja igual.
-2. **Sintaxe** dos arquivos tocados, com a ferramenta do Passo 1.
-3. **Testes**, se existirem. Vermelho **para tudo**: aprovar um diff com teste quebrado transforma o OK em
+2. **Migration e banco andam juntos.** Se o que vai subir (o diff e os arquivos novos do item 1) tem
+   `*.sql` ou algo em `migrations/`, a migration precisa constar **aplicada**: a chave `- banco:` em
+   `sdd/ambiente.md` **e** a seção `## Migrations aplicadas` do BUILD_REPORT da frente, com aquele arquivo
+   (ou "já aplicada em <data>"). Falta um dos dois? **Pare aqui, antes do bloco do OK**, dizendo qual lado
+   falta e o caminho: a migration se aplica pelo passo 11 da `sdd-build` (descobre o projeto, confirma nome e
+   ref, aplica, prova por leitura e grava os dois registros). O inverso também para: migration registrada
+   como aplicada **sem** o `.sql` no que sobe (o arquivo ficou de fora do commit) ⇒ `git add` do arquivo e
+   rode a `sdd-release` de novo. Publicar código que chama uma coluna que o banco não tem, ou um banco que
+   mudou sem o arquivo no repositório, são os dois jeitos de git e banco divergirem.
+3. **Sintaxe** dos arquivos tocados, com a ferramenta do Passo 1.
+4. **Testes**, se existirem. Vermelho **para tudo**: aprovar um diff com teste quebrado transforma o OK em
    carimbo.
-4. **Segredo vazando** — em tudo o que vai subir, não no repositório inteiro: o diff dos arquivos
+5. **Segredo vazando** — em tudo o que vai subir, não no repositório inteiro: o diff dos arquivos
    modificados **e o conteúdo inteiro de cada arquivo novo** (`??` do `git status`), que não aparece no
    `git diff` mas será commitado. Procure chave de API, token, senha, `.env` sendo versionado por engano:
    atribuições como `API_KEY=`, `SECRET=`, `PASSWORD=`, `TOKEN=` com valor literal, prefixos de chave de
@@ -118,7 +129,7 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
    chave que entrou num commit e saiu no seguinte some do diff agregado, mas o push envia os dois
    commits. Achou no histórico? Pare: reescrever histórico é decisão do usuário, nunca desta skill.
    Uma chave publicada não se despublica, nem apagando o commit depois.
-5. **A base andou?** `GIT_TERMINAL_PROMPT=0 git fetch origin <alvo>` e `git rev-list --count HEAD..origin/<alvo>`. **Não
+6. **A base andou?** `GIT_TERMINAL_PROMPT=0 git fetch origin <alvo>` e `git rev-list --count HEAD..origin/<alvo>`. **Não
    integre agora**: um `git merge` aqui criaria commit antes do OK (e recusaria a pasta com mudanças não
    commitadas). Só registre: "a base andou N commits" vai no bloco do OK, e a Fase 3 integra a base
    atualizada e **roda os testes de novo antes de qualquer push**.
@@ -145,6 +156,8 @@ inicial", não "altera handler.js">
 publicação tem `needs:` no de testes) | não — o workflow X publica sem esperar os testes do Y: um teste
 vermelho não impede a publicação | não se aplica: o push não publica>
 
+**Banco:** <migration `<arquivo>` aplicada em `<projeto nome (ref)>` em <data> | sem migração nesta frente>
+
 **Verificações:** sintaxe <ok|pulada: motivo> · testes <ok|pulados: motivo> · segredo <nenhum, no
 diff e nos arquivos novos> · base <atualizada | andou N commits: será integrada e testada de novo antes do push>
 
@@ -155,6 +168,9 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 ```
 
 - Verificação ausente dita como ausente é informação; em silêncio, é falsa segurança.
+- **"Banco:"** vem dos dois registros conferidos no item 2 da Fase 1 (`- banco:` do `sdd/ambiente.md` e
+  `## Migrations aplicadas` do BUILD_REPORT) — é afirmação, não pergunta. Frente sem `.sql` escreve "sem
+  migração nesta frente".
 - **"O deploy espera os testes?"** se descobre lendo `.github/workflows/*`: os testes estão no mesmo job,
   antes do passo que publica, ou o job que publica tem `needs:` apontando para o de testes? Um step de
   teste com `continue-on-error: true`, `|| true` ou que termina sempre em `exit 0` **não** segura nada —
@@ -256,6 +272,9 @@ Resposta final em três linhas: o que subiu, onde está, o que falta.
   o que ainda está só na pasta.
 - **A identidade é conferida antes do OK**: o commit só acontece na Fase 3; sem nome e e-mail ele falha
   depois que o usuário já aprovou.
+- **Migration no commit e migration aplicada andam juntas**: o push publica o código, não o banco. Sem a
+  conferência, um deploy automático põe no ar código que chama uma coluna que não existe — e o bloco do OK
+  teria dito "o push publica sozinho? sim" como se isso bastasse.
 - **O deploy é conferido pelo SHA**: com dois pushes seguidos, o "último run" é de outro commit, e um
   run verde de outro commit não diz nada sobre o seu.
 - **Nunca `gh run rerun` de deploy antigo**: o rerun usa o commit daquele run — com fila, ele roda depois

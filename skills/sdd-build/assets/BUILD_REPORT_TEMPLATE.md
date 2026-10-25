@@ -66,6 +66,16 @@
 
 ---
 
+{INSERT `## Migrations aplicadas` HERE ONLY WHEN Files Changed lists *.sql or migrations/ — one row per migration; "já aplicada em <data>" counts as applied}
+
+## Migrations aplicadas
+
+| Arquivo | Projeto (nome · ref) | Aplicada em | Prova por leitura |
+|---|---|---|---|
+| `{path/to/migration.sql}` | {nome} · `{ref}` | {YYYY-MM-DD HH:MM (cli / mcp / manual) ou "já aplicada em …"} | {migration list: Remote ✓ · select em information_schema: … ✓ — ou "(b) entregue para o SQL Editor"} |
+
+---
+
 {INSERT `## Prompts Generated / Refactored` HERE ONLY WHEN LLM Prompts=true OR DRIFT WAS DETECTED}
 
 ## Drift Detected

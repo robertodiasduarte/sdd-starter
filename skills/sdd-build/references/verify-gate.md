@@ -55,6 +55,20 @@ Receipt mínimo:
 
 Somente receipt positivo libera o Build como Complete.
 
+## Exit 2 ou 3 com migration no manifest
+
+Quando o File Manifest tem migration (`*.sql`, `migrations/`), um gate em `3` (inconclusivo) ou `2`
+(vermelho) tem uma **primeira hipótese**, antes de "infra" e antes de corrigir código: a **migration não
+aplicada** — ou aplicada em **outro projeto** do Supabase (a conta tem vários; a versão aparece no
+histórico de um e a coluna não aparece no outro).
+
+Testar a hipótese pela leitura (seção 5 de [aplicar-migration.md](aplicar-migration.md)):
+- a versão consta em `supabase migration list --linked` / `list_migrations` **do projeto confirmado**?
+- o `select` em `information_schema`/`pg_proc`/`pg_policies` acha o objeto que o AT usa?
+
+Linha vazia ⇒ voltar à seção 11 da skill (descobrir o projeto, confirmar, aplicar, provar) e só então
+rerodar o gate. Só com a prova positiva em mãos é que `2` vira "defeito no código" e `3` vira "infra".
+
 ## smoke 403 / infra noise
 
 Não assumir regression automaticamente.

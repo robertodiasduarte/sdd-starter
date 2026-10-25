@@ -22,6 +22,10 @@ REQUIRED_COMPLETE = [
 PLACEHOLDER = re.compile(r"\{[^{}\n]{1,160}\}")
 LEGACY = re.compile(r"/release\s+|Ready for:", re.I)
 
+# Migration listed in Files Changed => the report must prove it was applied (section below).
+MIGRACAO = re.compile(r"\.sql$|(^|/)migrations/")
+SECAO_MIGRACOES = "## Migrations aplicadas"
+
 def fail(errors, msg):
     errors.append(msg)
 
@@ -34,6 +38,31 @@ def slice_section(text, start, end=None):
         if j >= 0:
             return text[i:j]
     return text[i:]
+
+def linhas_de_dados(secao):
+    """Table data rows of a section: list of cell lists, without header and separator rows."""
+    rows = []
+    for line in secao.splitlines():
+        s = line.strip()
+        if not s.startswith("|"):
+            continue
+        cells = [c.strip() for c in s.strip("|").split("|")]
+        if all(re.fullmatch(r":?-+:?", c) for c in cells):
+            continue
+        rows.append(cells)
+    return rows[1:] if rows else []
+
+def migracoes_listadas(text):
+    """Paths in the first column of Files Changed that look like migrations (with or without backticks)."""
+    files = slice_section(text, "## Files Changed", "\n## ")
+    paths = []
+    for cells in linhas_de_dados(files):
+        if not cells:
+            continue
+        path = cells[0].strip("`* ")
+        if path and MIGRACAO.search(path):
+            paths.append(path)
+    return paths
 
 def main():
     if len(sys.argv) != 2:
@@ -54,6 +83,14 @@ def main():
 
     if PLACEHOLDER.search(text):
         fail(errors, "unresolved template placeholder remains")
+
+    migs = migracoes_listadas(text)
+    if migs:
+        sec = slice_section(text, SECAO_MIGRACOES, "\n## ")
+        if not sec:
+            fail(errors, f"missing section: {SECAO_MIGRACOES} (Files Changed lists migration(s): {', '.join(migs)})")
+        elif not any(len(c) >= 4 and all(c[:4]) for c in linhas_de_dados(sec)):
+            fail(errors, f"{SECAO_MIGRACOES} has no filled row (arquivo · projeto · aplicada em · prova por leitura)")
 
     metadata = slice_section(text, "## Metadata", "## Mode Selection")
     status_m = re.search(r"\|\s*\*\*Status\*\*\s*\|\s*([^|]+)\|", metadata, re.I)
