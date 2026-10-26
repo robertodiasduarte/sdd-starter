@@ -22,17 +22,24 @@ Kinds:
 
 ## Runner
 
-Se o projeto possuir `scripts/verify-gate.sh` compatível, preferi-lo.
+Rodar o `cmd` e ler o código de saída — o starter não traz runner; o runner automático é do SpecGate/sdd-open.
 
-Caso contrário:
 - ler o `cmd`;
 - verificar se é real, pertinente e não destrutivo;
 - executar no contexto correto;
 - avaliar `pass_when`.
 
+Leitura do exit do `cmd`:
+- `0` → green;
+- qualquer outro código → red;
+- saída mostrando que a ferramenta não rodou (comando não encontrado, dependência ausente) → inconclusivo, nunca green;
+- `manual-ux` (sem `cmd`) → mostrar o checklist e exigir receipt.
+
 Nunca instalar pacote ou executar mudança destrutiva apenas para “fazer o gate rodar” sem consentimento.
 
 ## Exit contract
+
+Contrato do runner do SpecGate/sdd-open; com o `cmd` cru, vale a leitura da seção Runner.
 
 | Exit | Significado | Ação |
 |---:|---|---|

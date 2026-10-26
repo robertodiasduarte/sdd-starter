@@ -4,14 +4,14 @@ license: MIT
 description: "Executar a fase Build de um fluxo SDD/AgentSpec a partir dos arquivos Markdown de Brainstorm, Define e Design e de interações com o usuário. Usar quando o usuário quiser implementar uma feature já especificada: ler os três artefatos, extrair e ordenar o File Manifest, recomendar e confirmar o modo de execução, alterar somente o código previsto, verificar incrementalmente, tratar drift e prompts LLM, aplicar no banco a migration que o manifest trouxer (com confirmação do projeto por nome e ref e prova por leitura), executar o Verify Gate bloqueante do Define e gerar BUILD_REPORT_{FEATURE}.md com evidências. Requer acesso gravável ao projeto/código e deve terminar com o fluxo SDD concluído e o BUILD_REPORT validado."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.0"
+  version: "1.1.1"
   updated: "2026-10"
 ---
 
 # SDD Build
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-build v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-build v1.1.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Executar implementação real. Não tratar Build como geração de um documento isolado.
 
@@ -317,10 +317,9 @@ Ler [references/verify-gate.md](references/verify-gate.md).
 
 O Verify Gate do DEFINE é a autoridade.
 
-Preferir o runner do projeto (`scripts/verify-gate.sh <DEFINE>`) quando ele existir e corresponder ao protocolo.
-Caso contrário, executar o `cmd` do gate somente se for um comando real, seguro e disponível.
-
-Interpretar:
+Rodar o `cmd` do gate, somente se for um comando real, seguro e disponível, e ler o código de saída: `0` é green;
+outro código é red, salvo quando a saída mostra que a ferramenta não rodou (comando não encontrado, dependência
+ausente) — aí é inconclusivo. O runner automático é do SpecGate/sdd-open; o contrato dele:
 - `0`: green → seguir;
 - `2`: red → Build não pode ser concluído; corrigir código e repetir;
 - `3`: inconclusivo → resolver ferramenta/infra; não marcar green;
@@ -328,9 +327,9 @@ Interpretar:
 - `5`: clarificação pendente → voltar ao usuário/spec; não tratar como bug;
 - `64`: gate ausente/malformado → DEFINE inválido.
 
-Nunca declarar sucesso com `2`, `3`, `5` ou `64`.
+Nunca declarar sucesso com red, inconclusivo, `2`, `3`, `5` ou `64`.
 Com `4`, exigir no relatório: quem validou, data e resultado.
-Com migration no manifest, `2` e `3` têm uma primeira hipótese antes de qualquer outra: a migration não foi
+Com migration no manifest, red e inconclusivo (`2` e `3`) têm uma primeira hipótese antes de qualquer outra: a migration não foi
 aplicada, ou foi aplicada em outro projeto — repetir a prova por leitura da seção 11 antes de mexer em código.
 
 ## 13. Verificações complementares

@@ -25,7 +25,7 @@ The skill interviews you **one question at a time** (minimum three), always asks
 Turns the Brainstorm into formal requirements: problem, users, goals, metrics, scope, constraints. Its two teeth:
 
 - **Acceptance tests in EARS** — a controlled English pattern (`WHEN <trigger> THE SYSTEM SHALL <response>`) that kills ambiguity.
-- **Verify Gate** — an objective pass/fail criterion, decided *before* any code exists, that the Build phase must satisfy.
+- **Verify Gate** — an objective pass/fail criterion, decided *before* any code exists, that the Build phase must satisfy. First time? One question is enough: *is there a command that returns 0 when it works?* Yes → `kind: test` with that command; no → `kind: manual-ux` with a short "I opened … and saw …" checklist.
 
 It computes a **Clarity Score**, asks clarification questions only for blocking gaps, and hands off to Design.
 

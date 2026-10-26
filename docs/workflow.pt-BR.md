@@ -25,7 +25,7 @@ A skill te entrevista **uma pergunta por vez** (mínimo três), sempre pede amos
 Transforma o Brainstorm em requisitos formais: problema, usuários, objetivos, métricas, escopo, restrições. Seus dois dentes:
 
 - **Testes de aceitação em EARS** — um padrão de escrita controlada (`WHEN <gatilho> THE SYSTEM SHALL <resposta>`) que mata a ambiguidade.
-- **Verify Gate** — um critério objetivo de passa/falha, decidido *antes* de existir código, que a fase Build terá que satisfazer.
+- **Verify Gate** — um critério objetivo de passa/falha, decidido *antes* de existir código, que a fase Build terá que satisfazer. Primeira vez? Uma pergunta basta: *existe um comando que devolve 0 quando funciona?* Sim → `kind: test` com esse comando; não → `kind: manual-ux` com um checklist curto "Eu abri … e vi …".
 
 Calcula um **Clarity Score**, faz perguntas de clarificação só para lacunas bloqueantes e passa o bastão para o Design.
 

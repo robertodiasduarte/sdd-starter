@@ -24,10 +24,16 @@ REQUIRED_SECTIONS = [
 
 EARS = re.compile(r"\b(When|While|Where|shall|If)\b")
 ACTIVE_MARKER = re.compile(r"\[NEEDS CLARIFICATION:", re.I)
+EMPTY_VALUES = ("", "—", "-")
+MANUAL_UX_CMD = "N/A (manual-ux)"
 
 def fail(msg):
     print(f"FAIL: {msg}")
     return False
+
+def gate_value(block, field):
+    m = re.search(r"^\s*" + field + r":\s*(.*?)\s*$", block, flags=re.M)
+    return m.group(1).strip("\"'").strip() if m else None
 
 def main():
     if len(sys.argv) != 2:
@@ -83,6 +89,16 @@ def main():
         kind_match = re.search(r"kind:\s*[\"']?([a-z-]+)", block)
         if kind_match and kind_match.group(1) not in {"test", "smoke", "eval", "typecheck", "manual-ux"}:
             ok = fail(f"invalid verify_gate kind: {kind_match.group(1)}") and ok
+        kind = kind_match.group(1) if kind_match else None
+        if kind == "eval":
+            threshold = gate_value(block, "threshold") or ""
+            if not re.search(r"\d", threshold):
+                ok = fail(f'verify_gate kind eval needs a numeric threshold (e.g. threshold: "0.90"); got: {threshold!r}') and ok
+        if kind == "manual-ux":
+            if gate_value(block, "cmd") != MANUAL_UX_CMD:
+                ok = fail(f'verify_gate kind manual-ux needs cmd: "{MANUAL_UX_CMD}"') and ok
+            if (gate_value(block, "manual_fallback") or "") in EMPTY_VALUES:
+                ok = fail('verify_gate kind manual-ux needs manual_fallback with the human checklist ("Eu abri ... e vi ...")') and ok
 
     # LLM Prompts must be literal true or false in Technical Context.
     llm_line = next((ln for ln in text.splitlines() if "LLM Prompts" in ln and "|" in ln), None)

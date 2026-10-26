@@ -4,14 +4,14 @@ license: MIT
 description: "Conduz a fase Define de um fluxo SDD/AgentSpec a partir do arquivo Markdown gerado pelo Brainstorm e de interações de clarificação com o usuário. Extrai e estrutura problema, usuários, objetivos, métricas, escopo, restrições e contexto técnico; escreve testes de aceitação em EARS, resolve ambiguidades, calcula Clarity Score e define um Verify Gate objetivo. Use após o SDD Brainstorm by RDD para gerar um DEFINE_{FEATURE_NAME}.md pronto para o gate seguinte."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.1"
+  version: "1.1.0"
   updated: "2026-10"
 ---
 
 # SDD Define
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-define v1.0.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-define v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -239,12 +239,15 @@ Kinds aceitos:
 
 Derivar o tipo a partir da natureza dos Acceptance Tests.
 
+Primeira vez do aluno: uma pergunta só — "existe um comando que devolve 0 quando funciona?". Sim → `test` com esse comando;
+não → `manual-ux` com 3 a 5 frases "Eu abri … e vi …" (caixa em VERIFY_GATE.md; exemplo em [assets/DEFINE_EXEMPLO.md](assets/DEFINE_EXEMPLO.md)).
+
 Não inventar um comando do projeto.
 
 Se o comando real não puder ser inferido com segurança do material fornecido:
 - perguntar qual comando verifica o comportamento; ou
 - pedir ao usuário para escolher entre opções plausíveis de gate;
-- usar `manual-ux` somente quando a aceitação for genuinamente humana/visual, não como atalho para ausência de comando.
+- usar `manual-ux` quando a aceitação for genuinamente humana/visual ou quando o aluno, perguntado, disser que não existe comando — nunca como atalho para não perguntar.
 
 Sem Verify Gate válido, o DEFINE não está pronto.
 
