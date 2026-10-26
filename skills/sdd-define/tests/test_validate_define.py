@@ -205,6 +205,7 @@ class TestLeituraDoBloco(unittest.TestCase):
         for linhas in [
             ("manual_fallback: \"{human checklist for manual-ux or —}\"",),
             ('manual_fallback: "N/A"',),
+            ('manual_fallback: "tbd"',),
             ("manual_fallback: |", 'threshold: "—"'),
         ]:
             with self.subTest(fallback=linhas[0]):
@@ -224,6 +225,19 @@ class TestLeituraDoBloco(unittest.TestCase):
                                 'threshold: "—"', "manual_fallback:",
                                 '  - "Eu abri a tela de cadastro e vi o campo CPF."')))
         self.assertEqual(r.returncode, 0, r.stdout)
+
+
+    def test_lista_no_mesmo_recuo_da_chave_passa(self):
+        r = valida(define(bloco("kind: manual-ux", 'cmd: "N/A (manual-ux)"', 'pass_when: "checklist signed"',
+                                'threshold: "—"', "manual_fallback:",
+                                '- "Eu abri a tela de cadastro e vi o campo CPF."')))
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_threshold_com_maior_que_sem_aspas_passa(self):
+        for t in (">= 0.90", "> 90%"):
+            with self.subTest(threshold=t):
+                r = valida(define(gate(kind="eval", threshold=t)))
+                self.assertEqual(r.returncode, 0, r.stdout)
 
 
 class TestSemRegressao(unittest.TestCase):

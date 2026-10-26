@@ -29,9 +29,11 @@ Rodar o `cmd` e ler o código de saída — o starter não traz runner; o runner
 - executar no contexto correto;
 - avaliar `pass_when`.
 
-Leitura do exit do `cmd`:
-- `0` → green;
-- qualquer outro código → red (inclusive `4` e `5`, que no pytest são erro de uso e nenhum teste coletado);
+Leitura do `cmd` pelo `pass_when`:
+- `exit 0` (o caso comum) → `0` é green; qualquer outro código é red (inclusive `4` e `5`, que no pytest são
+  erro de uso e nenhum teste coletado);
+- `exit N` → só o código `N` é green;
+- `contains: TEXT` → green só se a saída contém `TEXT`;
 - saída mostrando que a ferramenta não rodou (comando não encontrado, dependência ausente) → inconclusivo, nunca green;
 - `kind: manual-ux` (`cmd: "N/A (manual-ux)"`) → mostrar o checklist e exigir receipt.
 

@@ -317,9 +317,10 @@ Ler [references/verify-gate.md](references/verify-gate.md).
 
 O Verify Gate do DEFINE é a autoridade.
 
-Rodar o `cmd` do gate, somente se for um comando real, seguro e disponível, e ler o código de saída:
-- `0`: green → seguir;
-- qualquer outro código (inclusive `4` e `5` do pytest): red → Build não pode ser concluído; corrigir código e repetir;
+Rodar o `cmd` do gate, somente se for um comando real, seguro e disponível, e avaliar o `pass_when`:
+- `exit 0` (o caso comum): `0` é green → seguir; qualquer outro código (inclusive `4` e `5` do pytest) é red →
+  Build não pode ser concluído; corrigir código e repetir;
+- `exit N` ou `contains: TEXT`: green só com esse código ou com esse texto na saída; senão, red;
 - saída mostrando que a ferramenta não rodou (comando não encontrado, dependência ausente): inconclusivo →
   resolver ferramenta/infra; não marcar green;
 - `kind: manual-ux` (`cmd: "N/A (manual-ux)"`): mostrar o checklist e aguardar receipt humano.

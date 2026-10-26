@@ -24,7 +24,7 @@ REQUIRED_SECTIONS = [
 
 EARS = re.compile(r"\b(When|While|Where|shall|If)\b")
 ACTIVE_MARKER = re.compile(r"\[NEEDS CLARIFICATION:", re.I)
-EMPTY_VALUES = ("", "—", "–", "-", "N/A")
+EMPTY_VALUES = ("", "—", "–", "-", "N/A", "TBD")
 KINDS = {"test", "smoke", "eval", "typecheck", "manual-ux"}
 MANUAL_UX_CMD = "N/A (manual-ux)"
 
@@ -37,19 +37,20 @@ def gate_value(block, field):
     if not m:
         return None
     value = m.group(2)
-    if value == "" or value[:1] in ("|", ">"):
+    if value == "" or re.fullmatch(r"[|>][-+0-9]*", value):
         # Block scalar or list: the value is the more-indented lines below the field.
         indent = len(m.group(1))
         lines = []
         for ln in block[m.end():].splitlines()[1:]:
-            if ln.strip() and len(ln) - len(ln.lstrip()) <= indent:
+            ln_indent = len(ln) - len(ln.lstrip())
+            if ln.strip() and (ln_indent < indent or (ln_indent == indent and not ln.strip().startswith("- "))):
                 break
             lines.append(re.sub(r"^-[ \t]+", "", ln.strip()).strip("\"'"))
         value = " ".join(ln for ln in lines if ln)
     return value.strip("\"'").strip()
 
 def is_empty(value):
-    return value is None or value in EMPTY_VALUES or value.startswith("{")
+    return value is None or value.upper() in EMPTY_VALUES or value.startswith("{")
 
 def main():
     if len(sys.argv) != 2:

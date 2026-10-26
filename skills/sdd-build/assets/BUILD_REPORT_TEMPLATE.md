@@ -102,7 +102,7 @@
 |---|---|
 | **Kind** | {test / smoke / eval / typecheck / manual-ux} |
 | **Command / Method** | `{cmd or manual checklist}` |
-| **Exit / Result** | {0 / 2 / 3 / 4 / 5 / 64 / human result} |
+| **Exit / Result** | {exit code of the cmd (or runner) / human result} |
 | **Status** | {Green / Red / Inconclusive / Manual receipt / Clarification pending / Invalid} |
 | **Evidence** | {output or receipt reference} |
 
