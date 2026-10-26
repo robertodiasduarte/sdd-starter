@@ -171,6 +171,61 @@ class TestManualUx(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
 
 
+def bloco(*linhas):
+    return "```yaml\nverify_gate:\n" + "".join("  %s\n" % ln for ln in linhas) + "```\n"
+
+
+class TestLeituraDoBloco(unittest.TestCase):
+    def test_campo_vazio_nao_le_a_linha_seguinte(self):
+        casos = [
+            ("kind: eval", 'cmd: "python3 avalia.py"', 'pass_when: "exit 0"', "threshold:",
+             'manual_fallback: "score >= 0.9"'),
+            ("kind: manual-ux", 'cmd: "N/A (manual-ux)"', 'pass_when: "checklist signed"', "manual_fallback:",
+             'threshold: "0.9"'),
+        ]
+        for linhas in casos:
+            with self.subTest(kind=linhas[0]):
+                r = valida(define(bloco(*linhas)))
+                self.assertEqual(r.returncode, 2, r.stdout)
+
+    def test_kind_fora_da_lista_reprova(self):
+        for k in ("Manual-UX", "eval2", "{test | smoke | eval | typecheck | manual-ux}"):
+            with self.subTest(kind=k):
+                r = valida(define(gate(kind=k)))
+                self.assertEqual(r.returncode, 2, r.stdout)
+                self.assertIn("invalid verify_gate kind", r.stdout)
+
+    def test_kind_dentro_de_outro_campo_nao_vale(self):
+        r = valida(define(bloco('manual_fallback: "kind: test"', "kind: manual-ux", 'cmd: "pytest -q"',
+                                'pass_when: "exit 0"', 'threshold: "—"')))
+        self.assertEqual(r.returncode, 2, r.stdout)
+        self.assertIn('needs cmd: "N/A (manual-ux)"', r.stdout)
+
+    def test_checklist_placeholder_ou_bloco_vazio_reprova(self):
+        for linhas in [
+            ("manual_fallback: \"{human checklist for manual-ux or —}\"",),
+            ('manual_fallback: "N/A"',),
+            ("manual_fallback: |", 'threshold: "—"'),
+        ]:
+            with self.subTest(fallback=linhas[0]):
+                r = valida(define(bloco("kind: manual-ux", 'cmd: "N/A (manual-ux)"',
+                                        'pass_when: "checklist signed"', 'threshold: "—"', *linhas)))
+                self.assertEqual(r.returncode, 2, r.stdout)
+                self.assertIn("needs manual_fallback", r.stdout)
+
+    def test_checklist_em_bloco_multilinha_passa(self):
+        r = valida(define(bloco("kind: manual-ux", 'cmd: "N/A (manual-ux)"', 'pass_when: "checklist signed"',
+                                'threshold: "—"', "manual_fallback: |",
+                                "  Eu abri a tela de cadastro e vi o campo CPF.")))
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_checklist_em_lista_passa(self):
+        r = valida(define(bloco("kind: manual-ux", 'cmd: "N/A (manual-ux)"', 'pass_when: "checklist signed"',
+                                'threshold: "—"', "manual_fallback:",
+                                '  - "Eu abri a tela de cadastro e vi o campo CPF."')))
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+
 class TestSemRegressao(unittest.TestCase):
     def test_bloco_canonico_test_passa(self):
         r = valida(define(gate()))

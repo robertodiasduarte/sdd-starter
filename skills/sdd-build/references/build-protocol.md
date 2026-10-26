@@ -81,9 +81,9 @@ Registrar:
 Parar o Build como Blocked quando:
 - projeto não está acessível;
 - DEFINE ou DESIGN precisa de mudança material;
-- Verify Gate está `2` após tentativas razoáveis;
-- gate está `3` e a inconclusão não foi resolvida;
-- gate está `5` ou `64`;
+- Verify Gate está red após tentativas razoáveis;
+- gate está inconclusivo e a inconclusão não foi resolvida;
+- gate pede clarificação ou está ausente/malformado no DEFINE;
 - terceira falha da mesma aceitação;
 - dependência externa imprescindível não está disponível;
 - manual-ux ainda não tem receipt.
@@ -93,7 +93,7 @@ Parar o Build como Blocked quando:
 Build completo somente quando:
 - manifest completo;
 - verificação incremental registrada;
-- Verify Gate = 0 ou manual-ux = 4 + receipt;
+- Verify Gate green (`0`) ou manual-ux com receipt;
 - checks complementares aplicáveis green;
 - relatório validado.
 

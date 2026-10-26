@@ -317,19 +317,18 @@ Ler [references/verify-gate.md](references/verify-gate.md).
 
 O Verify Gate do DEFINE é a autoridade.
 
-Rodar o `cmd` do gate, somente se for um comando real, seguro e disponível, e ler o código de saída: `0` é green;
-outro código é red, salvo quando a saída mostra que a ferramenta não rodou (comando não encontrado, dependência
-ausente) — aí é inconclusivo. O runner automático é do SpecGate/sdd-open; o contrato dele:
+Rodar o `cmd` do gate, somente se for um comando real, seguro e disponível, e ler o código de saída:
 - `0`: green → seguir;
-- `2`: red → Build não pode ser concluído; corrigir código e repetir;
-- `3`: inconclusivo → resolver ferramenta/infra; não marcar green;
-- `4`: manual-ux → mostrar checklist e aguardar receipt humano;
-- `5`: clarificação pendente → voltar ao usuário/spec; não tratar como bug;
-- `64`: gate ausente/malformado → DEFINE inválido.
+- qualquer outro código (inclusive `4` e `5` do pytest): red → Build não pode ser concluído; corrigir código e repetir;
+- saída mostrando que a ferramenta não rodou (comando não encontrado, dependência ausente): inconclusivo →
+  resolver ferramenta/infra; não marcar green;
+- `kind: manual-ux` (`cmd: "N/A (manual-ux)"`): mostrar o checklist e aguardar receipt humano.
 
-Nunca declarar sucesso com red, inconclusivo, `2`, `3`, `5` ou `64`.
-Com `4`, exigir no relatório: quem validou, data e resultado.
-Com migration no manifest, red e inconclusivo (`2` e `3`) têm uma primeira hipótese antes de qualquer outra: a migration não foi
+Nunca declarar sucesso com red ou inconclusivo.
+Com manual-ux, exigir no relatório: quem validou, data e resultado.
+O runner automático, com contrato próprio de exit codes, é do SpecGate/sdd-open — ver
+[references/verify-gate.md](references/verify-gate.md); o exit do `cmd` cru não segue aquela tabela.
+Com migration no manifest, red e inconclusivo têm uma primeira hipótese antes de qualquer outra: a migration não foi
 aplicada, ou foi aplicada em outro projeto — repetir a prova por leitura da seção 11 antes de mexer em código.
 
 ## 13. Verificações complementares
@@ -435,7 +434,7 @@ Antes de declarar Build completo:
 - [ ] Manifest com migration: projeto confirmado pelo aluno (nome e ref) e migration aplicada — ou registrada como já aplicada.
 - [ ] Manifest com migration: prova por leitura e seção `## Migrations aplicadas` no relatório.
 - [ ] Manifest com migration: chave `- banco:` gravada em `sdd/ambiente.md`.
-- [ ] Verify Gate está em `0`, ou `4` com receipt humano.
+- [ ] Verify Gate green (`0`), ou manual-ux com receipt humano.
 - [ ] Checks complementares aplicáveis passam.
 - [ ] Acceptance Tests têm evidência.
 - [ ] Advisor findings, quando existentes, têm APPLIED/REBUTTED.

@@ -24,7 +24,8 @@ REQUIRED_SECTIONS = [
 
 EARS = re.compile(r"\b(When|While|Where|shall|If)\b")
 ACTIVE_MARKER = re.compile(r"\[NEEDS CLARIFICATION:", re.I)
-EMPTY_VALUES = ("", "—", "-")
+EMPTY_VALUES = ("", "—", "–", "-", "N/A")
+KINDS = {"test", "smoke", "eval", "typecheck", "manual-ux"}
 MANUAL_UX_CMD = "N/A (manual-ux)"
 
 def fail(msg):
@@ -32,8 +33,23 @@ def fail(msg):
     return False
 
 def gate_value(block, field):
-    m = re.search(r"^\s*" + field + r":\s*(.*?)\s*$", block, flags=re.M)
-    return m.group(1).strip("\"'").strip() if m else None
+    m = re.search(r"^([ \t]*)" + field + r":[ \t]*(.*?)[ \t]*$", block, flags=re.M)
+    if not m:
+        return None
+    value = m.group(2)
+    if value == "" or value[:1] in ("|", ">"):
+        # Block scalar or list: the value is the more-indented lines below the field.
+        indent = len(m.group(1))
+        lines = []
+        for ln in block[m.end():].splitlines()[1:]:
+            if ln.strip() and len(ln) - len(ln.lstrip()) <= indent:
+                break
+            lines.append(re.sub(r"^-[ \t]+", "", ln.strip()).strip("\"'"))
+        value = " ".join(ln for ln in lines if ln)
+    return value.strip("\"'").strip()
+
+def is_empty(value):
+    return value is None or value in EMPTY_VALUES or value.startswith("{")
 
 def main():
     if len(sys.argv) != 2:
@@ -86,10 +102,9 @@ def main():
         for field in ("kind:", "cmd:", "pass_when:", "threshold:", "manual_fallback:"):
             if field not in block:
                 ok = fail(f"verify_gate missing field: {field[:-1]}") and ok
-        kind_match = re.search(r"kind:\s*[\"']?([a-z-]+)", block)
-        if kind_match and kind_match.group(1) not in {"test", "smoke", "eval", "typecheck", "manual-ux"}:
-            ok = fail(f"invalid verify_gate kind: {kind_match.group(1)}") and ok
-        kind = kind_match.group(1) if kind_match else None
+        kind = gate_value(block, "kind")
+        if kind is not None and kind not in KINDS:
+            ok = fail(f"invalid verify_gate kind: {kind!r} (use one of: {', '.join(sorted(KINDS))})") and ok
         if kind == "eval":
             threshold = gate_value(block, "threshold") or ""
             if not re.search(r"\d", threshold):
@@ -97,7 +112,7 @@ def main():
         if kind == "manual-ux":
             if gate_value(block, "cmd") != MANUAL_UX_CMD:
                 ok = fail(f'verify_gate kind manual-ux needs cmd: "{MANUAL_UX_CMD}"') and ok
-            if (gate_value(block, "manual_fallback") or "") in EMPTY_VALUES:
+            if is_empty(gate_value(block, "manual_fallback")):
                 ok = fail('verify_gate kind manual-ux needs manual_fallback with the human checklist ("Eu abri ... e vi ...")') and ok
 
     # LLM Prompts must be literal true or false in Technical Context.

@@ -31,15 +31,15 @@ Rodar o `cmd` e ler o código de saída — o starter não traz runner; o runner
 
 Leitura do exit do `cmd`:
 - `0` → green;
-- qualquer outro código → red;
+- qualquer outro código → red (inclusive `4` e `5`, que no pytest são erro de uso e nenhum teste coletado);
 - saída mostrando que a ferramenta não rodou (comando não encontrado, dependência ausente) → inconclusivo, nunca green;
-- `manual-ux` (sem `cmd`) → mostrar o checklist e exigir receipt.
+- `kind: manual-ux` (`cmd: "N/A (manual-ux)"`) → mostrar o checklist e exigir receipt.
 
 Nunca instalar pacote ou executar mudança destrutiva apenas para “fazer o gate rodar” sem consentimento.
 
 ## Exit contract
 
-Contrato do runner do SpecGate/sdd-open; com o `cmd` cru, vale a leitura da seção Runner.
+Só vale para o runner do SpecGate/sdd-open; o exit do `cmd` cru segue a leitura da seção Runner, não esta tabela.
 
 | Exit | Significado | Ação |
 |---:|---|---|
@@ -62,10 +62,10 @@ Receipt mínimo:
 
 Somente receipt positivo libera o Build como Complete.
 
-## Exit 2 ou 3 com migration no manifest
+## Red ou inconclusivo com migration no manifest
 
-Quando o File Manifest tem migration (`*.sql`, `migrations/`), um gate em `3` (inconclusivo) ou `2`
-(vermelho) tem uma **primeira hipótese**, antes de "infra" e antes de corrigir código: a **migration não
+Quando o File Manifest tem migration (`*.sql`, `migrations/`), um gate inconclusivo ou vermelho
+tem uma **primeira hipótese**, antes de "infra" e antes de corrigir código: a **migration não
 aplicada** — ou aplicada em **outro projeto** do Supabase (a conta tem vários; a versão aparece no
 histórico de um e a coluna não aparece no outro).
 
@@ -75,8 +75,8 @@ Testar a hipótese pela leitura (seção 5 de [aplicar-migration.md](aplicar-mig
   objeto criado aparece; objeto removido **não** aparece (ausência esperada); valor alterado está novo?
 
 Resultado contrário ao efeito esperado ⇒ voltar à seção 11 da skill (descobrir o projeto, confirmar,
-aplicar, provar) e só então rerodar o gate. Só com a prova do efeito em mãos é que `2` vira "defeito no
-código" e `3` vira "infra".
+aplicar, provar) e só então rerodar o gate. Só com a prova do efeito em mãos é que vermelho vira "defeito no
+código" e inconclusivo vira "infra".
 
 ## smoke 403 / infra noise
 

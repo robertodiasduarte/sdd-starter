@@ -43,7 +43,7 @@ Não usar comentário inline nos valores do bloco.
 | smoke | endpoint ou integração real |
 | eval | qualidade medida contra threshold |
 | typecheck | compilação/tipos é o done signal |
-| manual-ux | percepção/UX genuinamente humana |
+| manual-ux | percepção/UX genuinamente humana, ou não existe comando (o aluno respondeu à pergunta da caixa) |
 
 ## From EARS to gate
 
