@@ -1,5 +1,13 @@
 # Changelog — sdd-kb
 
+## 2.1.0 — out/2026
+
+- Seção "Como falar com o aluno": 5 etapas com nome fixo (Domínio · Entender × fazer · Escrever · Fonte e
+  índice · Revisão do profissional); toda resposta com status, o que foi feito, agora, decisão com opções
+  e próximo passo; sem citar as próprias instruções. Glossário e exemplo em `references/como-falar.md`.
+- O aviso de revisão do profissional continua obrigatório e não vira pergunta.
+- Procedimento, validador e limites de tamanho não mudam.
+
 ## 2.0.1 — out/2026
 
 - A `description` do SKILL.md volta a caber no teto de 1024 caracteres do padrão Agent Skills (tinha 1042 desde a 2.0.0). O upload do `.zip` no ChatGPT e no claude.ai recusava a skill com "field 'description' in SKILL.md must be at most 1024 characters". Conteúdo da skill inalterado.

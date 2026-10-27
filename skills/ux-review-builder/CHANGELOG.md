@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0 - 2026-10
+
+- Seção "Como falar com o aluno": 6 etapas com nome fixo (Modo · Público · Referências · Regras ·
+  Governança · Gerar e entregar); toda resposta com status, o que foi feito, agora, decisão com opções e
+  próximo passo; sem citar as próprias instruções. Glossário e exemplo em `references/como-falar.md`
+  (novo no inventário).
+- Entrevista, regras, governança, artefatos gerados, validador e cenários não mudam.
+
 ## 1.3.0 - 2026-10
 
 - A `ux-review` gerada aplica 7 lentes cognitivas — Alcance (Fitts), Escolhas por passo (Hick-Hyman), Retomada (Zeigarnik), Convenção (Jakob), Progresso real (Gradiente de meta), Destaque único (Von Restorff), Agrupamento (Miller) — e o sinal de validação real. Elas recomendam e alertam, nunca bloqueiam: não geram `MUST`, não mudam o resultado do gate e nunca rebaixam uma regra existente; cada lente aponta a regra que manda quando há sobreposição (ex.: alvo abaixo de 24 px continua `MUST` pela `UX-CORE-005`).

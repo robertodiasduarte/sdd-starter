@@ -4,14 +4,14 @@ license: MIT
 description: "Elaborar a fase Design de um fluxo SDD/AgentSpec a partir do arquivo Markdown do Brainstorm, do arquivo DEFINE e de interações de clarificação técnica com o usuário. Transformar requisitos validados em arquitetura, componentes, ADRs inline, file manifest, padrões de código, fluxo de dados, integrações, estratégia de testes, tratamento de erros, configuração, segurança e observabilidade. Usar após o SDD Define by RDD, especialmente quando o usuário fornecer BRAINSTORM_*.md e DEFINE_*.md e quiser gerar um DESIGN_*.md pronto para o SDD Build by RDD."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.0"
+  version: "1.1.0"
   updated: "2026-10"
 ---
 
 # SDD Design
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-design v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-design v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -71,6 +71,38 @@ Para fatos técnicos atuais:
 4. inferências claramente marcadas.
 
 Se duas fontes relevantes entrarem em conflito, perguntar antes de consolidar a decisão.
+
+## Como falar com o aluno
+
+Leia `references/como-falar.md` antes da primeira resposta: glossário desta skill e um exemplo completo.
+Quem usa esta skill, em geral, nunca usou git nem terminal.
+
+| Etapa | Nome para o aluno | Passos desta skill |
+|---|---|---|
+| 1 | Ler | 1 a 3 |
+| 2 | Decisões | 4 (uma principal por resposta) |
+| 3 | Componentes e arquivos | 5 a 9 |
+| 4 | Fluxo, testes e erros | 10 a 15 |
+| 5 | Conferir | 16 a 18 |
+| 6 | Gravar | 19 e 20 |
+
+Toda resposta, nesta ordem (pule a parte sem conteúdo): **Status** (`Design: ✅ 1 … · ▶️ 2 … · ⬜ 3 …`;
+✅ concluída, não só visitada; ⏸️ parada; ➖ pulada; ao voltar a uma etapa, o motivo vai em Agora) ·
+**O que foi feito** (frases curtas, sem saída de comando; registra a escolha do aluno) ·
+**Agora: etapa N — nome** (2 a 4 frases; antes de algo demorado, diga o que vai rodar e que não precisa
+responder) · **Sua decisão** (autorização: pergunta em negrito + opções com o efeito de cada uma;
+pergunta aberta: pergunta em negrito + como responder, com a saída "não sei"; agrupadas, numeradas) ·
+**Próximo passo** (uma linha).
+
+- Uma etapa por resposta; termine na decisão e pare.
+- Termo técnico só com a explicação junto, na primeira vez — inclusive os do Status (glossário na referência).
+- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, "e mais N". Comando só quando
+  o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
+- Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
+- Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
+- Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
+  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
+  continuo daqui." (O lint reprovar não é ação do aluno: diga o que vai ajustar e siga.)
 
 ## Procedimento
 

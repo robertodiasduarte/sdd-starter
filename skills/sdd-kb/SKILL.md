@@ -4,14 +4,14 @@ license: MIT
 description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Cria o índice do projeto na primeira vez e registra cada domínio novo. Para legislação e normas (perfil normativo), registra a vigência de cada regra, a fonte com SHA-256, os conflitos entre fontes e o mapa regra → fonte → teste. Recomendada antes de iniciar um fluxo SDD. A revisão do conteúdo é sempre do profissional: a IA organiza e redige, quem tem a responsabilidade técnica responde pelo que fica registrado. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
 metadata:
   author: Roberto Dias Duarte
-  version: "2.0.1"
+  version: "2.1.0"
   updated: "2026-10"
 ---
 
 # SDD KB
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-kb v2.0.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-kb v2.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -70,6 +70,37 @@ No perfil normativo, somam-se:
 | [assets/CATALOGO_FONTES_TEMPLATE.md](assets/CATALOGO_FONTES_TEMPLATE.md) | `fontes/CATALOGO.md` |
 | [assets/TABELA_TEMPLATE.json](assets/TABELA_TEMPLATE.json) | `tabelas/AAAA-MM-DD/*.json` |
 | [assets/CASO_TEMPLATE.json](assets/CASO_TEMPLATE.json) | `casos/*.json` |
+
+## Como falar com o aluno
+
+Leia `references/como-falar.md` antes da primeira resposta: glossário desta skill e um exemplo completo.
+Quem usa esta skill, em geral, nunca usou git nem terminal.
+
+| Etapa | Nome para o aluno | Passos desta skill |
+|---|---|---|
+| 1 | Domínio | 1 |
+| 2 | Entender × fazer | 2 |
+| 3 | Escrever | 3 (o índice, antes de escrever), 4 e 5 |
+| 4 | Fonte e índice | 6 e 7 |
+| 5 | Revisão do profissional | 8 a 10 (o aviso de revisão é obrigatório, não é pergunta) |
+
+Toda resposta, nesta ordem (pule a parte sem conteúdo): **Status** (`KB: ✅ 1 … · ▶️ 2 … · ⬜ 3 …`;
+✅ concluída, não só visitada; ⏸️ parada; ➖ pulada; ao voltar a uma etapa, o motivo vai em Agora) ·
+**O que foi feito** (frases curtas, sem saída de comando; registra a escolha do aluno) ·
+**Agora: etapa N — nome** (2 a 4 frases; antes de algo demorado, diga o que vai rodar e que não precisa
+responder) · **Sua decisão** (autorização: pergunta em negrito + opções com o efeito de cada uma;
+pergunta aberta: pergunta em negrito + como responder, com a saída "não sei"; agrupadas, numeradas) ·
+**Próximo passo** (uma linha).
+
+- Uma etapa por resposta; termine na decisão e pare.
+- Termo técnico só com a explicação junto, na primeira vez — inclusive os do Status (glossário na referência).
+- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, "e mais N". Comando só quando
+  o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
+- Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
+- Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
+- Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
+  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
+  continuo daqui."
 
 ## Procedimento passo a passo
 

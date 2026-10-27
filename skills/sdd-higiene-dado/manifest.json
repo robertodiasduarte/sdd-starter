@@ -1,6 +1,6 @@
 {
   "name": "sdd-higiene-dado",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "escopo": "HD001 v1 (references/ESCOPO_CONFIRMADO.md)",
   "perfil_pedido": "operacional",
   "perfil_efetivo": "C",

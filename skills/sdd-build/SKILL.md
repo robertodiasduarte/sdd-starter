@@ -4,14 +4,14 @@ license: MIT
 description: "Executar a fase Build de um fluxo SDD/AgentSpec a partir dos arquivos Markdown de Brainstorm, Define e Design e de interações com o usuário. Usar quando o usuário quiser implementar uma feature já especificada: ler os três artefatos, extrair e ordenar o File Manifest, recomendar e confirmar o modo de execução, alterar somente o código previsto, verificar incrementalmente, tratar drift e prompts LLM, aplicar no banco a migration que o manifest trouxer (com confirmação do projeto por nome e ref e prova por leitura), executar o Verify Gate bloqueante do Define e gerar BUILD_REPORT_{FEATURE}.md com evidências. Requer acesso gravável ao projeto/código e deve terminar com o fluxo SDD concluído e o BUILD_REPORT validado."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.1"
+  version: "1.2.0"
   updated: "2026-10"
 ---
 
 # SDD Build
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-build v1.1.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-build v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Executar implementação real. Não tratar Build como geração de um documento isolado.
 
@@ -43,6 +43,37 @@ Ler [references/aplicar-migration.md](references/aplicar-migration.md) quando o 
 Ler [references/verify-gate.md](references/verify-gate.md) antes do gate final.
 Ler [references/llm-prompt-gate.md](references/llm-prompt-gate.md) somente quando houver sinal de runtime LLM/prompt.
 Ler [references/retry-and-advisor.md](references/retry-and-advisor.md) quando houver falha repetida ou revisão externa formal.
+
+## Como falar com o aluno
+
+Leia `references/como-falar.md` antes da primeira resposta: glossário desta skill e um exemplo completo.
+Quem usa esta skill, em geral, nunca usou git nem terminal.
+
+| Etapa | Nome para o aluno | Passos desta skill |
+|---|---|---|
+| 1 | Plano | 1 a 3 |
+| 2 | Modo | 4 e 5 |
+| 3 | Tarefas N/M | 6 a 11 (o contador no Status; uma frase antes de cada tarefa) |
+| 4 | Verify Gate | 12 a 14 |
+| 5 | Relatório | 15 a 17 |
+
+Toda resposta, nesta ordem (pule a parte sem conteúdo): **Status** (`Build: ✅ 1 … · ▶️ 3 Tarefas 2/5 · ⬜ 4 …`;
+✅ concluída, não só visitada; ⏸️ parada; ➖ pulada; ao voltar a uma etapa, o motivo vai em Agora) ·
+**O que foi feito** (frases curtas, sem saída de comando; registra a escolha do aluno) ·
+**Agora: etapa N — nome** (2 a 4 frases; antes de algo demorado, diga o que vai rodar e que não precisa
+responder) · **Sua decisão** (autorização: pergunta em negrito + opções com o efeito de cada uma;
+pergunta aberta: pergunta em negrito + como responder, com a saída "não sei"; agrupadas, numeradas) ·
+**Próximo passo** (uma linha).
+
+- Uma etapa por resposta; termine na decisão e pare.
+- Termo técnico só com a explicação junto, na primeira vez — inclusive os do Status (glossário na referência).
+- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, "e mais N". Comando só quando
+  o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
+- Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
+- Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
+- Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
+  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
+  continuo daqui."
 
 ## Entradas obrigatórias
 
@@ -224,6 +255,9 @@ Para cada item:
 7. capturar comando, exit code e saída relevante;
 8. marcar tarefa completa somente com evidência.
 
+Antes de cada tarefa, uma frase ao aluno — qual tarefa (N de M), o que vai rodar e que não precisa
+responder — com o contador no Status.
+
 Não deixar TODO/FIXME como substituto de requisito.
 
 ## 7. Drift detection
@@ -315,7 +349,8 @@ que o aluno não viu.
 
 Ler [references/verify-gate.md](references/verify-gate.md).
 
-O Verify Gate do DEFINE é a autoridade.
+O Verify Gate do DEFINE é a autoridade. Antes de rodá-lo, uma frase ao aluno: o que vai rodar e que não
+precisa responder.
 
 Rodar o `cmd` do gate, somente se for um comando real, seguro e disponível, e avaliar o `pass_when`:
 - `exit 0` (o caso comum): `0` é green → seguir; qualquer outro código (inclusive `4` e `5` do pytest) é red →

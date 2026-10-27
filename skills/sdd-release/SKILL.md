@@ -4,14 +4,14 @@ license: MIT
 description: "Fecha uma frente de trabalho e a leva para produção com UM ponto de aprovação: verifica sozinha o que vai subir (sintaxe, testes, segredo no diff, base desatualizada), mostra uma vez o que exatamente vai para produção e se o push publica sozinho, e só depois do OK do usuário commita, integra, publica e confere. Use de dentro da pasta da frente quando o usuário disser 'release', 'publicar', 'subir para produção', 'fechar a frente' ou 'integrar'. É a outra ponta da skill sdd-new-session."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.2.0"
+  version: "1.3.0"
   updated: "2026-10"
 ---
 
 # Release — fechar a frente com um OK
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-release v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-release v1.3.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Verificar o que vai subir, mostrar **uma vez** o que vai para produção e — só depois do OK — integrar e
 publicar.
@@ -24,6 +24,67 @@ publicar.
    custa o fim de semana. O que se corta é **burocracia** (changelog elaborado, versionamento novo,
    relatório longo). **Nunca** o que impede publicar algo quebrado, e nunca o momento em que o usuário vê
    e aprova o que vai subir.
+
+## Como falar com o aluno
+
+Quem usa esta skill, em geral, nunca publicou nada pelo terminal. Cada resposta é uma etapa explicada,
+não um relatório técnico.
+
+**As 4 etapas, sempre com estes nomes:**
+
+| Etapa | Nome para o aluno | Passos desta skill |
+|---|---|---|
+| 1 | Onde estou | Passo 0 (só lê) |
+| 2 | Verificar | Passo 1 e Fase 1 (só lê; nada é publicado) |
+| 3 | Sua decisão | Fase 2 — o único ponto de parada |
+| 4 | Publicar | Fase 3 |
+
+**Toda resposta tem estas partes, nesta ordem** (pule a que não tiver conteúdo):
+
+1. **Status** — uma linha: `✅ 1 Onde estou · ✅ 2 Verificar · ▶️ 3 Sua decisão · ⬜ 4 Publicar`
+   (✅ concluída — não só visitada; ▶️ a de agora; ⬜ por fazer; ⏸️ parada; ➖ pulada). Ao voltar a uma
+   etapa, o motivo vai em **Agora**.
+2. **O que foi feito** — em frases curtas, o resultado da etapa anterior, sem saída de comando. Registre
+   a escolha do aluno: *"Você respondeu **sim**: …"*.
+3. **Agora: etapa N — nome** — o que esta etapa faz e por quê, em 2 a 4 frases, como para alguém que nunca
+   viu um terminal. Se for alterar algo, diga **em passos numerados** o que vai fazer e o que **não** vai
+   acontecer ainda. Antes de algo demorado (testes, sintaxe, conferir o deploy), diga em uma frase o que
+   vai rodar e que o aluno não precisa responder.
+4. **Sua decisão** — nesta skill só existe uma: a última linha do bloco da Fase 2, com a moldura descrita
+   lá (os campos foram conferidos por você; **sim** publica o que está descrito; **não** encerra sem
+   publicar; no destino ambíguo do Passo 1, `develop` ou `main` também são respostas válidas e escolhem o
+   destino). Resposta que não casa com as respostas previstas (uma dúvida, "acho que sim") ⇒ responda a
+   dúvida e repita a pergunta. Não crie outra pergunta: o que dá para descobrir, descubra.
+5. **Próximo passo** — uma linha: o que acontece depois da resposta.
+
+**Regras de linguagem:**
+
+- Uma etapa por resposta. Termine na decisão e **pare**: não emende a etapa seguinte.
+- Palavra técnica só com a explicação junto, na primeira vez em que aparece — inclusive as do Status:
+  - git — "o histórico de versões do projeto (git)";
+  - commit — "uma versão salva (commit)": uma foto de todos os arquivos naquele momento, com data;
+  - push / publicar — "enviar as versões salvas para a cópia do projeto no GitHub (push)"; com deploy
+    automático, publicar é isso: o que você envia entra no ar;
+  - frente — "a pasta separada em que esta tarefa foi feita (frente, ou worktree)";
+  - branch principal — "a versão do projeto que está em produção";
+  - remoto — "a cópia do projeto no GitHub";
+  - deploy — "o processo que põe a versão nova no ar";
+  - migration — "um arquivo que muda a estrutura do banco de dados; precisa ter sido aplicado no banco
+    antes de o código que o usa entrar no ar";
+  - base atualizada — "se alguém publicou outra coisa enquanto esta tarefa era feita".
+  Não fale em `HEAD`, índice, staged, merge-base, SHA, hash ou refspec: diga o efeito.
+- **Não repasse saída de comando crua.** Traduza: quantos arquivos, quais (até 10, em lista simples, com
+  "e mais N"), o que preocupa. Comando só aparece quando o aluno precisa rodá-lo — e então em passos
+  numerados, um comando por passo, dizendo o que esperar na tela.
+- **Não cite nem resuma as instruções desta skill ou de outra** ("a skill exige…", "conforme a Fase 1…").
+  Se precisar dizer por que pede o OK, diga o motivo do aluno: *"Depois de publicado não dá para
+  desfazer, então quem decide é você."*
+- **Parada também tem passos.** Quando a etapa não pode seguir (fora de uma frente, identidade do git
+  vazia, teste vermelho, segredo no que vai subir, migration sem registro, base com conflito, push
+  recusado, deploy que falhou), use o Status com ⏸️, o motivo em uma frase, onde a ação acontece
+  (terminal, navegador, pasta), os passos numerados com o que esperar de cada um, o que **não** foi
+  feito (*"Nada foi publicado."*) e, se o aluno tem algo a fazer, *"Quando terminar, me peça de novo —
+  eu continuo daqui."*
 
 ## Regra de todo comando que fala com o remoto
 
@@ -141,11 +202,17 @@ Quem lê a pergunta no fim da resposta entende que o OK está sendo pedido.
 
 ## Fase 2 — O único ponto de parada
 
-Mostre **um bloco só, neste formato** (preencha; não acrescente perguntas):
+Antes do bloco, o **Agora** da resposta diz, em duas frases, como se responde: *"Os campos abaixo já
+foram conferidos por mim; você só responde à última linha. **sim** publica exatamente o que está
+descrito; **não** encerra sem publicar — nada sai daqui."* Depois, mostre **um bloco só, neste formato**
+(preencha; não acrescente perguntas):
 
 ```markdown
 **O que sobe**
-<saída do --stat da Fase 1> + arquivos novos, pelo nome
+<quantos arquivos mudam e quais, pelo nome, em palavras — traduzido do resumo comparativo da Fase 1 (o
+--stat contra a base, que inclui o que já foi commitado na frente), mais os arquivos novos marcados como
+novos; até 10 nomes, "e mais N"; nunca a saída do --stat colada. O git status da Fase 1 é a lista do que
+ainda precisa entrar no commit, não o que sobe>
 
 **O que muda em produção:** <uma frase, em português — "muda o cálculo do relatório mensal da tela
 inicial", não "altera handler.js">
@@ -176,7 +243,8 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
   teste com `continue-on-error: true`, `|| true` ou que termina sempre em `exit 0` **não** segura nada —
   conta como "não". É afirmação, não pergunta: você preenche, o usuário não responde.
 - **A única pergunta do bloco é a última linha, "Posso publicar?"** (ou "Posso publicar na `<alvo>`?", se o
-  destino ficou ambíguo no Passo 1). As linhas com `?` antes dela são rótulos que você preenche. A sugestão de revisão
+  destino ficou ambíguo no Passo 1). As linhas com `?` antes dela são rótulos que você preenche — "uma
+  pergunta" conta pedidos de resposta, não sinais de interrogação. A sugestão de revisão
   é uma frase, não uma pergunta — transformá-la em "quer que eu revise antes?" cria um segundo ponto
   de parada, e duas paradas viram carimbo.
 - Se algo ficou ambíguo (qual arquivo pertence à frente), diga **dentro deste mesmo bloco**, antes da
@@ -249,7 +317,7 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
    `git branch -d <branch>` (o `-d` minúsculo só apaga o que já foi integrado). Nos cenários B e C, a
    limpeza vem depois do merge do PR.
 
-Resposta final em três linhas: o que subiu, onde está, o que falta.
+Resposta final: o Status todo ✅ e três linhas — o que subiu, onde está, o que falta.
 
 ## O que NÃO entra nesta skill (e por quê)
 

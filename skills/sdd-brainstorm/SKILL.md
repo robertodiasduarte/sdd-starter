@@ -4,14 +4,14 @@ license: MIT
 description: "Conduz o brainstorm da Fase 0 de um fluxo SDD/AgentSpec por interação com o usuário: explora contexto, faz perguntas de descoberta uma por vez, coleta amostras, compara 2–3 abordagens, aplica YAGNI, valida incrementalmente e gera um BRAINSTORM pronto para a fase /define. Use para ideias vagas de software, automações, agentes, produtos ou features que ainda precisam de exploração antes de formalizar requisitos; também quando o usuário pedir para transformar uma conversa, problema ou notas iniciais em um brainstorm estruturado."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.0"
+  version: "1.1.0"
   updated: "2026-10"
 ---
 
 # SDD Brainstorm
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-brainstorm v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-brainstorm v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -56,6 +56,38 @@ Não exigir conector externo. Não assumir acesso à internet, repositório remo
 ### Asset obrigatório de saída
 
 O arquivo [assets/BRAINSTORM_TEMPLATE.md](assets/BRAINSTORM_TEMPLATE.md) é o molde oficial do Brainstorm produzido por esta Skill. Ele é um **asset de saída**, não material conceitual de referência. Sempre reutilizá-lo para criar o `.md` final, em vez de reconstruir o documento apenas de memória.
+
+## Como falar com o aluno
+
+Leia `references/como-falar.md` antes da primeira resposta: glossário desta skill e um exemplo completo.
+Quem usa esta skill, em geral, nunca usou git nem terminal.
+
+| Etapa | Nome para o aluno | Passos desta skill |
+|---|---|---|
+| 1 | Entender | 1 e 2 |
+| 2 | Perguntas | 3 (uma por resposta) |
+| 3 | Amostras | 4 |
+| 4 | Abordagens | 5 e 6 |
+| 5 | Validar | 7 (um checkpoint por resposta) |
+| 6 | Gravar | 8 e 9 |
+
+Toda resposta, nesta ordem (pule a parte sem conteúdo): **Status** (`Brainstorm: ✅ 1 … · ▶️ 2 … · ⬜ 3 …`;
+✅ concluída, não só visitada; ⏸️ parada; ➖ pulada; ao voltar a uma etapa, o motivo vai em Agora) ·
+**O que foi feito** (frases curtas, sem saída de comando; registra a escolha do aluno) ·
+**Agora: etapa N — nome** (2 a 4 frases; antes de algo demorado, diga o que vai fazer e que não precisa
+responder) · **Sua decisão** (autorização: pergunta em negrito + opções com o efeito de cada uma;
+pergunta aberta: pergunta em negrito + como responder, com a saída "não sei"; agrupadas, numeradas) ·
+**Próximo passo** (uma linha).
+
+- Uma etapa por resposta; termine na decisão e pare.
+- Termo técnico só com a explicação junto, na primeira vez — inclusive os do Status (glossário na referência).
+- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, "e mais N". Comando só quando
+  o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
+- Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
+- Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
+- Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
+  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
+  continuo daqui."
 
 ## Procedimento passo a passo
 

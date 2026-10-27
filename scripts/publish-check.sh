@@ -30,6 +30,23 @@ for p in "${PATTERNS[@]}"; do
   fi
 done
 
+# Skills that talk to the student (Grupos 1 e 2 da frente LINGUAGEM_ALUNO): without the section
+# "## Como falar com o aluno" (and, for Grupo 2, references/como-falar.md) the skill does not ship.
+ALUNO_SKILLS="sdd-release sdd-new-session sdd-higiene-dado sdd-brainstorm sdd-define sdd-design sdd-build sdd-handoff sdd-kb ux-review-builder"
+ALUNO_COM_REFERENCIA="sdd-brainstorm sdd-define sdd-design sdd-build sdd-handoff sdd-kb ux-review-builder"
+for s in $ALUNO_SKILLS; do
+  if ! grep -q '^## Como falar com o aluno' "skills/$s/SKILL.md"; then
+    echo "FAIL: skills/$s/SKILL.md sem a seção '## Como falar com o aluno'"
+    fail=1
+  fi
+done
+for s in $ALUNO_COM_REFERENCIA; do
+  if [ ! -f "skills/$s/references/como-falar.md" ]; then
+    echo "FAIL: skills/$s/references/como-falar.md ausente"
+    fail=1
+  fi
+done
+
 if [ "$fail" -ne 0 ]; then
   echo "publish-check: FAIL — resolve the hits above before publishing."
   exit 1

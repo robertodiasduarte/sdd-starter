@@ -4,14 +4,14 @@ license: MIT
 description: "Fecha um ciclo de trabalho e passa o bastão para a próxima sessão: registra o que foi feito, o que ficou pendente (separando o que está quebrado do que é melhoria), quais são os próximos passos e o que não pode quebrar — e gera um prompt de retomada que funciona sozinho, sem depender da conversa anterior. Mantém um único arquivo de handoff por feature, com cada etapa nova no topo. Use quando o usuário disser que vai parar, que o contexto está acabando, que terminou uma etapa, que quer documentar para continuar depois, ou ao final da fase de Build de um fluxo SDD."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.0"
+  version: "1.1.0"
   updated: "2026-10"
 ---
 
 # SDD Handoff
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-handoff v1.0.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-handoff v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -49,6 +49,38 @@ Não exigir acesso a filesystem, repositório ou sistema externo. Quando algo n�
 ### Assets obrigatórios de saída
 
 [assets/HANDOFF_TEMPLATE.md](assets/HANDOFF_TEMPLATE.md) é o molde oficial do documento de handoff e [assets/SESSION_PROMPT_TEMPLATE.md](assets/SESSION_PROMPT_TEMPLATE.md) é o molde do prompt de retomada. São **assets de saída**, não material conceitual: sempre reutilizá-los para montar o resultado final, em vez de reconstruir a estrutura de memória.
+
+## Como falar com o aluno
+
+Leia `references/como-falar.md` antes da primeira resposta: glossário desta skill e um exemplo completo.
+Quem usa esta skill, em geral, nunca usou git nem terminal.
+
+| Etapa | Nome para o aluno | Passos desta skill |
+|---|---|---|
+| 1 | Modo | 1 (confirmado em uma linha, sem menu) |
+| 2 | Estado | 2 e 3 |
+| 3 | Ficha e pendências | 4 e 5 |
+| 4 | Documento | 6 (só no modo *entregar*) e 7 |
+| 5 | Prompt de retomada | 8 |
+
+Toda resposta, nesta ordem (pule a parte sem conteúdo): **Status** (`Handoff: ✅ 1 … · ▶️ 2 … · ⬜ 3 …`;
+✅ concluída, não só visitada; ⏸️ parada; ➖ pulada; ao voltar a uma etapa, o motivo vai em Agora) ·
+**O que foi feito** (frases curtas, sem saída de comando; registra a escolha do aluno) ·
+**Agora: etapa N — nome** (2 a 4 frases; antes de algo demorado, diga o que vai fazer e que não precisa
+responder) · **Sua decisão** (só onde esta skill já pergunta — a família em dúvida, o checklist do modo
+*entregar*; autorização: pergunta em negrito + opções com o efeito de cada uma; pergunta aberta: pergunta
+em negrito + como responder, com a saída "não sei"; as quatro perguntas do checklist, numeradas, podem ser
+respondidas pelos números) · **Próximo passo** (uma linha).
+
+- Uma etapa por resposta; termine na decisão e pare. Quem pede handoff está sem tempo: sem decisão, siga.
+- Termo técnico só com a explicação junto, na primeira vez — inclusive os do Status (glossário na referência).
+- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, "e mais N". Comando só quando
+  o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
+- Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
+- Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
+- Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
+  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
+  continuo daqui."
 
 ## Procedimento passo a passo
 
