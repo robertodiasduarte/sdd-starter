@@ -81,6 +81,76 @@ if [ "${MODO}" = normal ]; then
 fi
 
 # ── 1. onde estou ────────────────────────────────────────────────────────────
+# Pasta sincronizada (iCloud, OneDrive, Dropbox, Google Drive): imprime o provedor e sai 0; senão 1.
+# Só builtins (o teste do git fora do PATH não tem find). Segmento inteiro: "dropbox-sync/" não acusa.
+pasta_sincronizada() {
+  local p d real
+  for p in "${PWD}/" "$(pwd -P)/"; do
+    case "${p}" in
+      */Library/Mobile\ Documents/*|*/iCloudDrive/*) echo "iCloud Drive"; return 0 ;;
+      */Library/CloudStorage/OneDrive*|*/OneDrive/*|*/OneDrive\ -\ *) echo "OneDrive"; return 0 ;;
+      */Library/CloudStorage/Dropbox*|*/Dropbox/*|*/Dropbox\ \(*) echo "Dropbox"; return 0 ;;
+      */Library/CloudStorage/GoogleDrive*|*/Google\ Drive/*|*/My\ Drive/*|*/Meu\ Drive/*) echo "Google Drive"; return 0 ;;
+      */Library/CloudStorage/*) echo "uma pasta sincronizada"; return 0 ;;
+    esac
+  done
+  # Mesa e Documentos no iCloud: o caminho não muda (pwd -P continua ~/Documents); a evidência é o
+  # symlink que o iCloud Drive cria para a pasta.
+  for d in Desktop Documents; do
+    [ -L "${HOME}/Library/Mobile Documents/com~apple~CloudDocs/${d}" ] || continue
+    real="$(cd "${HOME}/${d}" 2>/dev/null && pwd -P)" || continue
+    case "$(pwd -P)/" in "${real}/"*) echo "iCloud Drive (${d})"; return 0 ;; esac
+  done
+  return 1
+}
+
+# Pasta que não é repositório: qual é o caso (pasta pessoal, git numa subpasta, vazia, sem git).
+onde_estou_sem_repo() {
+  local aqui subs n lista
+  aqui="$(pwd -P)"
+  if [ "${aqui}" = "$(cd "${HOME}" 2>/dev/null && pwd -P)" ] || [ "${aqui}" = "/" ]; then
+    add_impede "O terminal está na sua pasta pessoal, não na pasta de um projeto." \
+               "cd <pasta do projeto>   (e abra o chat de novo lá dentro)"
+    return
+  fi
+  # -mindepth 1, não 2: com 2 o -prune de ./node_modules nunca seria avaliado.
+  subs="$(find . -mindepth 1 -maxdepth 3 \( -path ./.git -o -name node_modules -o -name .Trash -o -name Library \) -prune \
+            -o -name .git -print 2>/dev/null | sed 's#/\.git$##' | LC_ALL=C sort)"
+  if [ -n "${subs}" ]; then
+    n="$(printf '%s\n' "${subs}" | wc -l | tr -d ' ')"
+    lista="$(printf '%s\n' "${subs}" | head -3 | paste -sd, - | sed 's/,/, /g')"
+    if [ "${n}" -eq 1 ]; then
+      add_impede "O projeto está em ${subs} — o terminal foi aberto uma pasta acima dele." \
+                 "cd \"${subs}\"   (e abra o chat de novo lá dentro)"
+    elif [ "${n}" -le 3 ]; then
+      add_impede "Há repositórios git nas subpastas ${lista} — o projeto é uma delas." \
+                 "cd <uma delas>   (e abra o chat de novo lá dentro)"
+    else
+      add_impede "Há ${n} pastas com git aqui dentro (${lista}, …) — qual delas é o projeto?" \
+                 "cd <pasta do projeto>   (e abra o chat de novo lá dentro)"
+    fi
+    return
+  fi
+  if [ -z "$(find . -mindepth 1 -maxdepth 1 ! -name .DS_Store ! -name desktop.ini ! -name Thumbs.db \
+               ! -name .localized -print 2>/dev/null | head -1)" ]; then
+    add_impede "Ainda não há projeto nesta pasta." \
+               "comece pela skill sdd-brainstorm — o git entra quando houver o que guardar"
+    return
+  fi
+  if [ -f "$(dirname "${SKILL_MD}")/../sdd-iniciar-repo/SKILL.md" ]; then
+    add_impede "Este projeto ainda não usa git — e a frente nasce do git." \
+               "use a skill sdd-iniciar-repo: põe o projeto no git e num GitHub privado, conferindo antes o que não pode ir"
+  else
+    add_impede "Este projeto ainda não usa git — e a frente nasce do git." \
+               "a skill sdd-iniciar-repo faz isso; atualize as skills: npx skills add robertodiasduarte/sdd-starter -a <claude-code ou codex> -g -y"
+  fi
+}
+
+PROVEDOR="$(pasta_sincronizada)" && {
+  add_impede "Esta pasta está dentro do ${PROVEDOR}, que sincroniza tudo o que muda — e o .git e as frentes se corrompem ou duplicam com a sincronização." \
+             "mova o projeto para uma pasta fora da nuvem (ex.: ~/Projetos), pelo Finder ou Explorador de Arquivos, e abra o terminal lá"
+  relatorio "pasta $(basename "$(pwd)")${AGENTES:+, ${AGENTES}}"; sair
+}
 if ! tem git; then
   add_impede "O git não está instalado — sem ele não há frentes nem publicação." \
              "Instale em https://git-scm.com/downloads e abra o terminal de novo."
@@ -88,8 +158,7 @@ if ! tem git; then
 fi
 RAIZ="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [ -z "${RAIZ}" ]; then
-  add_impede "Esta pasta não é um repositório git — provavelmente o terminal foi aberto na pasta errada." \
-             "cd <pasta do projeto>   (ou, se o projeto ainda não tem git: git init)"
+  onde_estou_sem_repo
   relatorio "pasta $(basename "$(pwd)")${AGENTES:+, ${AGENTES}}"; sair
 fi
 # sed, não awk '{print $2}': caminho com espaço ("Ana Silva/Projetos/…") quebraria no 1º espaço.
@@ -170,7 +239,7 @@ PRINCIPAL=""
 URL_ORIGIN=""
 if [ -z "$(git remote 2>/dev/null)" ]; then
   add_remoto "O repositório não tem remoto — nada que você fizer sai desta máquina, e as frentes nascem dele." \
-             "git remote add origin <url do repositório>"
+             "git remote add origin <url do repositório>   (projeto ainda sem repositório no GitHub? a skill sdd-iniciar-repo cria um privado e envia)"
 elif [ -z "$(git config --get remote.origin.url 2>/dev/null)" ]; then
   # Há remoto, mas não o origin: as frentes e a publicação usam origin/<principal>.
   add_remoto "O repositório tem remoto, mas nenhum chamado origin — as frentes nascem do origin." \

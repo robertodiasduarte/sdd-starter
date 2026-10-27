@@ -4,7 +4,7 @@ license: MIT
 description: "Diagnostica, sem alterar nada, se este computador e este repositório estão prontos para trabalhar com SDD: repositório git, agente de código, identidade do git, acesso ao remoto (credencial, rede, repositório ainda vazio), worktrees órfãs, dependências, editor e dado exposto (senha, certificado A1 ou chave privada já salvos no git; .env fora do .gitignore; npm sem ignore-scripts; repositório público). Responde em uma linha quando está tudo certo e, quando não está, lista o que impede primeiro, cada item com o comando exato que resolve. Use quando o usuário pedir para checar o ambiente, antes de abrir a primeira frente de trabalho num projeto, ou quando algo estranho acontecer (commit que falha, comando não encontrado, worktree que sumiu)."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.0"
+  version: "1.2.0"
   updated: "2026-10"
 ---
 
@@ -32,7 +32,7 @@ no projeto ou na pasta global do agente.)
 script: blocos `🔴 Dado exposto`, `🔴 Impede o trabalho` e `⚠️ Vale arrumar` só se tiverem itens, e por
 último a linha `✅ Pronto: repo …` (ou `✅ Repo …` quando houver problema). Checagem que passou ou não se
 aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identificação desta skill:
-`sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-checar-ambiente v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 (o script faz isso sozinho, lendo a versão deste arquivo).
 
 ## Regras
@@ -60,9 +60,22 @@ aplica não é mencionada fora dessa linha. Termine a linha ✅ com a identifica
 ## O que verificar, nesta ordem
 
 **1. Onde estou**
+- **Antes de tudo, a pasta está sincronizada?** Caminho com `Library/Mobile Documents`, `iCloudDrive`,
+  `Library/CloudStorage`, `OneDrive`, `Dropbox`, `Google Drive`, `My Drive` ou `Meu Drive`; ou, no Mac com
+  Mesa e Documentos no iCloud, a pasta fica em `~/Desktop` ou `~/Documents` e
+  `~/Library/Mobile Documents/com~apple~CloudDocs/Desktop` (ou `Documents`) é um atalho (symlink) — o
+  caminho em si não muda. Sincronizada ⇒ é o único achado: mover o projeto para fora da nuvem
+  (`.git` e frentes se corrompem ou duplicam com a sincronização). Não siga para as outras checagens.
 - `git rev-parse --show-toplevel` — é um repositório git? Se **não** for, esse é o achado mais
-  importante: diga na primeira linha (provavelmente o terminal foi aberto na pasta errada, ou o
-  projeto ainda não tem git — `git init`).
+  importante, e diga **qual** é o caso, nesta ordem:
+  1. a pasta é a pessoal (`~`) ou `/` ⇒ o terminal não está num projeto (não varra a pasta pessoal);
+  2. há `.git` em subpasta até 3 níveis (fora de `node_modules`) ⇒ "o projeto está em `./X`": abrir lá
+     (de 2 a 3, liste; mais que 3, diga quantas e pergunte qual);
+  3. só arquivos do sistema (`.DS_Store`, `desktop.ini`, `Thumbs.db`) ou nada ⇒ ainda não há projeto:
+     começar pela `sdd-brainstorm`;
+  4. há arquivos e nenhum `.git` ⇒ "este projeto ainda não usa git": a skill `sdd-iniciar-repo` põe no
+     git e num GitHub privado. Nunca responda só "`git init`" — publicar sem conferir antes leva planilha
+     de cliente e certificado junto.
 - Pasta, branch atual (`git branch --show-current`) e se há mudanças não commitadas (`git status --short`).
 
 **2. Agentes disponíveis**
@@ -154,12 +167,12 @@ ordem, **omitindo os vazios**:
 
 1. **🔴 Dado exposto** — senha, certificado ou chave privada já salvos no git. Cada item com o comando
    e a medida que protege (trocar senha, revogar certificado).
-2. **🔴 Impede o trabalho** — não é repositório git, git sem identidade, dependências faltando.
+2. **🔴 Impede o trabalho** — pasta sincronizada, não é repositório git (com o caso), git sem identidade, dependências faltando.
    Cada item com o **comando exato** que resolve, pronto para copiar.
 3. **⚠️ Vale arrumar** — `.env` fora do `.gitignore`, npm sem `ignore-scripts` (estes primeiro),
    worktree órfã, frente integrada ainda aberta, `.env` ausente.
 4. **✅ Resumo em uma linha**, terminando com a identificação desta skill — ex.:
-   `✅ Pronto: repo meu-app, branch main, 2 frentes abertas, Claude Code 2.1 · sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+   `✅ Pronto: repo meu-app, branch main, 2 frentes abertas, Claude Code 2.1 · sdd-checar-ambiente v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Se estiver tudo certo, a resposta inteira é **exatamente a linha ✅** — nenhuma frase antes nem
 depois: nada de "Tudo limpo", de lista do que foi verificado ou de oferta de ajuda. Ambiente saudável
@@ -170,7 +183,7 @@ não merece parágrafo; quem quer detalhe pergunta.
 Saudável:
 
 ```text
-✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
+✅ Pronto: repo meu-app, branch main, nenhuma frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
 ```
 
 Com o certificado A1 salvo no git de um repositório público:
@@ -181,7 +194,7 @@ Com o certificado A1 salvo no git de um repositório público:
   git rm --cached "certificados/empresa.pfx" && echo "certificados/empresa.pfx" >> .gitignore
   Depois, revogue o certificado com a autoridade certificadora e emita outro.
 
-✅ Repo meu-app (público no GitHub), branch main, nenhuma frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
+✅ Repo meu-app (público no GitHub), branch main, nenhuma frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
 ```
 
 Com dois problemas:
@@ -196,7 +209,7 @@ Com dois problemas:
   git worktree remove ../meu-app-frentes/relatorio-mensal
   git branch -d relatorio-mensal
 
-✅ Repo meu-app, branch main, 1 frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
+✅ Repo meu-app, branch main, 1 frente aberta, Claude Code 2.1 · sdd-checar-ambiente v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest
 ```
 
 ---
