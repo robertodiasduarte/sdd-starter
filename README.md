@@ -34,12 +34,13 @@ E cinco skills **complementares**, que não entram na sequência — elas alimen
 | [`ux-review-builder`](skills/ux-review-builder/) | Criar o padrão de experiência do seu projeto e a sua `ux-review` — a revisão que roda entre o Define e o Design | Uma entrevista sobre público, referências e o que é inaceitável | `UX_STANDARD.md` + skill `ux-review` + `UX_REVIEW_TEMPLATE.md` |
 | [`sdd-governanca`](skills/sdd-governanca/) | Saber o que o sistema vai ter de provar numa fiscalização — para app que trata dinheiro, tributo ou dado pessoal | O DEFINE, depois do Define e antes do Design | `GOVERNANCA_REVIEW_{FEATURE}.md` com as lacunas, a decisão de cada uma e os requisitos aplicados no DEFINE |
 
-E quatro skills para **preparar o ambiente e trabalhar em frentes isoladas** no seu repositório (Claude Code ou Codex no terminal):
+E cinco skills para **preparar o ambiente e trabalhar em frentes isoladas** no seu repositório (Claude Code ou Codex no terminal):
 
 | Skill | Para quê | Quando chamar | O que faz |
 |---|---|---|---|
 | [`sdd-checar-ambiente`](skills/sdd-checar-ambiente/) | Saber se está tudo pronto | Antes da primeira frente, ou quando algo estranho acontecer | Diz em uma linha se o ambiente está pronto, ou o comando exato do que falta — inclusive senha, certificado A1 ou chave já salvos no git (read-only) |
 | [`sdd-higiene-dado`](skills/sdd-higiene-dado/) | Barrar dado de cliente antes do git | Ao preparar a máquina do escritório | Com o seu OK, instala um alarme de commit que recusa CPF/CNPJ, `.env`, certificado A1 e planilha nova — e explica como corrigir |
+| [`sdd-iniciar-repo`](skills/sdd-iniciar-repo/) | Pôr no git um projeto que ainda não usa | Uma vez, quando a pasta do projeto ainda não tem git | Confere a pasta, lista o que entraria (senha, certificado A1, planilha, arquivo grande), propõe o `.gitignore` e, com o seu OK em cada etapa, faz o primeiro commit e cria um repositório **privado** no GitHub |
 | [`sdd-new-session`](skills/sdd-new-session/) | Abrir uma frente de trabalho | No começo de cada tarefa | Cria worktree + branch a partir da produção atualizada, prepara a pasta e grava `sdd/ambiente.md` |
 | [`sdd-release`](skills/sdd-release/) | Fechar a frente e publicar | No fim da tarefa, de dentro da pasta da frente | Verifica (testes, segredo no diff, base atualizada), mostra uma vez o que vai para produção e só publica depois do seu OK |
 
@@ -122,12 +123,13 @@ Plus five **complementary** skills that are not part of the sequence — they fe
 | [`ux-review-builder`](skills/ux-review-builder/) | Build your project's UX standard and your own `ux-review` — the review that runs between Define and Design | An interview on audience, references and what is unacceptable | `UX_STANDARD.md` + `ux-review` skill + `UX_REVIEW_TEMPLATE.md` |
 | [`sdd-governanca`](skills/sdd-governanca/) | Know what the system will have to prove in a tax audit — for apps that handle money, taxes or personal data | The DEFINE, after Define and before Design | `GOVERNANCA_REVIEW_{FEATURE}.md` with the gaps, the decision on each one and the requirements applied to the DEFINE |
 
-And four skills to **prepare the environment and work in isolated workstreams** in your repository (Claude Code or Codex in the terminal):
+And five skills to **prepare the environment and work in isolated workstreams** in your repository (Claude Code or Codex in the terminal):
 
 | Skill | Purpose | When to call | What it does |
 |---|---|---|---|
 | [`sdd-checar-ambiente`](skills/sdd-checar-ambiente/) | Know whether everything is ready | Before the first workstream, or when something odd happens | Says in one line whether the environment is ready, or the exact command for what is missing — including passwords, A1 certificates or keys already committed to git (read-only) |
 | [`sdd-higiene-dado`](skills/sdd-higiene-dado/) | Stop client data before it reaches git | When preparing the office machine | With your OK, installs a commit alarm that rejects CPF/CNPJ numbers, `.env`, A1 certificates and new spreadsheets — and explains how to fix it |
+| [`sdd-iniciar-repo`](skills/sdd-iniciar-repo/) | Put a project that has no git into git | Once, when the project folder has no git yet | Checks the folder, lists what would go in (passwords, A1 certificates, spreadsheets, large files), proposes the `.gitignore` and, with your OK at each step, makes the first commit and creates a **private** GitHub repository |
 | [`sdd-new-session`](skills/sdd-new-session/) | Open a workstream | At the start of each task | Creates worktree + branch from up-to-date production, prepares the folder and writes `sdd/ambiente.md` |
 | [`sdd-release`](skills/sdd-release/) | Close the workstream and ship | At the end of the task, from inside the workstream folder | Checks (tests, secrets in the diff, up-to-date base), shows once what goes to production and ships only after your OK |
 

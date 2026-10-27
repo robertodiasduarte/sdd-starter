@@ -4,14 +4,14 @@ license: MIT
 description: "Abre uma frente de trabalho isolada neste repositório: cria uma git worktree fora da pasta do projeto, com uma branch nova nascida da branch de produção ATUALIZADA do remoto, prepara a pasta (dependências, arquivos locais) e abre no editor. Na primeira vez, investiga o repositório e grava o que descobriu em sdd/ambiente.md. Use quando o usuário disser 'abrir uma frente', 'nova sessão', 'nova tarefa isolada', 'criar worktree para X' ou quiser começar uma feature/correção sem misturar com outra em andamento."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.0"
+  version: "1.2.0"
   updated: "2026-10"
 ---
 
 # Nova frente de trabalho (new-session)
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-new-session v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-new-session v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Um comando, uma tarefa, um diretório: `git worktree` + branch nova nascida do estado **remoto atual**
 da branch de produção, pronta para abrir no editor.
@@ -38,22 +38,48 @@ Rode `git --version`. São 3 situações diferentes, com respostas diferentes:
   neste computador."* com o link https://git-scm.com/downloads, e que depois de instalar é preciso fechar
   e abrir o terminal de novo. Termine com *"Nada foi criado. Depois de instalar, peça a frente de novo."*
   Não diga que você está num aplicativo de chat: você está no terminal.
-- **O git existe, mas a pasta não é um repositório** (`git rev-parse --show-toplevel` falha): diga isso e
-  **pare sem criar nada** — provavelmente o terminal foi aberto na pasta errada (`cd <pasta do projeto>`),
-  ou o projeto ainda não tem git (`git init`).
+- **O git existe**: siga para o pré-voo. Ele vem antes de tudo porque também responde quando a pasta
+  **não** é um repositório — e diz **qual** é o caso (pasta sincronizada pela nuvem, pasta pessoal,
+  projeto numa subpasta, pasta vazia, projeto sem git). Nunca responda só "`git init`".
 
-**Pré-voo.** Com o git e o repositório no lugar, confira se a frente consegue nascer do remoto, **antes**
-de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
+**Pré-voo.** Com o git no lugar, confira onde a pasta está e se a frente consegue nascer do remoto,
+**antes** de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
 
 - Se existir a skill `sdd-checar-ambiente` na mesma pasta de skills desta (`.claude/skills/`,
   `.agents/skills/` ou a pasta global do agente) e houver bash, rode
   `bash <pasta das skills>/sdd-checar-ambiente/scripts/checar.sh --frente` e **repasse a saída como veio**.
-  Código de saída 1 (bloco `🔴 Impede o trabalho`) ⇒ **pare aí**. Código 0 ⇒ a única linha é
+  Código de saída 1 (bloco `🔴 Impede o trabalho`) ⇒ **pare aí** — com uma exceção: se o achado for
+  *"Este projeto ainda não usa git"*, veja **Projeto sem git** abaixo. Código 0 ⇒ a única linha é
   `✅ Pronto para abrir a frente: …`; siga. Saiu 0 **sem** essa linha (um relatório completo, com ⚠️ ou
   `✅ Repo …`)? A `sdd-checar-ambiente` instalada é anterior à 1.1.0 e não conhece o `--frente`: não conte
   isso como pré-voo — faça as checagens à mão abaixo e sugira atualizar a skill.
-- Sem a skill ou sem bash (PowerShell puro), faça as mesmas 3 checagens à mão, nesta ordem, parando na
+  Saída com *"provavelmente o terminal foi aberto na pasta errada"* ⇒ a `sdd-checar-ambiente` instalada
+  é anterior à 1.2.0 e não diz qual é o caso: faça as checagens 0 e A–D abaixo à mão e sugira atualizá-la.
+- Sem a skill ou sem bash (PowerShell puro), faça as mesmas checagens à mão, nesta ordem, parando na
   primeira que falhar:
+  0. **Pasta sincronizada** (antes de tudo, com ou sem repositório): o caminho (`pwd -P` no bash/zsh,
+     `(Get-Location).Path` no PowerShell) tem `Library/Mobile Documents`, `Library/CloudStorage`,
+     `iCloudDrive`, `OneDrive`, `Dropbox`, `Google Drive`, `My Drive` ou `Meu Drive`; ou, no Mac, a pasta
+     está em `~/Desktop` ou `~/Documents` e `ls -ld ~/Library/Mobile\ Documents/com~apple~CloudDocs/Documents`
+     (ou `Desktop`) mostra um atalho (`->`) — é a Mesa e Documentos no iCloud, e o caminho não muda.
+     ⇒ *"Esta pasta está dentro do <provedor>, que sincroniza tudo o que muda — o .git e as frentes se
+     corrompem ou duplicam."*: mover o projeto para fora da nuvem (ex.: `~/Projetos`) pelo Finder ou
+     Explorador de Arquivos e abrir o terminal lá.
+  Com `git rev-parse --show-toplevel` falhando, diga **qual** é o caso, nesta ordem:
+     - A. **Pasta pessoal** — a pasta é `~` (`$HOME`; no PowerShell, `$env:USERPROFILE`) ⇒ *"O terminal
+       está na sua pasta pessoal, não na pasta de um projeto."* (não varra a pasta pessoal).
+     - B. **Git numa subpasta** — bash/zsh:
+       `find . -mindepth 1 -maxdepth 3 \( -name node_modules -o -name .Trash -o -name Library \) -prune -o -name .git -print`;
+       PowerShell: `Get-ChildItem -Recurse -Depth 2 -Force -Filter .git -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch 'node_modules' } | ForEach-Object { Split-Path $_.FullName -Parent }`.
+       Uma pasta ⇒ *"O projeto está em ./X — o terminal foi aberto uma pasta acima dele."*: abrir o chat
+       de novo dentro dela. Duas ou três ⇒ liste e pergunte qual. Mais de três ⇒ diga quantas e pergunte
+       qual é o projeto, sem listar todas.
+     - C. **Pasta vazia** — nada além de `.DS_Store`, `desktop.ini`, `Thumbs.db` (`ls -A`; no PowerShell,
+       `Get-ChildItem -Force`) ⇒ *"Ainda não há projeto nesta pasta."*: começar pela skill
+       `sdd-brainstorm`; o git entra quando houver o que guardar.
+     - D. **Arquivos sem git** ⇒ *"Este projeto ainda não usa git — e a frente nasce do git."*: veja
+       **Projeto sem git** abaixo.
+  Com repositório:
   1. `git remote` vazio ⇒ *"O repositório não tem remoto — a frente nasce dele."* com
      `git remote add origin <url do repositório>`. Há remoto, mas nenhum chamado `origin` (um fork com só
      `upstream`, por exemplo) ⇒ *"O repositório tem remoto, mas nenhum chamado origin — a frente nasce do
@@ -86,6 +112,18 @@ de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
   3. Nenhuma branch listada ⇒ *"O repositório remoto ainda não tem nenhum commit — a frente nasce dele."*
      com o primeiro commit e `GIT_TERMINAL_PROMPT=0 git push -u origin <branch atual>`.
   Qualquer bloqueio termina com *"Nada foi criado. Depois de resolver, peça a frente de novo."*
+- **Projeto sem git** (o achado D, ou o mesmo texto vindo do `checar.sh`). Esta skill não commita nem
+  publica, e pôr um projeto no git sem conferir antes leva planilha de cliente, `.env` e certificado A1
+  para o GitHub. Então:
+  - se existir a skill `sdd-iniciar-repo` na mesma pasta de skills desta, ofereça: **"Quer que eu ponha
+    este projeto no git e num GitHub privado agora? Eu confiro antes o que não pode ir e peço seu OK em
+    cada etapa."** Com o sim, siga a `sdd-iniciar-repo` do início; quando ela terminar, volte ao pré-voo
+    e abra a frente. Sem o sim, pare com *"Nada foi criado."*;
+  - se não existir, diga que a skill `sdd-iniciar-repo` faz isso e que ela vem com
+    `npx skills add robertodiasduarte/sdd-starter -a <claude-code ou codex> -g -y`; depois, é pedir
+    *"use a skill sdd-iniciar-repo para pôr este projeto no git"*. Pare com *"Nada foi criado."*
+  Repositório sem remoto (item 1) num projeto que ainda não está no GitHub é o mesmo caso: a
+  `sdd-iniciar-repo` retoma de onde ele parou.
 - Pré-voo saudável não vira relatório: no máximo a linha ✅, e siga para o Passo 1.
 
 ⛔ Não invente uma frente assumindo como o projeto é. Uma frente criada a partir de suposição falha na
@@ -228,6 +266,12 @@ Nesta ordem:
   o conflito entre as duas aparece. (A `sdd-release` faz isso.)
 - **Worktree e branch órfãs se acumulam** — depois de integrar, `git worktree remove` **e**
   `git branch -d`. O `-d` minúsculo é proteção: só apaga o que já foi integrado.
+- **Pasta que não é repositório tem quatro casos opostos** — "abra na pasta certa" e "ponha o projeto no
+  git" são respostas contrárias; juntar as duas numa frase deixou um aluno sem saber qual era a dele. E
+  "`git init`" sozinho leva a pasta inteira, com planilha de cliente, para o primeiro commit.
+- **Pasta sincronizada para antes de tudo** — iCloud, OneDrive, Dropbox e Google Drive sincronizam arquivo
+  por arquivo; `.git` e worktrees se corrompem ou duplicam. No Mac com Mesa e Documentos no iCloud o
+  caminho não denuncia: a evidência é o atalho dentro do iCloud Drive.
 - **O pré-voo vem antes de qualquer criação** — sem remoto, com o remoto vazio ou sem login, o
   `git worktree add … origin/<principal>` falha no meio e deixa a pasta pela metade; o aluno não sabe o que
   apagar. Parar antes, dizendo a causa e que nada foi criado, é o que permite simplesmente pedir de novo.

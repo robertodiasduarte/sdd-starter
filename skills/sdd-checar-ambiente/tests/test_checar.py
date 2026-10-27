@@ -499,5 +499,196 @@ class TestSomenteLeitura(Base):
         self.assertEqual(antes, self.foto())
 
 
+class TestSemRemotoIndicaIniciarRepo(Base):
+    def test_frente_sem_remoto_cita_iniciar_repo(self):
+        self.git("remote", "remove", "origin")
+        rc, out, _ = self.roda("--frente")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("git remote add origin", out)
+        self.assertIn("sdd-iniciar-repo", out)
+
+
+class TestOndeEstou(unittest.TestCase):
+    """Pasta que não é repositório (qual é o caso) e pasta sincronizada (antes de tudo).
+
+    Sem git acima da pasta temporária (GIT_CEILING_DIRECTORIES) e com HOME falso: a pasta pessoal e o
+    iCloud de Mesa/Documentos são montados aqui dentro.
+    """
+
+    NADA = "Nada foi criado. Depois de resolver, peça a frente de novo."
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="checar-onde-")).resolve()
+        self.home = self.tmp / "home"
+        self.home.mkdir()
+        self.global_vazio = self.tmp / "gitconfig-global"
+        self.global_vazio.write_text("", encoding="utf-8")
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def pasta(self, rel: str, *arquivos: str) -> Path:
+        p = self.tmp / rel
+        p.mkdir(parents=True, exist_ok=True)
+        for a in arquivos:
+            (p / a).parent.mkdir(parents=True, exist_ok=True)
+            (p / a).write_text("x\n", encoding="utf-8")
+        return p
+
+    def roda(self, pasta: Path, *args: str, script: Path = SCRIPT) -> tuple[int, str]:
+        herdado = {k: v for k, v in os.environ.items() if k not in ("GIT_ASKPASS", "SSH_ASKPASS")}
+        env = {**herdado, "HOME": str(self.home), "GIT_CEILING_DIRECTORIES": str(self.tmp),
+               "GIT_CONFIG_GLOBAL": str(self.global_vazio), "GIT_CONFIG_NOSYSTEM": "1",
+               "SDD_CHECAR_GITHUB_API": "http://127.0.0.1:9"}
+        r = subprocess.run([BASH, str(script), *args], cwd=pasta, capture_output=True, text=True,
+                           env=env, stdin=subprocess.DEVNULL, timeout=60)
+        return r.returncode, r.stdout
+
+    def bloqueia(self, pasta: Path) -> str:
+        rc, out = self.roda(pasta, "--frente")
+        self.assertEqual(rc, 1, out)
+        self.assertTrue(out.startswith("🔴 Impede o trabalho"), out)
+        self.assertEqual(out.strip().splitlines()[-1], self.NADA, out)
+        self.assertNotIn("✅", out)
+        return out
+
+    def normal(self, pasta: Path) -> str:
+        rc, out = self.roda(pasta)
+        self.assertEqual(rc, 0, out)
+        self.assertTrue(out.startswith("🔴 Impede o trabalho"), out)
+        return out
+
+    def git_init(self, pasta: Path) -> None:
+        subprocess.run(["git", "init", "-q", str(pasta)], check=True, capture_output=True)
+
+    # ── fora de repositório: qual é o caso ──────────────────────────────────
+
+    def test_git_numa_subpasta_manda_abrir_nela(self):
+        raiz = self.pasta("RDD10Financas")
+        self.git_init(raiz / "meu-app")
+        for out in (self.normal(raiz), self.bloqueia(raiz)):
+            self.assertIn("./meu-app", out)
+            self.assertNotIn("git init", out)
+
+    def test_git_em_duas_subpastas_lista_as_duas(self):
+        raiz = self.pasta("modulos")
+        self.git_init(raiz / "app-a")
+        self.git_init(raiz / "sub" / "app-b")
+        out = self.normal(raiz)
+        self.assertIn("./app-a", out)
+        self.assertIn("./sub/app-b", out)
+        self.assertNotIn("git init", out)
+
+    def test_git_em_quatro_subpastas_pergunta_qual(self):
+        raiz = self.pasta("cursos")
+        for nome in ("m1", "m2", "m3", "m4"):
+            self.git_init(raiz / nome)
+        out = self.bloqueia(raiz)
+        self.assertIn("4 pastas com git", out)
+        self.assertIn("qual delas é o projeto", out)
+        self.assertNotIn("./m4", out)   # não lista todas
+        self.assertNotIn("git init", out)
+
+    def test_git_dentro_de_node_modules_nao_conta(self):
+        raiz = self.pasta("app", "index.js")
+        self.git_init(raiz / "node_modules" / "pacote")
+        out = self.normal(raiz)
+        self.assertNotIn("node_modules", out)
+        self.assertIn("ainda não usa git", out)
+
+    def test_pasta_vazia_indica_brainstorm(self):
+        raiz = self.pasta("ideia-nova")
+        for out in (self.normal(raiz), self.bloqueia(raiz)):
+            self.assertIn("Ainda não há projeto nesta pasta", out)
+            self.assertIn("sdd-brainstorm", out)
+            self.assertNotIn("git init", out)
+
+    def test_so_arquivo_do_sistema_conta_como_vazia(self):
+        raiz = self.pasta("ideia-nova", ".DS_Store", "desktop.ini", "Thumbs.db")
+        out = self.normal(raiz)
+        self.assertIn("Ainda não há projeto nesta pasta", out)
+
+    def test_arquivos_sem_git_oferece_iniciar_repo(self):
+        raiz = self.pasta("RDD10V8M6Financas", "fluxo.md", "dados/clientes.xlsx")
+        for out in (self.normal(raiz), self.bloqueia(raiz)):
+            self.assertIn("Este projeto ainda não usa git", out)
+            self.assertIn("sdd-iniciar-repo", out)
+            self.assertNotIn("git init", out)
+            self.assertNotIn("pasta errada", out)
+
+    def test_sem_git_e_sem_a_skill_irma_ensina_a_atualizar(self):
+        copia = self.tmp / "skills" / "sdd-checar-ambiente"
+        shutil.copytree(SCRIPT.parents[1], copia, ignore=shutil.ignore_patterns("tests", "__pycache__"))
+        raiz = self.pasta("projeto", "notas.md")
+        rc, out = self.roda(raiz, "--frente", script=copia / "scripts" / "checar.sh")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("sdd-iniciar-repo", out)
+        self.assertIn("npx skills add robertodiasduarte/sdd-starter", out)
+
+    def test_pasta_pessoal_nao_varre(self):
+        (self.home / "notas.txt").write_text("x\n", encoding="utf-8")
+        self.git_init(self.home / "projeto")
+        for out in (self.normal(self.home), self.bloqueia(self.home)):
+            self.assertIn("pasta pessoal", out)
+            self.assertNotIn("./projeto", out)
+
+    # ── pasta sincronizada: antes de tudo ───────────────────────────────────
+
+    SINCRONIZADAS = (
+        ("home/Library/Mobile Documents/com~apple~CloudDocs/Financas", "iCloud Drive"),
+        ("home/Library/CloudStorage/GoogleDrive-conta/Meu Drive/Financas", "Google Drive"),
+        ("home/Library/CloudStorage/OneDrive-Pessoal/Financas", "OneDrive"),
+        ("OneDrive - Escritorio/Documentos/Financas", "OneDrive"),
+        ("Dropbox/Financas", "Dropbox"),
+        ("Dropbox (Escritorio)/Financas", "Dropbox"),
+        ("Users/ana/iCloudDrive/Financas", "iCloud Drive"),
+    )
+
+    def test_sincronizada_para_antes_de_tudo(self):
+        for rel, provedor in self.SINCRONIZADAS:
+            with self.subTest(rel=rel):
+                raiz = self.pasta(rel, "fluxo.md")
+                for out in (self.normal(raiz), self.bloqueia(raiz)):
+                    self.assertIn(provedor, out)
+                    self.assertIn("sincroniza", out)
+                    self.assertNotIn("ainda não usa git", out)   # só o achado da sincronização
+
+    def test_icloud_mesa_e_documentos_pelo_symlink(self):
+        docs = self.pasta("home/Documents/Financas", "fluxo.md")
+        nuvem = self.home / "Library" / "Mobile Documents" / "com~apple~CloudDocs"
+        nuvem.mkdir(parents=True)
+        (nuvem / "Documents").symlink_to(self.home / "Documents")
+        out = self.bloqueia(docs)
+        self.assertIn("iCloud Drive", out)
+        self.assertIn("sincroniza", out)
+
+    def test_documents_sem_icloud_nao_acusa(self):
+        docs = self.pasta("home/Documents/Financas", "fluxo.md")
+        out = self.normal(docs)
+        self.assertNotIn("sincroniza", out)
+        self.assertIn("ainda não usa git", out)
+
+    def test_nome_parecido_nao_acusa(self):
+        raiz = self.pasta("projetos/dropbox-sync", "fluxo.md")
+        out = self.normal(raiz)
+        self.assertNotIn("sincroniza", out)
+
+    def test_sincronizada_dentro_de_repositorio(self):
+        raiz = self.pasta("Dropbox/meu-app", "README.md")
+        self.git_init(raiz)
+        out = self.normal(raiz)
+        self.assertIn("Dropbox", out)
+        self.assertNotIn("nome configurado", out)   # parou antes da identidade do git
+        self.bloqueia(raiz)
+
+    def test_nao_grava_nada_fora_do_repositorio(self):
+        raiz = self.pasta("RDD10V8M6Financas", "fluxo.md", ".env")
+        self.git_init(raiz / "sub")
+        antes = sorted((str(p), p.stat().st_mtime_ns) for p in raiz.rglob("*"))
+        self.roda(raiz)
+        self.roda(raiz, "--frente")
+        self.assertEqual(antes, sorted((str(p), p.stat().st_mtime_ns) for p in raiz.rglob("*")))
+
+
 if __name__ == "__main__":
     unittest.main()

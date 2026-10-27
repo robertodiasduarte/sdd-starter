@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Iniciar Repo by RDD"
+  short_description: "Põe no git e num GitHub privado um projeto sem git, sem levar dado de cliente junto."
+  default_prompt: "Use a skill sdd-iniciar-repo para pôr este projeto no git e num repositório privado no GitHub, conferindo antes o que não pode ir e me pedindo OK em cada etapa."
