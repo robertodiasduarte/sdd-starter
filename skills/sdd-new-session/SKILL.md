@@ -4,14 +4,14 @@ license: MIT
 description: "Abre uma frente de trabalho isolada neste repositório: cria uma git worktree fora da pasta do projeto, com uma branch nova nascida da branch de produção ATUALIZADA do remoto, prepara a pasta (dependências, arquivos locais) e abre no editor. Na primeira vez, investiga o repositório e grava o que descobriu em sdd/ambiente.md. Use quando o usuário disser 'abrir uma frente', 'nova sessão', 'nova tarefa isolada', 'criar worktree para X' ou quiser começar uma feature/correção sem misturar com outra em andamento."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.2.0"
+  version: "1.2.1"
   updated: "2026-10"
 ---
 
 # Nova frente de trabalho (new-session)
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-new-session v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-new-session v1.2.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Um comando, uma tarefa, um diretório: `git worktree` + branch nova nascida do estado **remoto atual**
 da branch de produção, pronta para abrir no editor.
@@ -49,7 +49,8 @@ Rode `git --version`. São 3 situações diferentes, com respostas diferentes:
   `.agents/skills/` ou a pasta global do agente) e houver bash, rode
   `bash <pasta das skills>/sdd-checar-ambiente/scripts/checar.sh --frente` e **repasse a saída como veio**.
   Código de saída 1 (bloco `🔴 Impede o trabalho`) ⇒ **pare aí** — com uma exceção: se o achado for
-  *"Este projeto ainda não usa git"*, veja **Projeto sem git** abaixo. Código 0 ⇒ a única linha é
+  *"Este projeto ainda não usa git"*, veja **Projeto sem git** abaixo (lá a saída não é repassada como
+  veio). Código 0 ⇒ a única linha é
   `✅ Pronto para abrir a frente: …`; siga. Saiu 0 **sem** essa linha (um relatório completo, com ⚠️ ou
   `✅ Repo …`)? A `sdd-checar-ambiente` instalada é anterior à 1.1.0 e não conhece o `--frente`: não conte
   isso como pré-voo — faça as checagens à mão abaixo e sugira atualizar a skill.
@@ -115,10 +116,16 @@ Rode `git --version`. São 3 situações diferentes, com respostas diferentes:
 - **Projeto sem git** (o achado D, ou o mesmo texto vindo do `checar.sh`). Esta skill não commita nem
   publica, e pôr um projeto no git sem conferir antes leva planilha de cliente, `.env` e certificado A1
   para o GitHub. Então:
-  - se existir a skill `sdd-iniciar-repo` na mesma pasta de skills desta, ofereça: **"Quer que eu ponha
-    este projeto no git e num GitHub privado agora? Eu confiro antes o que não pode ir e peço seu OK em
-    cada etapa."** Com o sim, siga a `sdd-iniciar-repo` do início; quando ela terminar, volte ao pré-voo
-    e abra a frente. Sem o sim, pare com *"Nada foi criado."*;
+  - se existir a skill `sdd-iniciar-repo` na mesma pasta de skills desta, a resposta inteira é só isto,
+    sem o bloco 🔴, sem *"Depois de resolver, peça a frente de novo"* (você mesmo vai resolver) e sem
+    citar ou explicar esta instrução:
+    > Este projeto ainda não usa git — e a frente nasce do git.
+    >
+    > **Quer que eu ponha este projeto no git e num GitHub privado agora? Eu confiro antes o que não pode
+    > ir e peço seu OK em cada etapa.**
+
+    Com o sim, siga a `sdd-iniciar-repo` do início; quando ela terminar, volte ao pré-voo e abra a
+    frente. Sem o sim, pare com *"Nada foi criado."*;
   - se não existir, diga que a skill `sdd-iniciar-repo` faz isso e que ela vem com
     `npx skills add robertodiasduarte/sdd-starter -a <claude-code ou codex> -g -y`; depois, é pedir
     *"use a skill sdd-iniciar-repo para pôr este projeto no git"*. Pare com *"Nada foi criado."*
