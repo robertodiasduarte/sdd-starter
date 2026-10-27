@@ -15,6 +15,11 @@ name: Auto Release
 # ⛔ Os testes rodam AQUI, antes do zip. O ci.yml roda em paralelo e nao segura nada: um
 # zip com teste vermelho chegaria a releases/latest. Os steps de checagem sao copia do
 # ci.yml (mesmo `run:`); um check novo la sem copia aqui reprova a asserção do gate.
+#
+# 2 jobs (ADEQUACAO_RELEASE s2): os testes rodam no job `testes` com token SO DE LEITURA; so o
+# job `release` (needs: testes) recebe contents: write para criar a tag e a Release. `needs` nao
+# e outro workflow: a regra do GITHUB_TOKEN acima nao se aplica, e bump + publicacao seguem juntos
+# no mesmo job. Teste vermelho => job release `skipped`, nenhuma tag nova.
 
 on:
   push:
@@ -22,16 +27,17 @@ on:
     paths: ['skills/**']
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: auto-release
   cancel-in-progress: false
 
 jobs:
-  release:
+  testes:
+    name: Testes (so leitura)
     runs-on: ubuntu-latest
-    timeout-minutes: 10   # ~32 s medidos (publicacao + testes); o default de 360 min prenderia o runner
+    timeout-minutes: 10   # o run de 24/10 levou 101 s com testes e publicacao num job so
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -69,6 +75,18 @@ jobs:
           base="$(git rev-list -n1 "$tag")"
           echo "base: $tag ($base)"
           python3 scripts/check-versions.py --base "$base" --base-obrigatoria
+
+  release:
+    name: Publicar release
+    needs: testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write   # so aqui: criar a tag e a Release
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0   # o checkout raso nao traz tags, e o bump precisa da ultima
 
       - name: Compute next patch tag
         id: tag
