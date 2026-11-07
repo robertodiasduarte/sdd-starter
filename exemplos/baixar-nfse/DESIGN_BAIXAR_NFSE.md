@@ -124,12 +124,12 @@ Projeto novo: todos os caminhos abaixo são criados pelo Build dentro de `extens
 
 **Context:** É a segunda lição: um "Em dia" dado por engano esconde notas não baixadas.
 
-**Choice:** Uma função pura, `interpretarResposta`, recebe status e texto e devolve `lote`, `fim`, `transitorio` ou `falha`. Só três sinais viram `fim`: o código `E2220`, o `StatusProcessamento` igual a `NENHUM_DOCUMENTO_LOCALIZADO` e um `LoteDFe` vazio numa resposta sem erro. Todo o resto que não se reconhece vira `falha`.
+**Choice:** Uma função pura, `interpretarResposta`, recebe status e texto e devolve `lote`, `fim`, `transitorio` ou `falha`. Só três sinais viram `fim`: o código `E2220` em 404, o `StatusProcessamento` igual a `NENHUM_DOCUMENTO_LOCALIZADO` e um `LoteDFe` vazio numa resposta sem erro. Status transitório é avaliado antes deles. Todo o resto que não se reconhece vira `falha`.
 
 **Rationale:** Se a API mudar, o aluno vê uma falha com o motivo, nunca um falso sucesso.
 
 **Alternatives Rejected:**
-1. Tratar todo 404 como fim — um 404 de outra origem esconderia uma queda; só o código `E2220` encerra.
+1. Tratar todo 404 como fim — um 404 de outra origem esconderia uma queda; só `E2220` em 404 encerra.
 2. Tratar resposta sem lote como fim — confunde ausência de resposta útil com caixa vazia.
 
 **Consequences:**
@@ -232,11 +232,11 @@ Projeto novo: todos os caminhos abaixo são criados pelo Build dentro de `extens
 | 1 | `extensao/manifest.json` | Create | Permissões mínimas, política de conteúdo e painel | (general) | None |
 | 2 | `extensao/config.js` | Create | Constantes da seção Configuration | (general) | None |
 | 3 | `extensao/cnpj.js` | Create | `normalizarCnpj`, `calcularDigitos`, `cnpjValido` | (general) | None |
-| 4 | `extensao/documento.js` | Create | `decodificarXml`, `lerMetadados`, `caminhoDoDocumento`, `nomeDoArquivo`, `nomeSeguro`, `prepararDocumento` | (general) | 2 |
+| 4 | `extensao/documento.js` | Create | `decodificarXml`, `lerMetadados`, `caminhoDoDocumento`, `nomeDoArquivo`, `prepararDocumento` | (general) | None |
 | 5 | `extensao/adn.js` | Create | `interpretarResposta` e `buscarLote` | (general) | 2 |
 | 6 | `extensao/arquivos.js` | Create | `gravarArquivo` | (general) | None |
 | 7 | `extensao/cursor.js` | Create | `criarCursor` | (general) | None |
-| 8 | `extensao/sincronizar.js` | Create | `executarDownload` | (general) | 2, 4 |
+| 8 | `extensao/sincronizar.js` | Create | `executarDownload` e `travarExecucao` | (general) | 2, 4 |
 | 9 | `extensao/background.js` | Create | Clique no ícone abre o painel | (general) | 1 |
 | 10 | `extensao/sidepanel.html` | Create | Marcação da tela, sem script nem estilo embutido | (general) | 1 |
 | 11 | `extensao/estilo.css` | Create | Aparência da tela e da página de testes | (general) | 10 |
@@ -432,12 +432,15 @@ const resultado = interpretarResposta(resposta.status, texto);
 
 ### Pattern 6: Resultado de `interpretarResposta`
 
+As linhas valem nesta ordem: a primeira que casar decide.
+
 | Entrada | `tipo` |
 |---|---|
-| Código `E2220` ou `NENHUM_DOCUMENTO_LOCALIZADO`, em qualquer status | `fim` |
+| 429, 502, 503, 504, com qualquer corpo | `transitorio` |
+| 200 vazio, HTML ou JSON inválido | `transitorio` |
+| 404 com `E2220`; ou 200 ou 404 com `NENHUM_DOCUMENTO_LOCALIZADO` | `fim` |
 | 200 com `LoteDFe` vazio, sem `Erros` | `fim` |
 | 200 com `LoteDFe` com itens | `lote` |
-| 429, 502, 503, 504; 200 vazio, HTML ou JSON inválido | `transitorio` |
 | `E2245` ou `E2214` | `falha`, com a orientação ao aluno |
 | Qualquer outro caso, incluindo 404 sem `E2220` | `falha`, com o que foi recebido |
 
@@ -496,8 +499,8 @@ Durante a execução, só Parar fica ativo: `campo-cnpj`, `botao-pasta`, `botao-
 | `cnpjValido(cnpj)` | CNPJ normalizado | `true` ou `false`; recusa 14 zeros |
 | `decodificarXml(textoBase64)` | `ArquivoXml` | `Uint8Array`, ou erro |
 | `lerMetadados(bytes)` | XML | Objeto com `legivel`, `dCompet`, `dhEvento`, `dhProc`, `prestadores` e `tomadores`, estes dois em listas de CNPJ |
-| `nomeSeguro(texto)` | Texto | Texto sem caracteres inválidos nem nome reservado |
-| `nomeDoArquivo(cnpj, nsu, chave)` | Identificadores | Nome com até 80 caracteres |
+| `nomeDoArquivo(cnpj, nsu)` | CNPJ normalizado e NSU numérico | `<CNPJ>_<NSU>.xml` |
+| `travarExecucao(funcao)` | Função assíncrona | O resultado dela, ou `ocupado` sem executá-la, se outra tela da extensão estiver baixando |
 | `caminhoDoDocumento(item, metadados, cnpj)` | Item e metadados | Objeto com `grupo`, `pastas` (lista, como `2026` e `03` e `Emitidas`) e `nome` |
 | `prepararDocumento(item, cnpj)` | Item e CNPJ | Objeto com `bytes`, `grupo` e `caminho`, que tem `pastas` e `nome` |
 | `interpretarResposta(status, texto)` | Resposta HTTP | Objeto com `tipo` e `documentos` ou `motivo` |
@@ -506,12 +509,13 @@ Durante a execução, só Parar fica ativo: `campo-cnpj`, `botao-pasta`, `botao-
 | `criarCursor(armazenamento)` | `chrome.storage.local` ou simulado | Objeto com `ler(cnpj)` e `salvar(cnpj, nsu)`; a chave é `cursor:` mais o CNPJ, e o padrão é 0 |
 | `executarDownload(opcoes)` | `cnpj`, `cursor`, `buscarLote`, `gravar`, `deveParar`, `aoProgresso`, `esperar` | Objeto com `estado` (`em-dia`, `interrompido` ou `falhou`), `totais` e `motivo` |
 | `criarAmbiente(pedido)` | `sinal`, `aoTentar` | Ambiente real: `fetch`, `esperar`, `agendar`, `abrirAbaCertificado`, `sessao`, `sinal`, `aoTentar` |
-| `montarTela(raiz, dependencias)` | `escolherPasta`, `pedirPermissao`, `executar(pedido)`, `cursor` | Nada; `pedido` tem `cnpj`, `pasta`, `sinal`, `deveParar`, `aoProgresso` e `aoTentar` |
+| `montarTela(raiz, dependencias)` | `escolherPasta`, `pedirPermissao`, `travar`, `executar(pedido)`, `cursor` | Nada; `pedido` tem `cnpj`, `pasta`, `sinal`, `deveParar`, `aoProgresso` e `aoTentar` |
 
 Regras de ligação:
 - `ordenarPorNsu`, em `sincronizar.js`, converte cada item da API para `nsu` (número seguro), `chaveAcesso`, `tipoDocumento` e `arquivoXml`.
 - `totais` tem as chaves `Emitidas`, `Recebidas`, `Eventos`, `Outros`, `Sem-data` e `Já existiam`; um arquivo que já existia conta só em `Já existiam`.
 - `ambiente.sessao` guarda `houveResposta` e `abaAberta`, em memória. `ambiente.agendar(funcao, ms)` existe para o teste controlar o timeout.
+- `travarExecucao` usa `navigator.locks.request` com o nome `baixar-nfse` e a opção `ifAvailable`; a tela envolve a execução nela, depois de validar CNPJ e pasta.
 - `esperar(ms)` real encerra antes do prazo quando o sinal de parada dispara, conforme AT-408.
 - `sidepanel.js` só chama `montarTela` se existir `document.getElementById("tela")` ao carregar, para os testes poderem importar o módulo.
 
@@ -527,6 +531,7 @@ Cada caractere vale o código ASCII menos 48, então `0` a `9` valem 0 a 9 e `A`
 1. Clique em Baixar
    Normaliza e valida o CNPJ; sem CNPJ válido, nenhuma chamada.
    Confere a pasta e a permissão; sem elas, nenhuma chamada.
+   Pega a trava de execução; outra tela baixando, nenhuma chamada.
    │
    ▼
 2. Lê o cursor do CNPJ (0 se não houver)
@@ -550,7 +555,7 @@ Cada caractere vale o código ASCII menos 48, então `0` a `9` valem 0 a 9 e `A`
    c. Decodifica; erro -> Falhou com o NSU
    d. Lê metadados e define o grupo:
       Eventos | Emitidas | Recebidas | Outros | Sem-data
-   e. Grava em Ano/Mês/Grupo/<CNPJ>_<NSU>_<chave>.xml e aguarda close()
+   e. Grava em Ano/Mês/Grupo/<CNPJ>_<NSU>.xml e aguarda close()
       Arquivo igual já existe -> não grava | 0 byte -> grava | diferente ou erro -> Falhou com o NSU
    f. Atualiza totais (grupo, ou Já existiam)
    g. Salva o cursor; erro -> Falhou
@@ -569,7 +574,7 @@ Regras do passo 6d:
 - Nota: mês de `dCompet`. Grupo `Emitidas` se o CNPJ aparece em `emit` ou `prest`; senão `Recebidas` se aparece em `toma` ou `tomador`; senão `Outros`.
 - Sem data no formato `AAAA-MM`, com mês de 01 a 12: grupo `Sem-data`, gravado direto em `Sem-data/`.
 - A data é lida do texto, sem `new Date`, para o fuso não mudar o mês.
-- O nome tem até 80 caracteres e mantém CNPJ e NSU inteiros: só a chave de acesso é cortada para caber. Sem chave, fica `<CNPJ>_<NSU>.xml`.
+- O nome leva só CNPJ e NSU, porque a `ChaveAcesso` é opcional e mudaria o nome do mesmo documento. Os dois já são caracteres seguros: CNPJ validado e NSU numérico.
 
 ---
 
@@ -590,7 +595,7 @@ Regras do passo 6d:
 | Unit | CNPJ, nome seguro, classificação e `interpretarResposta` (AT-002 a AT-014, AT-201, AT-204 a AT-208) | `extensao/tests/testes.js` | `mini-teste.js` no Chrome | Testes do grupo aprovados |
 | Integration | `executarDownload` com rede e disco simulados e 100 notas fictícias: normal, Parar, falha de gravação, queda no 2º lote, 503, timeout e `E2245` no 1º lote (AT-101 a AT-108, AT-209) | `extensao/tests/testes.js`, `extensao/tests/simulados.js` | `mini-teste.js` no Chrome | Nenhuma nota faltando depois da execução seguinte |
 | Integration | `gravarArquivo` em disco real do navegador: bytes iguais, repetição sem cópia, recusa de bytes diferentes, falha em `close` seguida de nova execução e arquivo de 0 byte (AT-013, AT-015, AT-104, AT-106, AT-108, AT-109) | `extensao/tests/testes.js` | `navigator.storage.getDirectory` | Bytes lidos iguais aos gravados |
-| Integration | Tela com a marcação real e dependências simuladas (AT-002, AT-306, AT-401 a AT-404, AT-408) |
+| Integration | Tela com a marcação real e dependências simuladas (AT-002, AT-306, AT-401 a AT-404, AT-408, AT-409), com `navigator.locks` real no teste da trava |
 | Integration | Ligação real: `criarAmbiente` importado de `sidepanel.js` busca `../manifest.json` com o `fetch` do navegador (AT-407) | `extensao/tests/testes.js` | `fetch` real | O arquivo volta sem erro | `extensao/tests/testes.js` | DOM do navegador | Estado e botões conferidos |
 | Unit | Privacidade: manifesto, política de conteúdo e varredura do código (AT-301 a AT-305, AT-307) | `extensao/tests/testes.js` | `fetch` dos próprios arquivos | Grupo Lição 3 aprovado |
 | E2E / Verify Gate | Checklist `manual-ux` do DEFINE: três lições na página de testes, download real, repetição e queda de internet | `extensao/tests/testes.html` | Chrome e certificado do aluno | Checklist assinado |
@@ -609,6 +614,7 @@ Regras dos dados de teste:
 | Error Type | Detection | Handling Strategy | Retry? | Observability |
 |---|---|---|---|---|
 | CNPJ inválido | `cnpjValido` falso, inclusive todos os caracteres iguais a zero | "CNPJ inválido", sem chamada | No | Mensagem na tela |
+| Outra tela baixando | `travarExecucao` devolve `ocupado` | Mensagem pedindo para usar a outra tela, sem chamada | No | Mensagem na tela |
 | Pasta ausente ou permissão negada | Sem referência, `AbortError` ou `requestPermission` diferente de `granted` | Pede a pasta, sem chamada | No | Mensagem na tela |
 | Sem resposta do servidor | `fetch` rejeitado | Abre a aba do certificado uma vez, se não houve resposta desde que a tela abriu; depois, transitório | Yes | Mensagem de nova tentativa, com `erro.message` no motivo final |
 | Timeout | Limite de 120 s antes da primeira resposta desde que a tela abriu, 30 s depois | Transitório | Yes | Mensagem de nova tentativa |
@@ -636,7 +642,6 @@ Valores em `extensao/config.js`, sem arquivo externo.
 |---|---|---|---|---|
 | `URL_DFE` | texto | `https://adn.nfse.gov.br/contribuintes/DFe` | No | Endereço da API |
 | `URL_CERTIFICADO` | texto | `URL_DFE` mais `/0?lote=true` | No | Endereço da aba do certificado, sem CNPJ |
-| `TAMANHO_MAXIMO_NOME` | número | 80 | No | Limite do nome de arquivo |
 | `TENTATIVAS` | número | 5 | No | Máximo de tentativas por lote |
 | `ESPERA_BASE_MS` | número | 1000 | No | Primeira espera entre tentativas |
 | `FATOR_ESPERA` | número | 1.5 | No | Multiplicador a cada nova tentativa |
@@ -657,7 +662,7 @@ Os limites de tempo e de tentativas vêm do comportamento observado na ferrament
 - **Destinos de rede:** um único domínio em `host_permissions`, reforçado por `connect-src` na política de conteúdo, que também impede carregar imagem externa.
 - **Permissões:** só `storage` e `sidePanel`, sem `content_scripts`, `externally_connectable` ou `web_accessible_resources`.
 - **Conteúdo externo:** texto da API e do XML vai para a tela só por `textContent`; `innerHTML` é proibido na extensão, e a varredura da Lição 3 confere isso. Dados de nota nunca entram em endereço de aba.
-- **Nomes de arquivo:** o nome contém o CNPJ consultado e o NSU, para o mesmo NSU de outra empresa não usar o mesmo arquivo. `nomeSeguro` retira `\ / : * ? " < > |` e caracteres de controle, limita a 80 caracteres, retira ponto ou espaço no fim e evita nomes reservados do Windows. As pastas vêm só de números validados e de nomes fixos.
+- **Nomes de arquivo:** o nome é só o CNPJ validado e o NSU numérico, então nada vindo da API entra como texto livre no caminho. As pastas vêm só de números validados e de nomes fixos.
 - **Dado fiscal local:** o armazenamento tem só CNPJ e NSU. Os XML ficam na pasta do aluno, e a tela orienta a escolher uma pasta fora do repositório, para nenhuma nota real ir para o git.
 - **Registros:** `console` só com status e NSU, nunca conteúdo de nota.
 - **Código dinâmico:** sem `eval`, `new Function`, `importScripts`, `sendBeacon` ou `WebSocket`, conferido pela varredura.
@@ -686,7 +691,7 @@ Os limites de tempo e de tentativas vêm do comportamento observado na ferrament
 | AT-301 a AT-307 (MUST Lição 3) | `manifest.json`, Decision 4, Decision 7, `tela.js` | Grupo Lição 3 |
 | AT-401 a AT-404 (SHOULD Recomeçar e progresso) | `tela.js`, `cursor.js`, Decision 6 | Grupo Geral |
 | AT-405, AT-406, AT-407 | `sidepanel.js`, Decision 7, Pattern 5 | Verify Gate, download real, e testes de AT-406 e AT-407 |
-| AT-408 | `sidepanel.js`, `tela.js`, Pattern 9 | Grupo Geral |
+| AT-408, AT-409 | `sidepanel.js`, `tela.js`, `sincronizar.js`, Pattern 9 | Grupo Geral |
 | MUST Página de testes | `tests/`, Decision 5 | Verify Gate |
 
 ---
@@ -702,14 +707,19 @@ Os limites de tempo e de tentativas vêm do comportamento observado na ferrament
 | Certificado A3 com SafeSign falha no TLS | Aluno com esse token não usa a extensão | Limitação registrada; a orientação não inclui rebaixar TLS | Limitação da v1 |
 | Aluno escolhe a pasta dentro do repositório | Nota real pode ir para o git | Orientação na tela e alarme de commit da `sdd-higiene-dado` | O alarme não lê todo conteúdo de XML |
 | Notas de duas empresas na mesma pasta | Organização confusa, sem perda, porque o nome tem o CNPJ | Orientação na tela | Recusa automática adiada na revisão de governança |
-| Painel e aba abertos ao mesmo tempo baixando o mesmo CNPJ | Trabalho repetido e cursor que pode voltar | Nenhuma nota se perde: arquivos iguais só contam em "Já existiam". Orientação no README para usar uma tela só | Sem trava automática na v1 |
 | Download longo com o painel fechado | Execução para no meio | O cursor preserva o avanço; a execução seguinte continua | Nenhum |
 
 ---
 
 ## Advisor Ledger
 
-None — no formal external design review.
+Revisão adversarial externa de 2026-11-07, sobre o kit: revisor `gpt-6-astra`, auditor `qwen3.7-plus`, desempate `muse-spark-1.3`.
+
+| Nota | Origem | Estado | O que mudou |
+|---|---|---|---|
+| R1: `E2220` em qualquer status dava "Em dia" num 503 | Revisor e auditor concordam | APPLIED | Pattern 6 em ordem, com status transitório primeiro; `E2220` só encerra em 404 |
+| R2: limpeza depois de falha podia apagar arquivo confirmado por outra tela | Revisor; auditor discordou; desempate: procede | APPLIED | `travarExecucao` e AT-409: uma execução por vez |
+| R3: `ChaveAcesso` opcional mudava o nome do mesmo documento | Revisor; auditor discordou | APPLIED | Nome só com CNPJ e NSU, o que também eliminou `nomeSeguro` e o limite de tamanho |
 
 ---
 
@@ -718,6 +728,7 @@ None — no formal external design review.
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 1.0 | 2026-11-06 | SDD Design by RDD | Initial version |
+| 1.2 | 2026-11-07 | SDD Design by RDD | Revisão adversarial: R1, R2 e R3 aplicados |
 | 1.1 | 2026-11-07 | SDD Design by RDD | Achados do ensaio do build: gravação com arquivo de 0 byte, `fetch` envolvido, contratos entre módulos, cálculo do CNPJ, regras de desempate, `URL_CERTIFICADO` sem CNPJ, teste da ligação real e `iniciar.js` |
 
 ---

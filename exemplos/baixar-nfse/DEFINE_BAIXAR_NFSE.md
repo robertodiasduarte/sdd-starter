@@ -73,8 +73,8 @@ Coluna Gate: "testes" é verificado na página de testes da extensão; "real" é
 | AT-011 | Event-driven | **When** o CNPJ consultado não aparece como prestador nem como tomador (por exemplo, quando é intermediário), a extensão **shall** gravar a nota na pasta `Outros` do mês de `dCompet` e contá-la no resumo | manual-ux (testes) |
 | AT-012 | Unwanted | **If** o documento decodificado não tem data legível ou o XML está malformado, **then** a extensão **shall** gravar o conteúdo sem alteração em `Sem-data/` e contá-lo no resumo | manual-ux (testes) |
 | AT-013 | Ubiquitous | A extensão **shall** gravar exatamente os bytes do XML decodificado, sem reformatar | manual-ux (testes) |
-| AT-014 | Unwanted | **If** a `ChaveAcesso` contém caracteres inválidos em nome de arquivo, **then** a extensão **shall** gerar um nome seguro com até 80 caracteres, sem subir de pasta e sem nome reservado do Windows | manual-ux (testes) |
-| AT-015 | Ubiquitous | O nome do arquivo **shall** conter inteiros o CNPJ consultado e o NSU, de modo que o mesmo NSU em dois CNPJs nunca use o mesmo arquivo | manual-ux (testes) |
+| AT-014 | Unwanted | **If** a `ChaveAcesso` contém caracteres inválidos em nome de arquivo ou tenta subir de pasta, **then** a extensão **shall** ignorá-la no nome e no caminho, porque o nome do arquivo é só `<CNPJ>_<NSU>.xml` | manual-ux (testes) |
+| AT-015 | Ubiquitous | O nome do arquivo **shall** ser formado só pelo CNPJ consultado e pelo NSU, de modo que o mesmo documento use sempre o mesmo arquivo e o mesmo NSU em dois CNPJs nunca use o mesmo arquivo | manual-ux (testes) |
 | AT-101 | Event-driven | **When** o Chrome confirma a gravação de um documento (`close()`), a extensão **shall** salvar o NSU dele como cursor antes de gravar o documento seguinte | manual-ux (testes) |
 | AT-102 | Event-driven | **When** o lote vem fora de ordem ou com `NSU` em texto, a extensão **shall** gravar em ordem numérica crescente de NSU | manual-ux (testes) |
 | AT-103 | Unwanted | **If** a gravação de um documento falha, **then** a extensão **shall** parar, manter o cursor no documento anterior e não gravar os seguintes | manual-ux (testes) |
@@ -107,6 +107,7 @@ Coluna Gate: "testes" é verificado na página de testes da extensão; "real" é
 | AT-405 | Event-driven | **When** o aluno baixa as notas de uma empresa com o certificado dela ou da matriz, a extensão **shall** gravar os XML nas pastas e mostrar um total gravado igual à quantidade de XML numa pasta nova | manual-ux (real) |
 | AT-406 | Event-driven | **When** uma chamada falha sem resposta do servidor e ainda não houve resposta desde que a tela foi aberta, a extensão **shall** abrir o endereço da API, sem o CNPJ, numa aba em segundo plano para o Chrome pedir o certificado, fechar essa aba e tentar de novo | manual-ux (testes e real) |
 | AT-407 | Ubiquitous | A ligação real da tela (`sidepanel.js`) **shall** conseguir chamar o `fetch` do navegador, o que um teste comprova carregando essa ligação | manual-ux (testes) |
+| AT-409 | Unwanted | **If** já há um download em andamento em outra tela da extensão, **then** a extensão **shall** recusar iniciar outro, sem nenhuma chamada à API, e explicar o motivo | manual-ux (testes) |
 | AT-408 | State-driven | **While** a extensão espera uma nova tentativa ou o lote seguinte, um clique em Parar **shall** encerrar a espera em até 1 segundo e mostrar "Interrompido" | manual-ux (testes) |
 
 ---
@@ -144,6 +145,12 @@ Ensaio do build com um agente sem contexto (achados medidos em Chromium):
 - [x] (Terminology) "Sessão" tinha quatro leituras → vale "desde que a tela foi aberta", em memória, sem gravar nada; integrado em AT-406
 - [x] (Edge cases) NSU com caractere inválido não chega a virar nome de arquivo, porque falha antes por AT-208 → AT-014 fica só para a `ChaveAcesso`
 - [x] (Integrations) Aba do certificado com o CNPJ deixaria esse dado no histórico do Chrome → a aba abre o endereço sem o CNPJ; integrado em AT-406
+
+Revisão adversarial externa (revisor, auditor e desempate de outros fornecedores):
+
+- [x] (Integrations) `E2220` em qualquer status daria "Em dia" até num 503 → status transitório é avaliado antes de qualquer sinal de fim, e `E2220` só encerra em 404; integrado em Design, Pattern 6
+- [x] (Edge cases) Painel e aba baixando juntos: a limpeza depois de uma falha podia apagar um arquivo confirmado pela outra tela, com o cursor já adiante → uma execução por vez, com trava do navegador; integrado em AT-409
+- [x] (Data model) A `ChaveAcesso` é opcional e mudaria o nome do mesmo documento → o nome é só CNPJ e NSU; integrado em AT-014 e AT-015
 
 Varredura das nove categorias: Scope, Data model, UX flow, Integrations, Edge cases, Constraints, Terminology e Done signal estão `Clear`. NFRs está `Partial` sem bloquear, porque não há meta de tempo ou volume.
 
@@ -244,6 +251,7 @@ None - ready for Design.
 | 1.0 | 2026-11-06 | SDD Define by RDD | Initial version |
 | 1.1 | 2026-11-06 | SDD Define by RDD | Revisão de governança: AT-015, AT-108; AT-106, AT-201 e AT-402 reescritos |
 | 1.2 | 2026-11-07 | SDD Define by RDD | Achados do ensaio do build: AT-109, AT-407, AT-408; AT-014, AT-204, AT-205, AT-208, AT-302, AT-405 e AT-406 reescritos |
+| 1.3 | 2026-11-07 | SDD Define by RDD | Revisão adversarial: AT-409; AT-014 e AT-015 reescritos |
 
 ---
 

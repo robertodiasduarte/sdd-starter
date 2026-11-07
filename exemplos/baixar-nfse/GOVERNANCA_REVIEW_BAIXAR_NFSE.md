@@ -134,7 +134,7 @@ Versão do DEFINE depois da aplicação: 1.1.
 | G10 | AT-015 | — | 14/15 → 14/15 |
 | G12, parcial | — | AT-201: mostra o último NSU e avisa onde estão os anteriores. AT-402: conta "Já existiam" | 14/15 → 14/15 |
 
-Com G08 e G10, a decisão 10 do Brainstorm foi refinada: o nome do arquivo leva CNPJ e NSU, e bytes diferentes são recusados.
+Com G08 e G10, a decisão 10 do Brainstorm foi refinada: o nome do arquivo leva CNPJ e NSU, e bytes diferentes são recusados. Depois desta revisão, o ensaio do build acrescentou AT-109 para arquivo de 0 byte, e a revisão adversarial tirou a `ChaveAcesso` do nome, de modo que o limite de 80 caracteres citado acima deixou de ser necessário.
 
 ---
 

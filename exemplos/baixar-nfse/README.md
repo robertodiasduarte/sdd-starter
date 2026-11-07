@@ -30,7 +30,7 @@ Crie uma pasta nova, fora de iCloud, OneDrive, Dropbox ou Google Drive, e abra e
 
 ### 2. Coloque os três documentos na pasta `sdd`
 
-Baixe estes arquivos e salve-os em `sdd/`, sem mudar os nomes:
+Abra cada link abaixo no GitHub, clique no botão de baixar o arquivo bruto (**Download raw file**, a seta para baixo no alto do arquivo) e salve em `sdd/`, sem mudar o nome:
 
 - [BRAINSTORM_BAIXAR_NFSE.md](BRAINSTORM_BAIXAR_NFSE.md): por que construir e o que ficou de fora.
 - [DEFINE_BAIXAR_NFSE.md](DEFINE_BAIXAR_NFSE.md): o que precisa funcionar e como provar.
@@ -82,7 +82,7 @@ Recarregue a extensão em `chrome://extensions` e abra os testes de novo: a Liç
 ### 7. Baixe as notas de verdade
 
 1. No painel, digite o CNPJ da empresa.
-2. Clique em **Escolher pasta** e escolha uma pasta **nova e fora do projeto**, para nenhuma nota real ir para o git. Use uma pasta por empresa e só uma tela aberta por vez.
+2. Clique em **Escolher pasta** e escolha uma pasta **nova e fora do projeto**, para nenhuma nota real ir para o git. Use uma pasta por empresa.
 3. Clique em **Baixar**. Na primeira vez, o Chrome pede o certificado, e uma aba pode aparecer e sumir sozinha.
 4. Ao final, confira o resumo. As notas ficam em pastas como `2026/03/Emitidas`, além de `Recebidas`, `Eventos` ou `Outros`, e em `Sem-data` quando o XML não traz uma data legível. Para conferir o total, busque por `.xml` na pasta, no Finder ou no Explorador de Arquivos, e compare a quantidade com o total gravado.
 5. Clique em **Baixar** de novo. A tela deve mostrar **Em dia**, sem arquivo novo.
@@ -100,6 +100,7 @@ Com isso, você confirma para o agente os itens do Verify Gate, e ele fecha o re
 | "Falhou" com certificado sem procuração | Feche o Chrome inteiro, abra de novo e escolha o certificado certo |
 | "Falhou" com instabilidade do servidor | Rode de novo mais tarde. A extensão continua de onde parou |
 | "Falhou" com arquivo diferente | A extensão não troca uma nota já guardada. Compare os dois XML antes de decidir, ou baixe em outra pasta |
+| "Já há um download em andamento" | Termine ou pare o download na outra tela da extensão |
 | Um teste reprovado | Clique em **Copiar resultado**, cole para o seu agente e peça para corrigir o código, sem mudar o teste |
 | O console mostra 2 avisos de `style-src-attr` na página de testes | É esperado: vem do teste que lê um XML malformado |
 | Quero baixar tudo de novo em outra pasta | Escolha a pasta e use **Recomeçar do início** |
