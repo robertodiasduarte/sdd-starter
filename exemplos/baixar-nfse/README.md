@@ -46,14 +46,15 @@ Execute o SDD Build by RDD para a feature BAIXAR_NFSE.
 Os documentos estão em sdd/: BRAINSTORM_BAIXAR_NFSE.md, DEFINE_BAIXAR_NFSE.md e DESIGN_BAIXAR_NFSE.md. Leia os três antes de começar.
 
 Regras desta construção:
-- Crie somente os arquivos do File Manifest, todos dentro de extensao/.
+- Crie somente os arquivos do File Manifest, todos dentro de extensao/. O relatório do build fica em sdd/.
 - Não instale Node, npm nem biblioteca nenhuma.
-- Nunca usei terminal: quando eu precisar fazer algo no Chrome, me passe um passo por vez e diga o que devo ver na tela.
-- No Verify Gate, me mostre o checklist um item por vez, espere a minha confirmação e registre o resultado no BUILD_REPORT.
+- Use o modo de execução default, sem revisão externa, e não me pergunte sobre isso.
+- Nunca usei terminal e você não enxerga o meu Chrome: quando eu precisar fazer algo nele, me passe um passo por vez e diga o que devo ver na tela. Se um teste reprovar, peça que eu copie o resultado da página de testes.
+- No Verify Gate, me mostre o checklist um item por vez, espere a minha confirmação e registre o resultado no BUILD_REPORT, sem CNPJ real.
 - Não use nenhum dado real de nota, CNPJ de cliente ou certificado em arquivo do projeto.
 ```
 
-O agente vai perguntar como prefere executar. Aceite a recomendação dele se estiver em dúvida. Ao final desta etapa, a pasta `extensao/` estará pronta.
+Ao final desta etapa, a pasta `extensao/` estará pronta. O relatório do build só fecha depois que você confirmar os testes e o download real, nos passos seguintes. Sem certificado, ele fica como bloqueado, e tudo bem: as lições continuam provadas pelos testes.
 
 ### 4. Carregue a extensão no Chrome
 
@@ -64,9 +65,9 @@ O agente vai perguntar como prefere executar. Aceite a recomendação dele se es
 
 ### 5. Rode os testes das lições
 
-No painel, clique em **Abrir testes**. Uma aba mostra os grupos Lição 1, Lição 2, Lição 3 e Geral. O resultado esperado é a linha com todos os testes aprovados, por exemplo "45 de 45 aprovados". O número exato pode variar.
+No painel, clique em **Abrir testes**. Uma aba mostra os grupos Lição 1, Lição 2, Lição 3 e Geral. O resultado esperado é a linha com todos os testes aprovados, por exemplo "80 de 80 aprovados". O número exato pode variar.
 
-Esses testes não usam internet nem certificado: a rede e as falhas são simuladas, com notas fictícias.
+Esses testes não usam internet nem certificado: a rede e as falhas são simuladas, com notas fictícias. Se algo reprovar, clique em **Copiar resultado**, cole para o seu agente e, depois da correção, recarregue a extensão em `chrome://extensions`, no ícone de seta circular do cartão.
 
 ### 6. Prove que os testes testam
 
@@ -81,9 +82,9 @@ Recarregue a extensão em `chrome://extensions` e abra os testes de novo: a Liç
 ### 7. Baixe as notas de verdade
 
 1. No painel, digite o CNPJ da empresa.
-2. Clique em **Escolher pasta** e escolha uma pasta **fora do projeto**, para nenhuma nota real ir para o git. Use uma pasta por empresa.
+2. Clique em **Escolher pasta** e escolha uma pasta **nova e fora do projeto**, para nenhuma nota real ir para o git. Use uma pasta por empresa e só uma tela aberta por vez.
 3. Clique em **Baixar**. Na primeira vez, o Chrome pede o certificado, e uma aba pode aparecer e sumir sozinha.
-4. Ao final, confira o resumo. As notas ficam em `Ano/Mês/Emitidas`, `Recebidas`, `Eventos` ou `Outros`, e em `Sem-data` quando o XML não traz uma data legível.
+4. Ao final, confira o resumo. As notas ficam em pastas como `2026/03/Emitidas`, além de `Recebidas`, `Eventos` ou `Outros`, e em `Sem-data` quando o XML não traz uma data legível. Para conferir o total, busque por `.xml` na pasta, no Finder ou no Explorador de Arquivos, e compare a quantidade com o total gravado.
 5. Clique em **Baixar** de novo. A tela deve mostrar **Em dia**, sem arquivo novo.
 6. Desligue a internet e clique em **Baixar**. A tela deve mostrar **Falhou**, nunca "Em dia".
 
@@ -95,10 +96,12 @@ Com isso, você confirma para o agente os itens do Verify Gate, e ele fecha o re
 |---|---|
 | Erro ao carregar a extensão | Confira se escolheu a pasta `extensao`, que contém o `manifest.json` |
 | O seletor de pasta não abre no painel | Clique em **Abrir em uma aba** e repita lá |
+| O Chrome não pediu o certificado | Abra o endereço indicado na mensagem numa aba, escolha o certificado e clique em **Baixar** de novo |
 | "Falhou" com certificado sem procuração | Feche o Chrome inteiro, abra de novo e escolha o certificado certo |
 | "Falhou" com instabilidade do servidor | Rode de novo mais tarde. A extensão continua de onde parou |
 | "Falhou" com arquivo diferente | A extensão não troca uma nota já guardada. Compare os dois XML antes de decidir, ou baixe em outra pasta |
-| Um teste reprovado | Mostre ao seu agente a linha reprovada e peça para corrigir o código, sem mudar o teste |
+| Um teste reprovado | Clique em **Copiar resultado**, cole para o seu agente e peça para corrigir o código, sem mudar o teste |
+| O console mostra 2 avisos de `style-src-attr` na página de testes | É esperado: vem do teste que lê um XML malformado |
 | Quero baixar tudo de novo em outra pasta | Escolha a pasta e use **Recomeçar do início** |
 
 ## O que este exemplo não faz

@@ -50,7 +50,7 @@ Contador ou empresa precisa dos XML das NFS-e nacionais, emitidas e recebidas, n
 - [ ] O manifesto tem exatamente 1 domínio em `host_permissions`, e 0 URL fora de `adn.nfse.gov.br` no código da extensão.
 - [ ] Em 100% dos documentos simulados, o arquivo gravado é byte a byte igual ao XML decodificado.
 - [ ] Em 100% dos cenários simulados com arquivo existente de bytes diferentes, o arquivo original fica intacto e a tela mostra "Falhou".
-- [ ] No download real, o total do resumo é igual à soma dos arquivos gravados por esta execução.
+- [ ] No download real, numa pasta nova, o total gravado do resumo é igual à quantidade de XML na pasta.
 
 ---
 
@@ -73,7 +73,7 @@ Coluna Gate: "testes" é verificado na página de testes da extensão; "real" é
 | AT-011 | Event-driven | **When** o CNPJ consultado não aparece como prestador nem como tomador (por exemplo, quando é intermediário), a extensão **shall** gravar a nota na pasta `Outros` do mês de `dCompet` e contá-la no resumo | manual-ux (testes) |
 | AT-012 | Unwanted | **If** o documento decodificado não tem data legível ou o XML está malformado, **then** a extensão **shall** gravar o conteúdo sem alteração em `Sem-data/` e contá-lo no resumo | manual-ux (testes) |
 | AT-013 | Ubiquitous | A extensão **shall** gravar exatamente os bytes do XML decodificado, sem reformatar | manual-ux (testes) |
-| AT-014 | Unwanted | **If** o `NSU` ou a `ChaveAcesso` contém caracteres inválidos em nome de arquivo, **then** a extensão **shall** gerar um nome seguro com até 80 caracteres, sem subir de pasta e sem nome reservado do Windows | manual-ux (testes) |
+| AT-014 | Unwanted | **If** a `ChaveAcesso` contém caracteres inválidos em nome de arquivo, **then** a extensão **shall** gerar um nome seguro com até 80 caracteres, sem subir de pasta e sem nome reservado do Windows | manual-ux (testes) |
 | AT-015 | Ubiquitous | O nome do arquivo **shall** conter inteiros o CNPJ consultado e o NSU, de modo que o mesmo NSU em dois CNPJs nunca use o mesmo arquivo | manual-ux (testes) |
 | AT-101 | Event-driven | **When** o Chrome confirma a gravação de um documento (`close()`), a extensão **shall** salvar o NSU dele como cursor antes de gravar o documento seguinte | manual-ux (testes) |
 | AT-102 | Event-driven | **When** o lote vem fora de ordem ou com `NSU` em texto, a extensão **shall** gravar em ordem numérica crescente de NSU | manual-ux (testes) |
@@ -83,17 +83,18 @@ Coluna Gate: "testes" é verificado na página de testes da extensão; "real" é
 | AT-106 | Event-driven | **When** um documento já gravado é baixado de novo com os mesmos bytes, a extensão **shall** manter o arquivo existente, sem criar cópia, avançar o cursor e contá-lo em "Já existiam" | manual-ux (testes) |
 | AT-107 | Unwanted | **If** o `ArquivoXml` não decodifica nem como gzip nem como texto, **then** a extensão **shall** parar, manter o cursor no documento anterior e mostrar o NSU do documento | manual-ux (testes) |
 | AT-108 | Unwanted | **If** já existe arquivo com bytes diferentes no caminho do documento, **then** a extensão **shall** recusar a gravação, manter o arquivo intacto, manter o cursor no documento anterior e mostrar "Falhou" com o NSU e o caminho | manual-ux (testes) |
+| AT-109 | Unwanted | **If** o arquivo existente no caminho do documento tem 0 byte, **then** a extensão **shall** tratá-lo como resto de gravação interrompida e gravar o documento nele, sem acusar diferença | manual-ux (testes) |
 | AT-201 | Event-driven | **When** a API responde 404 com `E2220`, `NENHUM_DOCUMENTO_LOCALIZADO` ou lote vazio, a extensão **shall** mostrar "Em dia" com o resumo da execução, o último NSU baixado e o aviso de que documentos anteriores estão na pasta usada naquela ocasião | manual-ux (testes) |
 | AT-202 | Ubiquitous | A extensão **shall** mostrar "Em dia" somente no caso de AT-201 | manual-ux (testes) |
 | AT-203 | Event-driven | **When** o aluno clica em Parar, a extensão **shall** mostrar "Interrompido" com o total gravado | manual-ux (testes) |
-| AT-204 | Unwanted | **If** a resposta é 429, 502, 503, 504, timeout, erro de rede ou 200 com corpo HTML ou vazio, **then** a extensão **shall** tentar de novo com espera crescente, até 5 tentativas | manual-ux (testes) |
-| AT-205 | Unwanted | **If** as 5 tentativas se esgotam, **then** a extensão **shall** mostrar "Falhou" com o motivo e a orientação de rodar de novo, sem mudar o cursor | manual-ux (testes) |
+| AT-204 | Unwanted | **If** a resposta é 429, 502, 503, 504, timeout, erro de rede ou 200 com corpo HTML, vazio ou JSON inválido, **then** a extensão **shall** tentar de novo com espera crescente, até 5 tentativas | manual-ux (testes) |
+| AT-205 | Unwanted | **If** as 5 tentativas se esgotam, **then** a extensão **shall** mostrar "Falhou" com o motivo e a orientação de rodar de novo, mantendo o cursor no último documento gravado | manual-ux (testes) |
 | AT-206 | Unwanted | **If** a API responde `E2245`, **then** a extensão **shall** mostrar "Falhou" sem nova tentativa, explicar que o certificado não tem procuração e orientar a fechar o Chrome inteiro para trocar de certificado | manual-ux (testes) |
 | AT-207 | Unwanted | **If** a API responde `E2214`, **then** a extensão **shall** mostrar "Falhou" sem nova tentativa e explicar que o certificado é inválido para a transmissão | manual-ux (testes) |
-| AT-208 | Unwanted | **If** a resposta é de um formato desconhecido, traz `REJEICAO` com outro código ou um NSU que não avança em relação ao cursor, **then** a extensão **shall** mostrar "Falhou" com o que recebeu, sem tratar como fim e sem mudar o cursor | manual-ux (testes) |
+| AT-208 | Unwanted | **If** a resposta é um JSON sem os campos esperados, traz `REJEICAO` com outro código, combina um sinal de fim com documentos ou com outro erro, ou traz um NSU que não avança em relação ao cursor, **then** a extensão **shall** mostrar "Falhou" com o que recebeu, sem tratar como fim, mantendo o cursor no último documento gravado | manual-ux (testes) |
 | AT-209 | Unwanted | **If** uma falha acontece depois de lotes já gravados, **then** a extensão **shall** mostrar "Falhou" com o total já gravado, e não uma mensagem de conclusão | manual-ux (testes) |
 | AT-301 | Ubiquitous | O manifesto **shall** declarar somente `https://adn.nfse.gov.br/*` em `host_permissions`, somente `storage` e `sidePanel` em `permissions`, e nenhum `content_scripts` ou `externally_connectable` | manual-ux (testes) |
-| AT-302 | Ubiquitous | O código da extensão fora da pasta de testes **shall** conter somente URLs de `adn.nfse.gov.br` e nenhum uso de `eval`, `new Function`, `importScripts`, `sendBeacon` ou `WebSocket` | manual-ux (testes) |
+| AT-302 | Ubiquitous | O código da extensão fora da pasta de testes **shall** conter somente URLs de `adn.nfse.gov.br` e nenhum uso de `eval`, `new Function`, `innerHTML`, `importScripts`, `sendBeacon` ou `WebSocket` | manual-ux (testes) |
 | AT-303 | Ubiquitous | A extensão **shall** chamar somente `adn.nfse.gov.br` em todos os cenários simulados | manual-ux (testes) |
 | AT-304 | Ubiquitous | A extensão **shall** não oferecer campo de senha nem de arquivo de certificado, e **shall** deixar a escolha do certificado com o Chrome | manual-ux (testes) |
 | AT-305 | Ubiquitous | O armazenamento da extensão **shall** guardar somente cursores por CNPJ, nunca o conteúdo de nota | manual-ux (testes) |
@@ -103,8 +104,10 @@ Coluna Gate: "testes" é verificado na página de testes da extensão; "real" é
 | AT-402 | Event-driven | **When** a execução termina, a extensão **shall** mostrar um único estado final e o total por `Emitidas`, `Recebidas`, `Eventos`, `Outros`, `Sem-data` e `Já existiam` | manual-ux (testes) |
 | AT-403 | Unwanted | **If** o aluno não concede a permissão da pasta, **then** a extensão **shall** não fazer nenhuma chamada à API e pedir a pasta de novo | manual-ux (testes) |
 | AT-404 | Event-driven | **When** o aluno confirma "Recomeçar do início", a extensão **shall** voltar o cursor daquele CNPJ para 0; sem a confirmação, **shall** manter o cursor | manual-ux (testes) |
-| AT-405 | Event-driven | **When** o aluno baixa as notas de uma empresa com o certificado dela ou da matriz, a extensão **shall** gravar os XML nas pastas e mostrar um total igual à soma dos arquivos gravados nessa execução | manual-ux (real) |
-| AT-406 | Event-driven | **When** a primeira chamada falha sem resposta do servidor nesta sessão do navegador, a extensão **shall** abrir o endereço da API numa aba em segundo plano para o Chrome pedir o certificado, fechar essa aba e tentar de novo | manual-ux (real) |
+| AT-405 | Event-driven | **When** o aluno baixa as notas de uma empresa com o certificado dela ou da matriz, a extensão **shall** gravar os XML nas pastas e mostrar um total gravado igual à quantidade de XML numa pasta nova | manual-ux (real) |
+| AT-406 | Event-driven | **When** uma chamada falha sem resposta do servidor e ainda não houve resposta desde que a tela foi aberta, a extensão **shall** abrir o endereço da API, sem o CNPJ, numa aba em segundo plano para o Chrome pedir o certificado, fechar essa aba e tentar de novo | manual-ux (testes e real) |
+| AT-407 | Ubiquitous | A ligação real da tela (`sidepanel.js`) **shall** conseguir chamar o `fetch` do navegador, o que um teste comprova carregando essa ligação | manual-ux (testes) |
+| AT-408 | State-driven | **While** a extensão espera uma nova tentativa ou o lote seguinte, um clique em Parar **shall** encerrar a espera em até 1 segundo e mostrar "Interrompido" | manual-ux (testes) |
 
 ---
 
@@ -126,12 +129,21 @@ O mantenedor autorizou seguir sem novas paradas. Os itens marcados como "propost
 - [x] (Integrations) O que a documentação oficial confirma? → O Manual dos Contribuintes do ADN v1.0, de 12/02/2026, confirma `GET /DFe/{NSU}`, o parâmetro de CNPJ de consulta com validação do CNPJ raiz do certificado e que o contribuinte pode figurar como emitente, tomador ou intermediário. Ele não detalha a resposta nem os códigos de erro, que continuam como hipótese em A-001 a A-004; integrado em Assumptions
 - [x] (Data model) A extensão guarda a pasta escolhida? → Não, proposta do agente: o aluno escolhe a pasta a cada abertura do painel, o que evita guardar referência em banco local e tratar permissão vencida. O cursor continua por CNPJ; integrado em AT-305
 
-Revisão de governança (`GOVERNANCA_REVIEW_BAIXAR_NFSE.md`), com decisões tomadas pelo agente sob a autorização do mantenedor para seguir sem paradas:
+Revisão de governança (`GOVERNANCA_REVIEW_BAIXAR_NFSE.md`, na pasta do exemplo no GitHub; o build não precisa dele), com decisões tomadas pelo agente sob a autorização do mantenedor para seguir sem paradas:
 
 - [x] (Edge cases) G08: nota já gravada pode ser trocada em silêncio? → Não: recusar quando os bytes divergem. Registro de SHA-256 adiado; integrado em AT-106 e AT-108
 - [x] (Data model) G10: o que identifica um arquivo? → CNPJ consultado e NSU, porque cada CNPJ tem sequência própria; integrado em AT-015
 - [x] (UX flow) G12, parcial: "Em dia" engana quando a pasta foi trocada? → A tela mostra o último NSU e avisa onde estão os documentos anteriores. A conciliação fica para depois; integrado em AT-201
 - [x] (Scope) G04 e G13: registro por execução e recusa de misturar CNPJs numa pasta? → Adiados, com o risco registrado no relatório: não evitam perda de nota depois de AT-015 e AT-108; integrado em Out of Scope
+
+Ensaio do build com um agente sem contexto (achados medidos em Chromium):
+
+- [x] (Edge cases) Arquivo de 0 byte: `getFileHandle` com criação já deixa um arquivo vazio antes de `close()`, e a recusa de bytes diferentes travaria o CNPJ depois de qualquer falha de gravação → 0 byte é tratado como ausente; integrado em AT-109
+- [x] (Integrations) A ligação real não tinha teste, e o painel podia falhar em toda execução com a página de testes verde → teste que carrega `sidepanel.js`; integrado em AT-407
+- [x] (UX flow) Parar durante uma espera demorava até 60 s → Parar encerra a espera; integrado em AT-408
+- [x] (Terminology) "Sessão" tinha quatro leituras → vale "desde que a tela foi aberta", em memória, sem gravar nada; integrado em AT-406
+- [x] (Edge cases) NSU com caractere inválido não chega a virar nome de arquivo, porque falha antes por AT-208 → AT-014 fica só para a `ChaveAcesso`
+- [x] (Integrations) Aba do certificado com o CNPJ deixaria esse dado no histórico do Chrome → a aba abre o endereço sem o CNPJ; integrado em AT-406
 
 Varredura das nove categorias: Scope, Data model, UX flow, Integrations, Edge cases, Constraints, Terminology e Done signal estão `Clear`. NFRs está `Partial` sem bloquear, porque não há meta de tempo ou volume.
 
@@ -145,7 +157,7 @@ verify_gate:
   cmd: "N/A (manual-ux)"
   pass_when: "checklist signed"
   threshold: "—"
-  manual_fallback: "Eu abri a página de testes da extensão e vi a Lição 1 (cursor só avança com gravação confirmada) com todos os testes aprovados. Eu abri a página de testes e vi a Lição 2 (falha nunca aparece como sucesso) com todos os testes aprovados. Eu abri a página de testes e vi a Lição 3 (privacidade por desenho) e o grupo Geral com todos os testes aprovados. Eu baixei as notas de uma empresa com o certificado dela e vi os XML nas pastas Ano/Mês, com o total do resumo igual à soma dos arquivos. Eu rodei de novo e vi 'Em dia' sem arquivo novo, depois desliguei a internet, rodei mais uma vez e vi 'Falhou', nunca 'Em dia'."
+  manual_fallback: "Eu abri a página de testes da extensão e vi a Lição 1 (cursor só avança com gravação confirmada) com todos os testes aprovados. Eu abri a página de testes e vi a Lição 2 (falha nunca aparece como sucesso) com todos os testes aprovados. Eu abri a página de testes e vi a Lição 3 (privacidade por desenho) e o grupo Geral com todos os testes aprovados. Eu baixei numa pasta nova as notas de uma empresa com o certificado dela ou da matriz e vi os XML nas pastas Ano/Mês, com o total gravado do resumo igual à quantidade de XML que a busca do meu sistema achou na pasta. Eu rodei de novo e vi 'Em dia' sem arquivo novo, depois desliguei a internet, rodei mais uma vez e vi 'Falhou', nunca 'Em dia'."
 ```
 
 ---
@@ -199,8 +211,8 @@ verify_gate:
 | A-004 | Os erros `E2245` e `E2214` vêm em `Erros[]` com `Codigo`, `Descricao` e `Mensagem` | A mensagem cairia no caso desconhecido de AT-208, ainda como falha | no |
 | A-005 | O seletor de pasta funciona dentro do painel lateral | O aluno abre a mesma tela numa aba da extensão, pelo link do próprio painel | no |
 | A-006 | O ADN aceita CNPJ alfanumérico em `cnpjConsulta`, com o mesmo nome de parâmetro | A API recusaria, e a extensão mostraria "Falhou" com o motivo | no |
-| A-007 | Abrir o endereço da API numa aba em segundo plano faz o Chrome pedir o certificado | O aluno precisaria abrir o endereço à mão; o download real revela | no |
-| A-008 | O aluno tem um certificado instalado e uma empresa com notas | Sem isso, os dois itens de download real do Verify Gate ficam pendentes, e as lições continuam provadas pela página de testes | yes |
+| A-007 | Abrir o endereço da API numa aba em segundo plano faz o Chrome mostrar o seletor de certificado | O seletor pode não aparecer e a aba fechar em 60 s; a tela orienta a abrir o endereço à mão. O download real revela | no |
+| A-008 | O aluno tem um certificado instalado e uma empresa com notas | Sem isso, o build fica bloqueado no Verify Gate, com os itens de download real pendentes; as lições continuam provadas pela página de testes | yes |
 
 ---
 
@@ -231,6 +243,7 @@ None - ready for Design.
 |---|---|---|---|
 | 1.0 | 2026-11-06 | SDD Define by RDD | Initial version |
 | 1.1 | 2026-11-06 | SDD Define by RDD | Revisão de governança: AT-015, AT-108; AT-106, AT-201 e AT-402 reescritos |
+| 1.2 | 2026-11-07 | SDD Define by RDD | Achados do ensaio do build: AT-109, AT-407, AT-408; AT-014, AT-204, AT-205, AT-208, AT-302, AT-405 e AT-406 reescritos |
 
 ---
 
