@@ -189,7 +189,7 @@ Contador ou empresa precisa dos XML das NFS-e nacionais, emitidas e recebidas, n
 - Chrome MV3, versão 120 ou superior (`DecompressionStream` e File System Access).
 - Sem backend; o certificado nunca é lido nem guardado.
 - Permissões mínimas, com um único domínio em `host_permissions`.
-- Nomes de arquivo seguros: sem caracteres inválidos, até 80 caracteres e sem nomes reservados do Windows.
+- Nomes de arquivo seguros. Refinado no Define: o nome é só CNPJ e NSU, o que já evita caracteres inválidos.
 - Nenhum dado real de nota, CNPJ de cliente ou certificado no kit.
 - Dependência: certificado instalado no Chrome e ADN disponível.
 - Lacuna: os fatos da API foram lidos de código, não de respostas reais; a confirmação depende do teste manual com certificado.

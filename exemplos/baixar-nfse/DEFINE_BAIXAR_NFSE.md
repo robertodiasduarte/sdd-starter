@@ -107,8 +107,8 @@ Coluna Gate: "testes" é verificado na página de testes da extensão; "real" é
 | AT-405 | Event-driven | **When** o aluno baixa as notas de uma empresa com o certificado dela ou da matriz, a extensão **shall** gravar os XML nas pastas e mostrar um total gravado igual à quantidade de XML numa pasta nova | manual-ux (real) |
 | AT-406 | Event-driven | **When** uma chamada falha sem resposta do servidor e ainda não houve resposta desde que a tela foi aberta, a extensão **shall** abrir o endereço da API, sem o CNPJ, numa aba em segundo plano para o Chrome pedir o certificado, fechar essa aba e tentar de novo | manual-ux (testes e real) |
 | AT-407 | Ubiquitous | A ligação real da tela (`sidepanel.js`) **shall** conseguir chamar o `fetch` do navegador, o que um teste comprova carregando essa ligação | manual-ux (testes) |
-| AT-409 | Unwanted | **If** já há um download em andamento em outra tela da extensão, **then** a extensão **shall** recusar iniciar outro, sem nenhuma chamada à API, e explicar o motivo | manual-ux (testes) |
 | AT-408 | State-driven | **While** a extensão espera uma nova tentativa, o lote seguinte ou a aba do certificado, um clique em Parar **shall** encerrar a espera em até 1 segundo e mostrar "Interrompido" | manual-ux (testes) |
+| AT-409 | Unwanted | **If** já há um download em andamento em outra tela da extensão, **then** a extensão **shall** recusar iniciar outro, sem nenhuma chamada à API, e explicar o motivo | manual-ux (testes) |
 
 ---
 

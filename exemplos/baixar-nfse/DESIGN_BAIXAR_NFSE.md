@@ -441,17 +441,19 @@ As linhas valem nesta ordem: a primeira que casar decide.
 
 | Entrada | `tipo` |
 |---|---|
-| 429, 502, 503, 504, com qualquer corpo | `transitorio` |
+| 429, 502, 503, 504, com qualquer corpo, mesmo com `E2245` | `transitorio` |
 | 200 vazio, HTML ou JSON inválido | `transitorio` |
-| 404 com `E2220`; ou 200 ou 404 com `NENHUM_DOCUMENTO_LOCALIZADO` | `fim` |
-| 200 com `LoteDFe` vazio, sem `Erros` e sem `REJEICAO` | `fim` |
-| 200 com `LoteDFe` com itens | `lote` |
-| `E2245` ou `E2214` | `falha`, com a orientação ao aluno |
+| `E2245` ou `E2214`, em qualquer outro status e mesmo com documentos | `falha`, com a orientação ao aluno |
+| `REJEICAO`, ou `Erros` com código diferente de `E2220`, mesmo com documentos | `falha`, com o que foi recebido |
+| Sinal de fim junto de documentos | `falha`, com o que foi recebido |
+| 404 com `E2220`, sem documentos | `fim` |
+| 200 ou 404 com `NENHUM_DOCUMENTO_LOCALIZADO`, sem documentos | `fim` |
+| 200 com `LoteDFe` vazio | `fim` |
+| 200 com documentos em `LoteDFe` | `lote` |
 | Qualquer outro caso, incluindo 404 sem `E2220` | `falha`, com o que foi recebido |
 
-Regras de desempate, para nenhuma combinação descartar nota:
-- Sinal de fim junto de documentos ou de outro código de erro é `falha`.
-- Com itens em `LoteDFe`, vale qualquer `StatusProcessamento`, menos `REJEICAO`, porque o valor de sucesso não está documentado.
+Regras complementares:
+- O valor de `StatusProcessamento` em caso de sucesso não está documentado, então a extensão não exige um valor específico: só `REJEICAO` e `NENHUM_DOCUMENTO_LOCALIZADO` mudam a decisão.
 - `Erros` é lido nas chaves `Codigo` e `Descricao`; se `Descricao` estiver vazia, usa-se `Mensagem`.
 - `interpretarResposta` não vê cabeçalhos: `buscarLote` lê `Retry-After`, aceito só em segundos; outro formato usa a espera calculada.
 - A tentativa que abre a aba do certificado conta entre as 5 e não tem espera depois.
@@ -520,7 +522,7 @@ Durante a execução, só Parar fica ativo: `campo-cnpj`, `botao-pasta`, `botao-
 Regras de ligação:
 - `ordenarPorNsu`, em `sincronizar.js`, converte cada item da API para `nsu` (número seguro), `chaveAcesso`, `tipoDocumento` e `arquivoXml`.
 - `totais` tem as chaves `Emitidas`, `Recebidas`, `Eventos`, `Outros`, `Sem-data` e `Já existiam`; um arquivo que já existia conta só em `Já existiam`.
-- `ambiente.sessao` guarda `houveResposta` e `abaAberta`, em memória. É uma constante do módulo `sidepanel.js`, não criada em `criarAmbiente`, que roda a cada execução: senão a aba abriria a cada download.
+- `ambiente.sessao` guarda `houveResposta`, `abaAberta` e `primeiraFeita`, em memória; esta última faz os 120 s valerem só uma vez desde que a tela abriu. É uma constante do módulo `sidepanel.js`, não criada em `criarAmbiente`, que roda a cada execução: senão a aba abriria a cada download.
 - `ambiente.agendar(funcao, ms)` existe para o teste controlar o timeout e devolve uma função que cancela. `ambiente.aoTentar(numero, total, motivo)` informa a nova tentativa.
 - `abrirAbaCertificado` consulta o estado da aba a cada `INTERVALO_ABA_MS` e, se Parar for clicado, encerra e fecha a aba.
 - `travarExecucao` usa `navigator.locks.request` com o nome `baixar-nfse` e a opção `ifAvailable`; a tela envolve a execução nela, depois de validar CNPJ e pasta.
@@ -600,10 +602,10 @@ Regras do passo 6d:
 
 | Test Type | Scope / Requirement | Files | Tools | Pass Signal |
 |---|---|---|---|---|
-| Unit | CNPJ, nome seguro, classificação e `interpretarResposta` (AT-002 a AT-014, AT-201, AT-204 a AT-208) | `extensao/tests/testes.js` | `mini-teste.js` no Chrome | Testes do grupo aprovados |
+| Unit | CNPJ, nome do arquivo, classificação e `interpretarResposta` (AT-002 a AT-014, AT-201, AT-204 a AT-208) | `extensao/tests/testes.js` | `mini-teste.js` no Chrome | Testes do grupo aprovados |
 | Integration | `executarDownload` com rede e disco simulados e 100 notas fictícias: normal, Parar, falha de gravação, queda no 2º lote, 503, timeout e `E2245` no 1º lote (AT-101 a AT-108, AT-209) | `extensao/tests/testes.js`, `extensao/tests/simulados.js` | `mini-teste.js` no Chrome | Nenhuma nota faltando depois da execução seguinte |
 | Integration | `gravarArquivo` em disco real do navegador: bytes iguais, repetição sem cópia, recusa de bytes diferentes, falha em `close` ou `write` seguida de nova execução, injetada envolvendo os handles reais, e arquivo de 0 byte (AT-013, AT-015, AT-104, AT-106, AT-108, AT-109) | `extensao/tests/testes.js` | `navigator.storage.getDirectory` | Bytes lidos iguais aos gravados |
-| Integration | Tela com a marcação real e dependências simuladas (AT-002, AT-306, AT-401 a AT-404, AT-408, AT-409), com `navigator.locks` real no teste da trava | `extensao/tests/testes.js` | DOM do navegador | Estado e botões conferidos |
+| Integration | Tela com a marcação real e dependências simuladas (AT-002, AT-306, AT-401 a AT-404, AT-408, AT-409), com `navigator.locks` real no teste da trava e um teste que carrega `sidepanel.html` num `iframe`, com `fetch` e seletor substituídos, para provar que a ligação real passa a trava | `extensao/tests/testes.js` | DOM do navegador | Estado e botões conferidos |
 | Integration | Ligação real: `criarAmbiente` importado de `sidepanel.js` busca `../manifest.json` com o `fetch` do navegador (AT-407) | `extensao/tests/testes.js` | `fetch` real | O arquivo volta sem erro |
 | Unit | Privacidade: manifesto, política de conteúdo e varredura do código (AT-301 a AT-305, AT-307) | `extensao/tests/testes.js` | `fetch` dos próprios arquivos | Grupo Lição 3 aprovado |
 | E2E / Verify Gate | Checklist `manual-ux` do DEFINE: três lições na página de testes, download real, repetição e queda de internet | `extensao/tests/testes.html` | Chrome e certificado do aluno | Checklist assinado |
@@ -622,8 +624,8 @@ Regras dos dados de teste:
 | Error Type | Detection | Handling Strategy | Retry? | Observability |
 |---|---|---|---|---|
 | CNPJ inválido | `cnpjValido` falso, inclusive todos os caracteres iguais a zero | "CNPJ inválido", sem chamada | No | Mensagem na tela |
-| Falha ao ler o cursor | Rejeição do armazenamento | "Falhou" antes de qualquer chamada | No | Mensagem na tela |
-| Outra tela baixando | `travarExecucao` devolve `ocupado` | Mensagem pedindo para usar a outra tela, sem chamada | No | Mensagem na tela |
+| Falha ao ler o cursor | Rejeição do armazenamento | "Falhou" antes de qualquer chamada; se for só a leitura final do último NSU, também "Falhou", nunca "Em dia" | No | Mensagem na tela |
+| Outra tela baixando | `travarExecucao` devolve `ocupado` | Em `motivo`, "Já há um download em andamento em outra tela.", com `estado` vazio e sem chamada | No | Mensagem na tela |
 | Pasta ausente ou permissão negada | Sem referência, `AbortError` ou `requestPermission` diferente de `granted` | Pede a pasta, sem chamada | No | Mensagem na tela |
 | Sem resposta do servidor | `fetch` rejeitado | Abre a aba do certificado uma vez, se não houve resposta desde que a tela abriu; depois, transitório | Yes | Mensagem de nova tentativa, com `erro.message` no motivo final |
 | Timeout | Limite de 120 s na primeira tentativa desde que a tela abriu, 30 s nas demais | Transitório | Yes | Mensagem de nova tentativa |
@@ -738,9 +740,10 @@ Revisão adversarial externa de 2026-11-07, sobre o kit: revisor `gpt-6-astra`, 
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 1.0 | 2026-11-06 | SDD Design by RDD | Initial version |
-| 1.3 | 2026-11-07 | SDD Design by RDD | Segundo ensaio do build: REJEICAO com lote vazio, repetição em `buscarLote`, clique duplo, timeout, leitura do cursor e contratos restantes |
-| 1.2 | 2026-11-07 | SDD Design by RDD | Revisão adversarial: R1, R2 e R3 aplicados |
 | 1.1 | 2026-11-07 | SDD Design by RDD | Achados do ensaio do build: gravação com arquivo de 0 byte, `fetch` envolvido, contratos entre módulos, cálculo do CNPJ, regras de desempate, `URL_CERTIFICADO` sem CNPJ, teste da ligação real e `iniciar.js` |
+| 1.2 | 2026-11-07 | SDD Design by RDD | Revisão adversarial: R1, R2 e R3 aplicados |
+| 1.3 | 2026-11-07 | SDD Design by RDD | Segundo ensaio do build: REJEICAO com lote vazio, repetição em `buscarLote`, clique duplo, timeout, leitura do cursor e contratos restantes |
+| 1.4 | 2026-11-07 | SDD Design by RDD | Verificação final do ensaio: Pattern 6 com ordem única, `primeiraFeita` e teste da ligação da trava |
 
 ---
 

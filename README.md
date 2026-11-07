@@ -61,6 +61,7 @@ Cada skill diz a própria versão e a data na primeira resposta (ex.: `sdd-defin
 
 - [Quickstart](docs/quickstart.pt-BR.md) ([EN](docs/quickstart.md)) — instale e rode seu primeiro fluxo em minutos.
 - [Workflow](docs/workflow.pt-BR.md) ([EN](docs/workflow.md)) — como as quatro fases se encadeiam e o que cada artefato contém.
+- [Exemplo: extensão que baixa suas NFS-e](exemplos/baixar-nfse/README.md) — um kit pronto para você construir a aplicação com o seu agente, em português.
 
 ## Contribuindo
 
@@ -150,6 +151,7 @@ Each skill states its own version and date in its first reply (e.g. `sdd-define 
 
 - [Quickstart](docs/quickstart.md) ([PT-BR](docs/quickstart.pt-BR.md)) — install and run your first flow in minutes.
 - [Workflow](docs/workflow.md) ([PT-BR](docs/workflow.pt-BR.md)) — how the four phases chain together, and what each artifact contains.
+- [Example: a Chrome extension that downloads Brazilian service invoices](exemplos/baixar-nfse/README.md) — a ready kit to build with your agent, in Portuguese.
 
 ## Contributing
 

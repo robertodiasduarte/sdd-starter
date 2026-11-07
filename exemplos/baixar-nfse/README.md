@@ -67,7 +67,7 @@ Ao final desta etapa, a pasta `extensao/` estará pronta. O relatório do build 
 
 ### 5. Rode os testes das lições
 
-No painel, clique em **Abrir testes**. Uma aba mostra os grupos Lição 1, Lição 2, Lição 3 e Geral. O resultado esperado é a linha com todos os testes aprovados, por exemplo "80 de 80 aprovados". O número exato pode variar.
+No painel, clique em **Abrir testes**. Uma aba mostra os grupos Lição 1, Lição 2, Lição 3 e Geral. O resultado esperado é a linha com todos os testes aprovados, por exemplo "112 de 112 aprovados". O número exato pode variar. Abra os testes sem nenhum download em andamento.
 
 Esses testes não usam internet nem certificado: a rede e as falhas são simuladas, com notas fictícias. Se algo reprovar, clique em **Copiar resultado**, cole para o seu agente e, depois da correção, recarregue a extensão em `chrome://extensions`, no ícone de seta circular do cartão.
 
