@@ -56,7 +56,7 @@ Projeto novo: todos os caminhos abaixo são criados pelo Build dentro de `extens
 | Manifesto | Declara permissões mínimas e a política de conteúdo | `manifest.json` MV3 | N/A | Regras aplicadas pelo Chrome | N/A |
 | Configuração | Reúne esperas, limites e endereço da API | Módulo JS | N/A | Constantes | N/A |
 | CNPJ | Normaliza e valida, inclusive o formato alfanumérico | Funções puras | Texto digitado | CNPJ normalizado ou recusa | N/A |
-| API do ADN | Busca um lote e traduz a resposta em lote, fim, transitório ou falha | `fetch` injetado | NSU, CNPJ, sinal de parada | Resultado do lote | Configuração |
+| API do ADN | Busca um lote, repete as tentativas nos casos transitórios e devolve lote, fim, falha ou interrompido | `fetch` injetado | NSU, CNPJ, sinal de parada | Resultado do lote | Configuração |
 | Documento | Decodifica, lê os metadados, classifica e monta o caminho | `DecompressionStream`, `DOMParser` | Item do lote, CNPJ | Bytes e caminho | Configuração |
 | Arquivos | Grava os bytes e só termina depois de `close()`; recusa substituir arquivo com bytes diferentes | File System Access | Pasta, caminho, bytes | `gravado`, `ja-existia` ou erro | N/A |
 | Cursor | Lê e salva o NSU por CNPJ | Armazenamento injetado | CNPJ, NSU | NSU salvo | N/A |
@@ -156,7 +156,7 @@ Projeto novo: todos os caminhos abaixo são criados pelo Build dentro de `extens
 
 **Consequences:**
 - Nada de `<script>` ou `<style>` embutido no HTML: tudo fica em arquivos próprios.
-- Ao ler um XML malformado, o próprio Chrome monta um documento de erro com `style` e registra 2 violações `style-src-attr` no console. É inofensivo e esperado no teste de AT-012, então a página de testes não exige zero violação.
+- Ao ler um XML malformado, o próprio Chrome monta um documento de erro com `style` e registra 2 linhas de erro no console por leitura, com o texto "Applying inline style violates the following Content Security Policy directive 'default-src 'self''". É inofensivo e esperado no teste de AT-012, que lê um só XML desse tipo, então a página de testes não exige zero erro de console.
 - A extensão não carrega nada de fora, o que combina com a restrição de zero biblioteca.
 
 ### Decision 5: Página de testes dentro da extensão
@@ -169,7 +169,7 @@ Projeto novo: todos os caminhos abaixo são criados pelo Build dentro de `extens
 
 **Context:** O Verify Gate não pode depender de Node. As provas precisam de `fetch` dos próprios arquivos e de `import`, que não funcionam em `file://`.
 
-**Choice:** `tests/testes.html`, aberta por um link do painel, roda todos os testes e mostra grupos Lição 1, Lição 2, Lição 3 e Geral, cada teste com o seu AT, um botão "Copiar resultado" para o aluno colar no agente e a explicação se os testes nem carregarem. A rede é simulada. O disco é simulado nos cenários longos e real nos testes de gravação, usando o sistema de arquivos privado do navegador (`navigator.storage.getDirectory`). Um teste carrega `sidepanel.js` para provar a ligação real.
+**Choice:** `tests/testes.html`, aberta por um link do painel, roda todos os testes e mostra grupos Lição 1, Lição 2, Lição 3 e Geral, cada teste com o seu AT, um botão "Copiar resultado" para o aluno colar no agente e a explicação se os testes nem carregarem. A rede é simulada. O disco é simulado nos cenários longos e real nos testes de gravação, usando o sistema de arquivos privado do navegador (`navigator.storage.getDirectory`). Um teste carrega `sidepanel.js` para provar a ligação real. Na varredura de URLs, o CSP traz o endereço seguido de `;`, então a expressão não pode incluir esse caractere no domínio.
 
 **Rationale:** O aluno vê as lições aprovadas com um clique, e a mesma rotina de gravação é exercitada num disco de verdade, sem nenhuma pasta escolhida.
 
@@ -244,9 +244,9 @@ Projeto novo: todos os caminhos abaixo são criados pelo Build dentro de `extens
 | 13 | `extensao/sidepanel.js` | Create | Liga a Tela ao seletor de pasta, ao armazenamento e à aba do certificado; exporta `criarAmbiente` | (general) | 2, 5, 6, 7, 8, 12 |
 | 14 | `extensao/tests/mini-teste.js` | Create | `teste`, `igual`, `executarTudo`, com grupos e resumo | (general) | None |
 | 15 | `extensao/tests/notas-ficticias.js` | Create | Gera XML, lotes e CNPJs fictícios na hora | (general) | 3 |
-| 16 | `extensao/tests/simulados.js` | Create | API, disco, armazenamento e cenário simulados | (general) | 8, 15 |
+| 16 | `extensao/tests/simulados.js` | Create | API, disco, armazenamento e cenário simulados | (general) | 5, 8, 15 |
 | 17 | `extensao/tests/testes.html` | Create | Página de testes, carregada por `iniciar.js` | (general) | 11 |
-| 18 | `extensao/tests/testes.js` | Create | Pelo menos um teste por AT, em grupos por lição | (general) | 1, 3, 4, 5, 6, 7, 8, 10, 12, 13, 14, 15, 16, 17 |
+| 18 | `extensao/tests/testes.js` | Create | Pelo menos um teste por AT, em grupos por lição | (general) | 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 13, 14, 15, 16, 17 |
 | 19 | `extensao/tests/iniciar.js` | Create | Importa `testes.js` e, se falhar, explica o erro em `resumo-testes` | (general) | 17, 18 |
 
 **Total Files:** 19
@@ -297,7 +297,12 @@ Tudo o que a lição 1 ensina está na ordem: gravar, aguardar a confirmação e
 ```javascript
 export async function executarDownload(opcoes) {
   const totais = criarTotais();
-  let cursor = await opcoes.cursor.ler(opcoes.cnpj);
+  let cursor;
+  try {
+    cursor = await opcoes.cursor.ler(opcoes.cnpj);
+  } catch (erro) {
+    return estadoFinal("falhou", totais, "Não consegui ler o cursor: " + erro.message);
+  }
   let lote = 0;
 
   while (true) {
@@ -439,7 +444,7 @@ As linhas valem nesta ordem: a primeira que casar decide.
 | 429, 502, 503, 504, com qualquer corpo | `transitorio` |
 | 200 vazio, HTML ou JSON inválido | `transitorio` |
 | 404 com `E2220`; ou 200 ou 404 com `NENHUM_DOCUMENTO_LOCALIZADO` | `fim` |
-| 200 com `LoteDFe` vazio, sem `Erros` | `fim` |
+| 200 com `LoteDFe` vazio, sem `Erros` e sem `REJEICAO` | `fim` |
 | 200 com `LoteDFe` com itens | `lote` |
 | `E2245` ou `E2214` | `falha`, com a orientação ao aluno |
 | Qualquer outro caso, incluindo 404 sem `E2220` | `falha`, com o que foi recebido |
@@ -448,8 +453,9 @@ Regras de desempate, para nenhuma combinação descartar nota:
 - Sinal de fim junto de documentos ou de outro código de erro é `falha`.
 - Com itens em `LoteDFe`, vale qualquer `StatusProcessamento`, menos `REJEICAO`, porque o valor de sucesso não está documentado.
 - `Erros` é lido nas chaves `Codigo` e `Descricao`; se `Descricao` estiver vazia, usa-se `Mensagem`.
-- `Retry-After` é aceito só em segundos; outro formato usa a espera calculada.
+- `interpretarResposta` não vê cabeçalhos: `buscarLote` lê `Retry-After`, aceito só em segundos; outro formato usa a espera calculada.
 - A tentativa que abre a aba do certificado conta entre as 5 e não tem espera depois.
+- Timeout não abre a aba: só `fetch` rejeitado abre. O limite de 120 s vale só na primeira tentativa desde que a tela abriu; as demais usam 30 s.
 
 ### Pattern 7: Teste que injeta falha
 
@@ -486,7 +492,7 @@ teste("Lição 1", "AT-103", "falha ao gravar mantém o cursor no documento ante
 | `link-testes` | Link para `tests/testes.html`, em nova aba | Abrir testes |
 | `link-aba` | Link para `sidepanel.html`, em nova aba | Abrir em uma aba |
 
-Durante a execução, só Parar fica ativo: `campo-cnpj`, `botao-pasta`, `botao-baixar` e `botao-recomecar` ficam desativados. Recomeçar com CNPJ inválido mostra "CNPJ inválido" e não muda nada.
+Durante a execução, só Parar fica ativo: `campo-cnpj`, `botao-pasta`, `botao-baixar` e `botao-recomecar` ficam desativados. Desative antes de pedir a permissão da pasta, senão um clique duplo abre duas execuções. Recomeçar com CNPJ inválido mostra "CNPJ inválido" e não muda nada; Confirmar usa o CNPJ que estava no campo no clique em Recomeçar. Ao terminar, `tela.js` lê o último NSU pelo `cursor`, porque `executarDownload` não o devolve.
 
 `tests/testes.html` tem `resumo-testes` com "N de N aprovados", `botao-copiar` com "Copiar resultado", `grupos` com os resultados e `area-tela` para a marcação sob teste.
 
@@ -504,17 +510,19 @@ Durante a execução, só Parar fica ativo: `campo-cnpj`, `botao-pasta`, `botao-
 | `caminhoDoDocumento(item, metadados, cnpj)` | Item e metadados | Objeto com `grupo`, `pastas` (lista, como `2026` e `03` e `Emitidas`) e `nome` |
 | `prepararDocumento(item, cnpj)` | Item e CNPJ | Objeto com `bytes`, `grupo` e `caminho`, que tem `pastas` e `nome` |
 | `interpretarResposta(status, texto)` | Resposta HTTP | Objeto com `tipo` e `documentos` ou `motivo` |
-| `buscarLote(nsu, cnpj, ambiente)` | Ambiente injetado | Resultado de `interpretarResposta`, ou `tipo` igual a `interrompido` |
+| `buscarLote(nsu, cnpj, ambiente)` | Ambiente injetado | Objeto com `tipo` igual a `lote`, `fim`, `falha` ou `interrompido`; repete as tentativas e nunca devolve `transitorio` |
 | `gravarArquivo(raiz, caminho, bytes)` | Pasta e bytes | `gravado` ou `ja-existia`, ou erro |
 | `criarCursor(armazenamento)` | `chrome.storage.local` ou simulado | Objeto com `ler(cnpj)` e `salvar(cnpj, nsu)`; a chave é `cursor:` mais o CNPJ, e o padrão é 0 |
 | `executarDownload(opcoes)` | `cnpj`, `cursor`, `buscarLote`, `gravar`, `deveParar`, `aoProgresso`, `esperar` | Objeto com `estado` (`em-dia`, `interrompido` ou `falhou`), `totais` e `motivo` |
 | `criarAmbiente(pedido)` | `sinal`, `aoTentar` | Ambiente real: `fetch`, `esperar`, `agendar`, `abrirAbaCertificado`, `sessao`, `sinal`, `aoTentar` |
-| `montarTela(raiz, dependencias)` | `escolherPasta`, `pedirPermissao`, `travar`, `executar(pedido)`, `cursor` | Nada; `pedido` tem `cnpj`, `pasta`, `sinal`, `deveParar`, `aoProgresso` e `aoTentar` |
+| `montarTela(raiz, dependencias)` | `escolherPasta`, `pedirPermissao` (devolve o texto do navegador, como `granted`), `travar`, `executar(pedido)`, `cursor` | Nada; `pedido` tem `cnpj`, `pasta`, `sinal`, `deveParar`, `aoProgresso` e `aoTentar` |
 
 Regras de ligação:
 - `ordenarPorNsu`, em `sincronizar.js`, converte cada item da API para `nsu` (número seguro), `chaveAcesso`, `tipoDocumento` e `arquivoXml`.
 - `totais` tem as chaves `Emitidas`, `Recebidas`, `Eventos`, `Outros`, `Sem-data` e `Já existiam`; um arquivo que já existia conta só em `Já existiam`.
-- `ambiente.sessao` guarda `houveResposta` e `abaAberta`, em memória. `ambiente.agendar(funcao, ms)` existe para o teste controlar o timeout.
+- `ambiente.sessao` guarda `houveResposta` e `abaAberta`, em memória. É uma constante do módulo `sidepanel.js`, não criada em `criarAmbiente`, que roda a cada execução: senão a aba abriria a cada download.
+- `ambiente.agendar(funcao, ms)` existe para o teste controlar o timeout e devolve uma função que cancela. `ambiente.aoTentar(numero, total, motivo)` informa a nova tentativa.
+- `abrirAbaCertificado` consulta o estado da aba a cada `INTERVALO_ABA_MS` e, se Parar for clicado, encerra e fecha a aba.
 - `travarExecucao` usa `navigator.locks.request` com o nome `baixar-nfse` e a opção `ifAvailable`; a tela envolve a execução nela, depois de validar CNPJ e pasta.
 - `esperar(ms)` real encerra antes do prazo quando o sinal de parada dispara, conforme AT-408.
 - `sidepanel.js` só chama `montarTela` se existir `document.getElementById("tela")` ao carregar, para os testes poderem importar o módulo.
@@ -594,9 +602,9 @@ Regras do passo 6d:
 |---|---|---|---|---|
 | Unit | CNPJ, nome seguro, classificação e `interpretarResposta` (AT-002 a AT-014, AT-201, AT-204 a AT-208) | `extensao/tests/testes.js` | `mini-teste.js` no Chrome | Testes do grupo aprovados |
 | Integration | `executarDownload` com rede e disco simulados e 100 notas fictícias: normal, Parar, falha de gravação, queda no 2º lote, 503, timeout e `E2245` no 1º lote (AT-101 a AT-108, AT-209) | `extensao/tests/testes.js`, `extensao/tests/simulados.js` | `mini-teste.js` no Chrome | Nenhuma nota faltando depois da execução seguinte |
-| Integration | `gravarArquivo` em disco real do navegador: bytes iguais, repetição sem cópia, recusa de bytes diferentes, falha em `close` seguida de nova execução e arquivo de 0 byte (AT-013, AT-015, AT-104, AT-106, AT-108, AT-109) | `extensao/tests/testes.js` | `navigator.storage.getDirectory` | Bytes lidos iguais aos gravados |
-| Integration | Tela com a marcação real e dependências simuladas (AT-002, AT-306, AT-401 a AT-404, AT-408, AT-409), com `navigator.locks` real no teste da trava |
-| Integration | Ligação real: `criarAmbiente` importado de `sidepanel.js` busca `../manifest.json` com o `fetch` do navegador (AT-407) | `extensao/tests/testes.js` | `fetch` real | O arquivo volta sem erro | `extensao/tests/testes.js` | DOM do navegador | Estado e botões conferidos |
+| Integration | `gravarArquivo` em disco real do navegador: bytes iguais, repetição sem cópia, recusa de bytes diferentes, falha em `close` ou `write` seguida de nova execução, injetada envolvendo os handles reais, e arquivo de 0 byte (AT-013, AT-015, AT-104, AT-106, AT-108, AT-109) | `extensao/tests/testes.js` | `navigator.storage.getDirectory` | Bytes lidos iguais aos gravados |
+| Integration | Tela com a marcação real e dependências simuladas (AT-002, AT-306, AT-401 a AT-404, AT-408, AT-409), com `navigator.locks` real no teste da trava | `extensao/tests/testes.js` | DOM do navegador | Estado e botões conferidos |
+| Integration | Ligação real: `criarAmbiente` importado de `sidepanel.js` busca `../manifest.json` com o `fetch` do navegador (AT-407) | `extensao/tests/testes.js` | `fetch` real | O arquivo volta sem erro |
 | Unit | Privacidade: manifesto, política de conteúdo e varredura do código (AT-301 a AT-305, AT-307) | `extensao/tests/testes.js` | `fetch` dos próprios arquivos | Grupo Lição 3 aprovado |
 | E2E / Verify Gate | Checklist `manual-ux` do DEFINE: três lições na página de testes, download real, repetição e queda de internet | `extensao/tests/testes.html` | Chrome e certificado do aluno | Checklist assinado |
 
@@ -614,12 +622,13 @@ Regras dos dados de teste:
 | Error Type | Detection | Handling Strategy | Retry? | Observability |
 |---|---|---|---|---|
 | CNPJ inválido | `cnpjValido` falso, inclusive todos os caracteres iguais a zero | "CNPJ inválido", sem chamada | No | Mensagem na tela |
+| Falha ao ler o cursor | Rejeição do armazenamento | "Falhou" antes de qualquer chamada | No | Mensagem na tela |
 | Outra tela baixando | `travarExecucao` devolve `ocupado` | Mensagem pedindo para usar a outra tela, sem chamada | No | Mensagem na tela |
 | Pasta ausente ou permissão negada | Sem referência, `AbortError` ou `requestPermission` diferente de `granted` | Pede a pasta, sem chamada | No | Mensagem na tela |
 | Sem resposta do servidor | `fetch` rejeitado | Abre a aba do certificado uma vez, se não houve resposta desde que a tela abriu; depois, transitório | Yes | Mensagem de nova tentativa, com `erro.message` no motivo final |
-| Timeout | Limite de 120 s antes da primeira resposta desde que a tela abriu, 30 s depois | Transitório | Yes | Mensagem de nova tentativa |
+| Timeout | Limite de 120 s na primeira tentativa desde que a tela abriu, 30 s nas demais | Transitório | Yes | Mensagem de nova tentativa |
 | Instabilidade | 429, 502, 503, 504; 200 vazio, HTML ou JSON inválido | Espera crescente; `Retry-After`, se vier | Yes | Mensagem com tentativa N de 5 |
-| Tentativas esgotadas | 5 tentativas sem sucesso | "Falhou" com o último motivo; cursor mantido | No | Estado final |
+| Tentativas esgotadas | 5 tentativas sem sucesso | "Falhou" com o último motivo; cursor mantido. Se a última foi sem resposta e não houve resposta desde que a tela abriu, o motivo orienta a abrir `URL_CERTIFICADO` numa aba, escolher o certificado e rodar de novo | No | Estado final |
 | `E2245` | Código em `Erros` | "Falhou": certificado sem procuração; orienta a fechar o Chrome inteiro para trocar | No | Texto da API mostrado como texto |
 | `E2214` | Código em `Erros` | "Falhou": certificado inválido para a transmissão | No | Texto da API mostrado como texto |
 | Resposta desconhecida | Nenhuma regra casa | "Falhou" com o status e até 300 caracteres do corpo | No | Estado final |
@@ -648,7 +657,8 @@ Valores em `extensao/config.js`, sem arquivo externo.
 | `ESPERA_MAXIMA_MS` | número | 5000 | No | Teto da espera calculada |
 | `RETRY_AFTER_MAXIMO_MS` | número | 60000 | No | Teto para `Retry-After` |
 | `ESPERA_ENTRE_LOTES_MS` | número | 600 | No | Pausa entre lotes |
-| `TEMPO_PRIMEIRA_RESPOSTA_MS` | número | 120000 | No | Limite antes da primeira resposta desde que a tela abriu, para dar tempo de escolher o certificado |
+| `TEMPO_PRIMEIRA_RESPOSTA_MS` | número | 120000 | No | Limite da primeira tentativa desde que a tela abriu, para dar tempo de escolher o certificado |
+| `INTERVALO_ABA_MS` | número | 500 | No | Intervalo de consulta da aba do certificado |
 | `TEMPO_RESPOSTA_MS` | número | 30000 | No | Limite das chamadas seguintes |
 | `TEMPO_ABA_CERTIFICADO_MS` | número | 60000 | No | Limite de espera da aba do certificado |
 
@@ -690,7 +700,7 @@ Os limites de tempo e de tentativas vêm do comportamento observado na ferrament
 | AT-201 a AT-209 (MUST Lição 2) | `adn.js`, `sincronizar.js`, Decision 3, Pattern 6 | Grupo Lição 2 |
 | AT-301 a AT-307 (MUST Lição 3) | `manifest.json`, Decision 4, Decision 7, `tela.js` | Grupo Lição 3 |
 | AT-401 a AT-404 (SHOULD Recomeçar e progresso) | `tela.js`, `cursor.js`, Decision 6 | Grupo Geral |
-| AT-405, AT-406, AT-407 | `sidepanel.js`, Decision 7, Pattern 5 | Verify Gate, download real, e testes de AT-406 e AT-407 |
+| AT-405, AT-406, AT-407 | `sidepanel.js`, Decision 7, Pattern 5 | Verify Gate, download real, e grupo Geral para AT-406 e AT-407 |
 | AT-408, AT-409 | `sidepanel.js`, `tela.js`, `sincronizar.js`, Pattern 9 | Grupo Geral |
 | MUST Página de testes | `tests/`, Decision 5 | Verify Gate |
 
@@ -728,6 +738,7 @@ Revisão adversarial externa de 2026-11-07, sobre o kit: revisor `gpt-6-astra`, 
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 1.0 | 2026-11-06 | SDD Design by RDD | Initial version |
+| 1.3 | 2026-11-07 | SDD Design by RDD | Segundo ensaio do build: REJEICAO com lote vazio, repetição em `buscarLote`, clique duplo, timeout, leitura do cursor e contratos restantes |
 | 1.2 | 2026-11-07 | SDD Design by RDD | Revisão adversarial: R1, R2 e R3 aplicados |
 | 1.1 | 2026-11-07 | SDD Design by RDD | Achados do ensaio do build: gravação com arquivo de 0 byte, `fetch` envolvido, contratos entre módulos, cálculo do CNPJ, regras de desempate, `URL_CERTIFICADO` sem CNPJ, teste da ligação real e `iniciar.js` |
 

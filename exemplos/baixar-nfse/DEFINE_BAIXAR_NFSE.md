@@ -103,12 +103,12 @@ Coluna Gate: "testes" é verificado na página de testes da extensão; "real" é
 | AT-401 | State-driven | **While** um download está em andamento, a extensão **shall** manter o botão Baixar desativado e o botão Parar ativo | manual-ux (testes) |
 | AT-402 | Event-driven | **When** a execução termina, a extensão **shall** mostrar um único estado final e o total por `Emitidas`, `Recebidas`, `Eventos`, `Outros`, `Sem-data` e `Já existiam` | manual-ux (testes) |
 | AT-403 | Unwanted | **If** o aluno não concede a permissão da pasta, **then** a extensão **shall** não fazer nenhuma chamada à API e pedir a pasta de novo | manual-ux (testes) |
-| AT-404 | Event-driven | **When** o aluno confirma "Recomeçar do início", a extensão **shall** voltar o cursor daquele CNPJ para 0; sem a confirmação, **shall** manter o cursor | manual-ux (testes) |
+| AT-404 | Event-driven | **When** o aluno confirma "Recomeçar do início", a extensão **shall** voltar para 0 o cursor do CNPJ que estava no campo no clique em Recomeçar; sem a confirmação, **shall** manter o cursor | manual-ux (testes) |
 | AT-405 | Event-driven | **When** o aluno baixa as notas de uma empresa com o certificado dela ou da matriz, a extensão **shall** gravar os XML nas pastas e mostrar um total gravado igual à quantidade de XML numa pasta nova | manual-ux (real) |
 | AT-406 | Event-driven | **When** uma chamada falha sem resposta do servidor e ainda não houve resposta desde que a tela foi aberta, a extensão **shall** abrir o endereço da API, sem o CNPJ, numa aba em segundo plano para o Chrome pedir o certificado, fechar essa aba e tentar de novo | manual-ux (testes e real) |
 | AT-407 | Ubiquitous | A ligação real da tela (`sidepanel.js`) **shall** conseguir chamar o `fetch` do navegador, o que um teste comprova carregando essa ligação | manual-ux (testes) |
 | AT-409 | Unwanted | **If** já há um download em andamento em outra tela da extensão, **then** a extensão **shall** recusar iniciar outro, sem nenhuma chamada à API, e explicar o motivo | manual-ux (testes) |
-| AT-408 | State-driven | **While** a extensão espera uma nova tentativa ou o lote seguinte, um clique em Parar **shall** encerrar a espera em até 1 segundo e mostrar "Interrompido" | manual-ux (testes) |
+| AT-408 | State-driven | **While** a extensão espera uma nova tentativa, o lote seguinte ou a aba do certificado, um clique em Parar **shall** encerrar a espera em até 1 segundo e mostrar "Interrompido" | manual-ux (testes) |
 
 ---
 
@@ -252,6 +252,7 @@ None - ready for Design.
 | 1.1 | 2026-11-06 | SDD Define by RDD | Revisão de governança: AT-015, AT-108; AT-106, AT-201 e AT-402 reescritos |
 | 1.2 | 2026-11-07 | SDD Define by RDD | Achados do ensaio do build: AT-109, AT-407, AT-408; AT-014, AT-204, AT-205, AT-208, AT-302, AT-405 e AT-406 reescritos |
 | 1.3 | 2026-11-07 | SDD Define by RDD | Revisão adversarial: AT-409; AT-014 e AT-015 reescritos |
+| 1.4 | 2026-11-07 | SDD Define by RDD | Segundo ensaio do build: AT-404 e AT-408 precisados |
 
 ---
 

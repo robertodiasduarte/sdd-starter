@@ -48,7 +48,9 @@ Os documentos estão em sdd/: BRAINSTORM_BAIXAR_NFSE.md, DEFINE_BAIXAR_NFSE.md e
 Regras desta construção:
 - Crie somente os arquivos do File Manifest, todos dentro de extensao/. O relatório do build fica em sdd/.
 - Não instale Node, npm nem biblioteca nenhuma.
-- Use o modo de execução default, sem revisão externa, e não me pergunte sobre isso.
+- Use o modo de execução default, sem revisão externa, e não me pergunte sobre isso. Siga direto até a extensão ficar pronta, sem parar a cada etapa.
+- A prova do código é a página de testes da extensão, uma vez, ao final; não peça conferência arquivo por arquivo.
+- Se o comando python não existir, use python3. Se nenhum existir, registre no relatório que o validador não rodou.
 - Nunca usei terminal e você não enxerga o meu Chrome: quando eu precisar fazer algo nele, me passe um passo por vez e diga o que devo ver na tela. Se um teste reprovar, peça que eu copie o resultado da página de testes.
 - No Verify Gate, me mostre o checklist um item por vez, espere a minha confirmação e registre o resultado no BUILD_REPORT, sem CNPJ real.
 - Não use nenhum dado real de nota, CNPJ de cliente ou certificado em arquivo do projeto.
@@ -84,7 +86,7 @@ Recarregue a extensão em `chrome://extensions` e abra os testes de novo: a Liç
 1. No painel, digite o CNPJ da empresa.
 2. Clique em **Escolher pasta** e escolha uma pasta **nova e fora do projeto**, para nenhuma nota real ir para o git. Use uma pasta por empresa.
 3. Clique em **Baixar**. Na primeira vez, o Chrome pede o certificado, e uma aba pode aparecer e sumir sozinha.
-4. Ao final, confira o resumo. As notas ficam em pastas como `2026/03/Emitidas`, além de `Recebidas`, `Eventos` ou `Outros`, e em `Sem-data` quando o XML não traz uma data legível. Para conferir o total, busque por `.xml` na pasta, no Finder ou no Explorador de Arquivos, e compare a quantidade com o total gravado.
+4. Ao final, confira o resumo. As notas ficam em pastas como `2026/03/Emitidas`, além de `Recebidas`, `Eventos` ou `Outros`, e em `Sem-data` quando o XML não traz uma data legível. Para conferir o total, busque por `.xml` na pasta, no Finder ou no Explorador de Arquivos, e compare a quantidade com o total gravado. O total é por execução: se alguma execução falhou antes, some os totais delas, ou use **Recomeçar do início** e compare com gravados mais "Já existiam".
 5. Clique em **Baixar** de novo. A tela deve mostrar **Em dia**, sem arquivo novo.
 6. Desligue a internet e clique em **Baixar**. A tela deve mostrar **Falhou**, nunca "Em dia".
 
@@ -101,8 +103,8 @@ Com isso, você confirma para o agente os itens do Verify Gate, e ele fecha o re
 | "Falhou" com instabilidade do servidor | Rode de novo mais tarde. A extensão continua de onde parou |
 | "Falhou" com arquivo diferente | A extensão não troca uma nota já guardada. Compare os dois XML antes de decidir, ou baixe em outra pasta |
 | "Já há um download em andamento" | Termine ou pare o download na outra tela da extensão |
-| Um teste reprovado | Clique em **Copiar resultado**, cole para o seu agente e peça para corrigir o código, sem mudar o teste |
-| O console mostra 2 avisos de `style-src-attr` na página de testes | É esperado: vem do teste que lê um XML malformado |
+| Um teste reprovado | Clique em **Copiar resultado**, cole para o seu agente e peça para corrigir a causa. Ele só muda o teste se explicar por que o teste estava errado, e sem afrouxar a regra |
+| O console mostra 2 erros "Applying inline style violates…" na página de testes, ou o botão **Erros** aparece no cartão da extensão depois dos testes | É esperado: vem do teste que lê um XML malformado |
 | Quero baixar tudo de novo em outra pasta | Escolha a pasta e use **Recomeçar do início** |
 
 ## O que este exemplo não faz
