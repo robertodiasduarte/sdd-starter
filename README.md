@@ -18,6 +18,7 @@ Se você quer a versão avançada deste fluxo — com Verify Gate executável, c
 
 | Skill | Fase | Entrada | Saída |
 |---|---|---|---|
+| [`sdd-engenharia-reversa-saas`](skills/sdd-engenharia-reversa-saas/) | Estudar um sistema que já existe, antes do Brainstorm (opcional) | Um SaaS que você quer tomar como referência: fontes públicas e a sua própria conta | `ENGENHARIA_REVERSA_{SAAS}.md` (cada achado com a fonte e a classe, conferido por lint) |
 | [`sdd-brainstorm`](skills/sdd-brainstorm/) | Explorar a ideia | Uma ideia, problema ou notas soltas | `BRAINSTORM_{FEATURE}.md` |
 | [`sdd-define`](skills/sdd-define/) | Formalizar requisitos | O arquivo de Brainstorm | `DEFINE_{FEATURE}.md` (testes de aceitação EARS, Clarity Score, Verify Gate) |
 | [`sdd-design`](skills/sdd-design/) | Arquitetar a solução | Brainstorm + Define | `DESIGN_{FEATURE}.md` (arquitetura, ADRs, File Manifest) |
@@ -108,6 +109,7 @@ If you want the advanced version of this workflow — with an executable Verify 
 
 | Skill | Phase | Input | Output |
 |---|---|---|---|
+| [`sdd-engenharia-reversa-saas`](skills/sdd-engenharia-reversa-saas/) | Study a system that already exists, before the Brainstorm (optional) | A SaaS you want as a reference: public sources and your own account | `ENGENHARIA_REVERSA_{SAAS}.md` (each finding with its source and class, checked by a lint) |
 | [`sdd-brainstorm`](skills/sdd-brainstorm/) | Explore the idea | An idea, problem, or rough notes | `BRAINSTORM_{FEATURE}.md` |
 | [`sdd-define`](skills/sdd-define/) | Formalize requirements | The Brainstorm file | `DEFINE_{FEATURE}.md` (EARS acceptance tests, Clarity Score, Verify Gate) |
 | [`sdd-design`](skills/sdd-design/) | Architect the solution | Brainstorm + Define | `DESIGN_{FEATURE}.md` (architecture, ADRs, File Manifest) |
