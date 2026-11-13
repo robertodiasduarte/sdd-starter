@@ -1,6 +1,6 @@
 # Perfil normativo: quando a regra vale por período
 
-Referência de apoio da skill `sdd-kb`. Vale para o domínio registrado com `perfil: normativo` no `_index.yaml`.
+Referência de apoio da skill `sdd-kb`. Vale para o domínio registrado com `perfil: normativo` em `sdd/kb/_index.yaml`.
 
 ---
 
@@ -17,7 +17,7 @@ Use `normativo` quando o domínio tem regra que muda com o tempo: lei, alíquota
 ## A estrutura
 
 ```
-{dominio}/
+sdd/kb/<slug>/
 ├── index.md            ← + Data-base, Conflitos entre fontes, aviso de responsabilidade
 ├── quick-reference.md
 ├── concepts/           ← + `> **Vale para:** <período ou atemporal>` no cabeçalho
@@ -44,7 +44,7 @@ Uma regra por arquivo, com id estável — nunca reaproveitar nem renumerar. Fro
 | `fonte.id` / `fonte.localizador` | sim | id do catálogo + página, artigo ou seção |
 | `status` | sim | `confirmado` · `premissa` (interpretação sem texto explícito) · `nao-confirmado` |
 | `conflito_com` | não | ids de regras ou de fontes em conflito; explicar no `index.md` |
-| `implementacao` / `teste` | não | onde o software implementa e testa (`scripts/engine.py:vbc`) |
+| `implementacao` / `teste` | não | onde o software implementa (`scripts/engine.py:vbc`) e o **caminho do arquivo de teste** a partir da raiz do projeto, com sufixo `:`/`::` opcional (`tests/test_engine.py::test_vbc`) — não um comando; o `--strict` confere que o arquivo existe e que regra implementada tem teste |
 | `severidade` / `codigo` | não | E/A/I e código de rejeição, quando a regra é de validação |
 
 **Mudou a regra? Não edite o passado.** Feche a regra antiga com `ate:` e crie outra a partir da nova data. O histórico continua respondendo por notas antigas.
@@ -53,7 +53,7 @@ Uma regra por arquivo, com id estável — nunca reaproveitar nem renumerar. Fro
 
 ## Catálogo de fontes (`fontes/CATALOGO.md`)
 
-Uma linha por documento: id, documento, degrau, versão, origem (URL oficial), data de captura, arquivo e SHA-256. **A data do arquivo e o nome não provam vigência**: a versão e o hash provam qual texto foi lido. Guardou o arquivo em `fontes/`? O validador recalcula o SHA-256 e reprova se o arquivo mudou — versão nova é linha nova, com id novo. Calcule com `python3 scripts/kb_normativo.py sha fontes/<arquivo>`.
+Uma linha por documento: id, documento, degrau, versão, origem (URL oficial), data de captura, arquivo e SHA-256. **A data do arquivo e o nome não provam vigência**: a versão e o hash provam qual texto foi lido. Guardou o arquivo em `fontes/`? O validador recalcula o SHA-256 e reprova se o arquivo mudou — versão nova é linha nova, com id novo. Calcule com `python3 <pasta desta skill>/scripts/kb_normativo.py sha sdd/kb/<slug>/fontes/<arquivo>`.
 
 ## Conflitos entre fontes
 
@@ -69,13 +69,13 @@ Entrada e resultado esperado de uma regra (molde `CASO_TEMPLATE.json`), com `dat
 
 ## RULE_MAP
 
-`python3 scripts/kb_normativo.py rule-map {dominio}` gera o `RULE_MAP.md`: cada regra com vigência, fonte (documento · localizador · degrau), status, conflito, implementação, teste, severidade e código. Não edite à mão — o validador compara com o gerado.
+`python3 <pasta desta skill>/scripts/kb_normativo.py rule-map sdd/kb/<slug>` gera o `RULE_MAP.md`: cada regra com vigência, fonte (documento · localizador · degrau), status, conflito, implementação, teste, severidade e código. Não edite à mão — o validador compara com o gerado.
 
 ## KB consumido por software
 
 Quando uma skill, um agente ou um sistema usa esta base:
 
-1. Valide com `validate_kb.py {dominio} --strict` — ele reprova base ainda `PENDENTE DE REVISÃO`.
+1. Valide com `python3 <pasta desta skill>/scripts/validate_kb.py sdd/kb/<slug> --strict` — ele reprova base ainda `PENDENTE DE REVISÃO` e regra com `implementacao` sem um `teste` que exista.
 2. Copie o `RULE_MAP.md` e referencie a regra **pelo id**, com o SHA-256 da fonte do catálogo. Não copie conceitos e receitas para dentro do software: quando a base mudar, a cópia não muda.
 3. Preencha `implementacao` e `teste` nas regras que o software implementa e regere o RULE_MAP. Assim a rastreabilidade regra → fonte → código → teste mora num lugar só.
 4. Ao atualizar a base, compare o SHA das fontes: hash diferente é texto diferente, mesmo com o mesmo nome de arquivo.

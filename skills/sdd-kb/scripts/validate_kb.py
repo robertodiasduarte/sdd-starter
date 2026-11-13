@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Structural and size lint for a knowledge-base domain folder.
 
-Usage: python scripts/validate_kb.py <kb-domain-dir> [index-file] [--strict]
+Usage: python3 <pasta da skill sdd-kb>/scripts/validate_kb.py <kb-domain-dir> [index-file] [--strict]
 
 Checks the minimum viable KB (index + quick-reference + >=1 concept + >=1 pattern),
 the per-type line limits, leftover template placeholders, and registration in the index.
@@ -13,16 +13,20 @@ A `normativo` domain also needs a data-base, a "Conflitos entre fontes" section,
 "não é aconselhamento" notice, fontes/CATALOGO.md, at least one rules/*.md with vigência and
 a catalogued source, a RULE_MAP.md generated from rules/, and — when present — tables by
 vigência and test cases inside a rule's vigência. --strict also fails a normative KB still
-marked PENDENTE DE REVISÃO (run it before software consumes the KB).
+marked PENDENTE DE REVISÃO and a rule whose `implementacao` has no `teste`, or whose `teste` file (the part
+before the first ":") is missing from the project root — the folder above sdd/kb/ (run it before software
+consumes the KB).
 
 Exit codes: 0 pass, 2 fail, 64 usage error. WARN lines never change the exit code.
 """
 import datetime as _dt
 import json
+import os
 import re
 import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True  # no __pycache__ inside the skill: init and sync copy the whole folder
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import kb_normativo as kn  # noqa: E402  (same folder; stdlib only)
 
@@ -168,9 +172,21 @@ def sanitize_rule(name, fm):
     return ok
 
 
+VAZIO = (None, "", "—", "-", "null")
+
+
+def raiz_do_projeto(root):
+    """<raiz>/sdd/kb/<slug> → <raiz>; anywhere else, the current directory (commands run from the root)."""
+    r = root.resolve()
+    if r.parent.name == "kb" and r.parent.parent.name == "sdd":
+        return r.parents[2]
+    return Path.cwd()
+
+
 def check_normativo(root, concepts, patterns, strict):
     """Returns (ok, summary). Every FAIL names the file, the field and what to do."""
     ok = True
+    projeto = raiz_do_projeto(root)
     index = root / "index.md"
     text = index.read_text(encoding="utf-8") if index.is_file() else ""
 
@@ -271,6 +287,22 @@ def check_normativo(root, concepts, patterns, strict):
                 ok = fail(f"{name}: status confirmado rests on a {catalogo[fonte['id']]['degrau']} source ({fonte['id']}) — confirm it in a normative source or mark it nao-confirmado") and ok
         if fm.get("status") not in kn.STATUS:
             ok = fail(f"{name}: status {fm.get('status')!r} — use one of {', '.join(sorted(kn.STATUS))}") and ok
+        if strict:
+            # Software consumes the KB only through rules that point to a real test (RULE_MAP → Verify Gate).
+            impl, teste = _s(fm.get("implementacao")), _s(fm.get("teste"))
+            impl = None if impl in VAZIO else impl
+            teste = None if teste in VAZIO else teste
+            if impl and not teste:
+                ok = fail(f"{name}: implementacao {impl!r} has no teste — --strict requires the test the Verify Gate runs (RULE_TEMPLATE.md)") and ok
+            elif teste:
+                arquivo = teste.split(":", 1)[0].strip()
+                # Contido pela forma do caminho (normpath), não pelo destino: um teste do projeto que é
+                # link simbólico para fora continua dentro da árvore.
+                alvo = Path(os.path.normpath(str(projeto / arquivo)))
+                if Path(arquivo).is_absolute() or Path(os.path.normpath(str(projeto))) not in alvo.parents:
+                    ok = fail(f"{name}: teste {teste!r}: {arquivo} is outside the project root {projeto} — use a path relative to it") and ok
+                elif not alvo.is_file():
+                    ok = fail(f"{name}: teste {teste!r}: {arquivo} not found from the project root {projeto}") and ok
     known = set(ids) | set(catalogo)
     com_conflito = []
     for path, fm in rules:
@@ -352,7 +384,7 @@ def check_normativo(root, concepts, patterns, strict):
         expected = kn.render_rule_map(root)
         rm = root / "RULE_MAP.md"
         if not rm.is_file() or rm.read_text(encoding="utf-8") != expected:
-            ok = fail("RULE_MAP.md: missing or differs from rules/ — run `python3 scripts/kb_normativo.py rule-map <domain>` (never edit it by hand)") and ok
+            ok = fail("RULE_MAP.md: missing or differs from rules/ — run `python3 <pasta da skill sdd-kb>/scripts/kb_normativo.py rule-map <domain>` (never edit it by hand)") and ok
     except kn.KBError as e:
         ok = fail(str(e)) and ok
 
@@ -365,7 +397,7 @@ def main():
     strict = "--strict" in argv
     args = [a for a in argv if a != "--strict"]
     if len(args) not in (1, 2) or any(a.startswith("--") for a in args):
-        print("Usage: python scripts/validate_kb.py <kb-domain-dir> [index-file] [--strict]")
+        print("Usage: python3 <pasta da skill sdd-kb>/scripts/validate_kb.py <kb-domain-dir> [index-file] [--strict]")
         return 64
 
     root = Path(args[0])

@@ -1,5 +1,29 @@
 # Changelog — sdd-kb
 
+## 2.2.1 — out/2026
+
+- A pergunta de exemplo de `references/como-falar.md` leva a marca da classe da decisão
+  (`[D2 · muda o produto]`), conferida pelo `sdd/bin/sdd-decisoes-lint.sh` (F9, fluxo encadeado).
+
+## 2.2.0 — out/2026
+
+Entrada no sdd-open como 17ª skill, portada do starter (2.1.0, commit `17c69c4`).
+
+- A base mora num caminho fixo: `sdd/kb/_index.yaml` e `sdd/kb/<slug>/`. Os comandos que a skill manda rodar
+  usam o caminho do projeto: `python3 <pasta desta skill>/scripts/validate_kb.py sdd/kb/<slug>`.
+- A `sdd-define` só aceita no campo "KB Domains" nomes de `ls sdd/kb/`, ou `nenhum`
+  (`sdd/bin/kb-dominios.py`), e lista os testes do RULE_MAP dos domínios normativos citados.
+- `validate_kb.py --strict` também reprova regra com `implementacao` e sem `teste`, ou com `teste` cujo
+  arquivo não existe a partir da raiz do projeto (a pasta acima de `sdd/kb/`).
+- `scripts/gate.sh` reescrito: roda igual no pacote e no projeto do aluno, monta os casos numa pasta
+  temporária a partir dos exemplos (4 aceitos, 12 rejeitados pelo motivo certo) e recusa rodar da cópia
+  gerada pelo `sync`. Saída no padrão do sdd-open (`RESULTADO:` e `→`).
+- Camada "Como falar com o aluno" no formato do sdd-open: o bloco comum das outras skills, a linha de
+  identificação antes do Status e `references/como-falar.md` com pergunta de decisão (recomendada
+  primeiro, **não sei**, sem **Outro**).
+- O validador não grava `__pycache__` dentro da skill.
+- Os testes ficam em `tests/` do pacote, fora da skill.
+
 ## 2.1.0 — out/2026
 
 - Seção "Como falar com o aluno": 5 etapas com nome fixo (Domínio · Entender × fazer · Escrever · Fonte e

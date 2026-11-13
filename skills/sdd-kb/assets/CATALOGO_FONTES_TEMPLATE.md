@@ -13,4 +13,4 @@
 ---
 
 > `Arquivo` com caminho ⇒ o arquivo está em `fontes/` e o validador recalcula o SHA-256 (mudou ⇒ reprova). `—` ⇒ só a referência; o SHA, se houver, é o do arquivo conferido na captura.
-> Calcule com `python3 scripts/kb_normativo.py sha fontes/<arquivo>`. Versão nova de um documento = linha nova com id novo; a antiga fica para as regras que ainda a citam.
+> Calcule com `python3 <pasta desta skill>/scripts/kb_normativo.py sha sdd/kb/<slug>/fontes/<arquivo>`. Versão nova de um documento = linha nova com id novo; a antiga fica para as regras que ainda a citam.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Loop Builder by RDD"
+  short_description: "Desenha o laço de um agente de IA que repete até terminar: quando parar, quanto gastar e como conferir."
+  default_prompt: "Use a skill sdd-loop-builder para desenhar o laço do processo de IA que eu vou descrever: quando ele para, quanto pode gastar e como confere que terminou de verdade."

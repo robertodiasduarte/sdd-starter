@@ -1,0 +1,7 @@
+# GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
+dd753972f7ee2d45b858a32292f2d64281cd1d3637b56ddaf6af1da49cad6339  SKILL.md
+c418947a9c6c8c2df556303f065ca3e8a74e00b76e32514a376f2f5025d4bff0  agents/openai.yaml
+840bd0dc39391e089de589adbb86665c8b53a46e14f1a9e23a0f90b9c52ab010  references/PERGUNTA_DECISAO.md
+75e91ca4ac5e3d081e3b1747dbcbad5fdda0acd7471e5de5cb96c545deeeeed9  references/como-falar.md
+d9b5de607617174047bde92d655414e87a968534893cb24c5fa9e99054da72d3  references/exemplo-loop-spec.md
+0fec066334d547239b1fd1bf6ea419341b3f3e2ae1b62f684e39ad07be96f90f  references/loop-spec-rules.md

@@ -5,10 +5,11 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-# Everything except VCS internals, build output, and this script itself
-# (it necessarily contains the patterns it greps for).
+# Everything except VCS internals, build output, this script itself (it necessarily contains the
+# patterns it greps for) and GERADO.txt: a sha256 written in full often has 11 digits in a row and would
+# be read as a CPF. GERADO.txt is written by the sdd-open generator and checked by check-gerado.py.
 SCAN_ARGS=(-rIEn --exclude-dir=.git --exclude-dir=dist --exclude-dir=node_modules \
-  --exclude=publish-check.sh)
+  --exclude=publish-check.sh --exclude=GERADO.txt)
 
 PATTERNS=(
   '[0-9]{11}'                                        # CPF-like 11-digit runs

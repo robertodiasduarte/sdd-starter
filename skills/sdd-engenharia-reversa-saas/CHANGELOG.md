@@ -1,5 +1,11 @@
 # Histórico
 
+## 1.1.1 — nov/2026
+
+- Sem mudança de comportamento. A versão sobe para a 1ª geração da distribuição para iniciantes (F17): a
+  cópia gerada leva o cabeçalho, o `GERADO.txt` e o bloco "Quando migrar", e o version gate do starter exige
+  versão maior que a 1.1.0 copiada à mão em nov/2026.
+
 ## 1.1.0 — nov/2026
 
 Entrada no sdd-open como 20ª skill, portada da 1.0.0 sem mudar o protocolo do escopo ER-SDD-001.
@@ -8,7 +14,7 @@ Entrada no sdd-open como 20ª skill, portada da 1.0.0 sem mudar o protocolo do e
   `references/como-falar.md` com glossário e exemplos.
 - Pasta de saída: com `sdd/config.yaml` no projeto, `sdd/features/`; sem ele, `sdd/` na raiz; `.claude/sdd/`
   só quando ela já existe e não há `sdd/config.yaml`. Antes, `.claude/sdd/` tinha preferência sempre que existia.
-- Com `.agents/skills/sdd-engenharia-reversa-saas/` no projeto, o molde e o lint são lidos dessa pasta: a
+- Com `<pasta desta skill>/` no projeto, o molde e o lint são lidos dessa pasta: a
   cópia gerada para cada agente tem cabeçalho, e um levantamento feito do molde copiado reprova no lint.
 - Dependências citadas pelo nome técnico, `sdd-brainstorm` e `sdd-define`, com ou sem prefixo de plugin.
 - Exemplo ilustrativo em domínio neutro ("um sistema de BPO financeiro"), sem nome de produto.

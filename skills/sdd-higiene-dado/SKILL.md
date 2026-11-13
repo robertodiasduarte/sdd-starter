@@ -5,17 +5,24 @@ description: "Instala, com o OK explícito de quem usa o computador, um alarme d
 metadata:
   author: Roberto Dias Duarte
   methodology: Metodologia de Roberto Dias Duarte
-  version: "1.1.0"
+  version: "1.2.0"
   updated: "2026-10"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
 # Higiene de dado
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-higiene-dado v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-higiene-dado v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Um alarme que roda a cada `git commit` no computador de quem trabalha com dado de cliente. Ele
 não impede o trabalho: recusa o commit suspeito, explica, e deixa a pessoa decidir.
+
+O alarme mora num de dois lugares, e o `alarme.sh` descobre sozinho qual: num projeto comum, é um
+arquivo dentro de `.git/`; num projeto em que o sdd-open já instalou os hooks dele (`sdd/hooks`), o alarme
+é **ligado** nesses hooks por uma configuração do git (`sdd.higieneDado`), sem gravar nada em `.git/`, e
+o hook do projeto o chama no fim de cada commit.
 
 ## Quick start
 
@@ -121,15 +128,19 @@ técnico.
 
 1. **Verificar.** Rode `bash "$SKILL_ROOT/scripts/alarme.sh" verificar` e leia o estado:
    - *nenhum alarme instalado* — siga para o passo 2;
-   - *o alarme desta skill já está instalado* — diga a versão instalada; instalar de novo atualiza;
-   - *outro alarme* (husky, lefthook, `core.hooksPath`, pre-commit escrito à mão) — **não instale**.
+   - *o projeto usa os hooks do sdd-open e o alarme está desligado neles* — siga para o passo 2: aqui
+     "instalar" é ligar o alarme nos hooks do projeto, sem gravar arquivo em `.git/`;
+   - *o alarme desta skill já está instalado* ou *ligado pelos hooks do projeto* — diga a versão;
+     instalar de novo atualiza (no arquivo) ou não muda nada (nos hooks);
+   - *outro alarme* (husky, lefthook, outro `core.hooksPath`, pre-commit escrito à mão) — **não instale**.
      Mostre o que o script disse, inclusive a linha para acrescentar à mão no alarme existente, e pare.
 2. **Explicar e pedir o OK.** Em poucas linhas, sem jargão:
    - o que o alarme recusa: CPF ou CNPJ válidos nas linhas novas; `.env` (exceto `.env.example` e
      `.env.sample`); `.pfx`, `.p12` e `.pem` com chave privada; planilha nova (`.xlsx`, `.xls`, `.ods`,
      `.csv`) de qualquer tamanho;
-   - que ele grava um único arquivo, `.git/hooks/pre-commit`, que vale para todas as frentes do projeto
-     e não vai para o GitHub;
+   - onde ele fica: num projeto comum, grava um único arquivo, `.git/hooks/pre-commit`, que vale para
+     todas as frentes do projeto e não vai para o GitHub; num projeto com os hooks do sdd-open
+     (`sdd/hooks`), só liga o alarme neles (uma configuração do git), sem gravar arquivo nenhum;
    - que, depois de conferir, dá para gravar mesmo assim com `git commit --no-verify`;
    - como desinstalar.
 
@@ -137,7 +148,8 @@ técnico.
    agora; nada vai para a internet), **não** (paro; nada é instalado), **ver o que ele recusa** (mostro a
    lista completa antes de você decidir) — e aguarde a resposta.
 3. **Instalar** só com um sim a essa pergunta: `bash "$SKILL_ROOT/scripts/alarme.sh" instalar`.
-   Diga em palavras, sem colar a saída: onde ficou, a versão, `--no-verify` e o comando de desinstalar.
+   Diga em palavras, sem colar a saída: onde ficou (o arquivo em `.git/` ou ligado nos hooks do
+   projeto), a versão, `--no-verify` e o comando de desinstalar.
 4. **Quando um commit for recusado**, leia a mensagem com a pessoa: qual arquivo, qual linha, o que foi
    achado (o número aparece mascarado). Proponha a correção da própria mensagem (`git restore --staged`,
    `.gitignore`, trocar por dado fictício) e pergunte **"O que fazemos com este arquivo?"** com as
@@ -147,7 +159,8 @@ técnico.
    `git commit --no-verify` por conta própria**: só quando a pessoa escolher **gravar mesmo assim** —
    dizendo, para aquele commit, que conferiu e quer gravar.
 5. **Desinstalar** quando a pessoa pedir: `bash "$SKILL_ROOT/scripts/alarme.sh" desinstalar`. O script
-   remove só o alarme desta skill; se o arquivo for de outra origem, recusa e não mexe.
+   remove só o alarme desta skill (o arquivo em `.git/`, ou a configuração que o liga nos hooks do
+   projeto; os hooks do sdd-open ficam no lugar); se o arquivo for de outra origem, recusa e não mexe.
 
 ## Validações e checklist de qualidade
 
@@ -186,6 +199,10 @@ e como desinstalar.
 `notas.md:12: CPF 123.***.***-09`. Propor `git restore --staged "clientes.csv"`, acrescentar ao
 `.gitignore` e trocar a linha 12 por um CPF fictício. Não rodar `--no-verify`.
 
+**Projeto com os hooks do sdd-open (sintético).** `verificar` diz que o projeto usa os hooks do sdd-open
+(`sdd/hooks`) e que o alarme está desligado neles. Explicar que "instalar" aqui é ligar o alarme nesses
+hooks, sem gravar arquivo em `.git/`; com o sim, rodar `instalar` e dizer como desligar.
+
 **Contraexemplo.** O projeto usa husky (`core.hooksPath = .husky/_`). `verificar` sai com código 2.
 Não instalar; mostrar a linha a acrescentar em `.husky/pre-commit` e parar.
 
@@ -204,21 +221,25 @@ certificadora e emitir outro — apagar o histórico não desfaz cópias já fei
 
 ## Scripts determinísticos
 
-- `scripts/alarme.sh` — `verificar` (só lê), `instalar`, `desinstalar`. Nunca sobrescreve alarme de
-  outra origem. Códigos de saída: 0 feito/informação, 2 recusado por outro alarme, 1 fora de repositório.
+- `scripts/alarme.sh` — `verificar` (só lê), `instalar`, `desinstalar`. Dois modos, decididos pelo
+  projeto: arquivo em `.git/hooks/pre-commit` (sem `core.hooksPath`) ou ligado nos hooks do sdd-open
+  (`core.hooksPath = sdd/hooks` com o dispatcher: `git config sdd.higieneDado on|off`). Nunca sobrescreve
+  alarme de outra origem. Códigos de saída: 0 feito/informação, 2 recusado por outro alarme, 1 fora de
+  repositório.
 - `scripts/pre-commit.sh` — o alarme em si; é a fonte copiada para `.git/hooks/pre-commit` com a
-  marca e a versão. Usa só bash, git e awk.
+  marca e a versão, ou chamada pelo dispatcher do sdd-open. Usa só bash, git e awk.
 
 ## Inventário do bundle
 
 - `SKILL.md` — este procedimento.
 - `scripts/alarme.sh`, `scripts/pre-commit.sh` — ver acima.
-- `tests/test_alarme.py` — testes de detecção e de instalação (CPF/CNPJ gerados em tempo de execução).
+- Testes: `tests/test_alarme.py` na raiz do repositório do sdd-open (fora desta pasta, para não ir ao
+  projeto de quem instala) — detecção e instalação, com CPF/CNPJ gerados em tempo de execução.
 - `references/COMO_FUNCIONA.md` — explicação para quem decide usar.
 - `references/RUNTIME_COMPATIBILITY.md` — onde funciona e onde não.
 - `references/ESCOPO_CONFIRMADO.md` — o escopo aprovado desta versão.
 - `evals/cases.json` — cenários de comportamento para rodar no agente.
-- `manifest.json`, `CHANGELOG.md`, `agents/openai.yaml`.
+- `manifest.json`, `CHANGELOG.md`.
 
 ## Metodologia e autoria
 
@@ -226,4 +247,12 @@ Esta skill foi construída com a metodologia de Roberto Dias Duarte.
 
 ---
 
-Parte do SDD Starter by RDD — https://github.com/robertodiasduarte/sdd-starter
+Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

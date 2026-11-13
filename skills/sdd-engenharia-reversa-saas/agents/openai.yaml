@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Engenharia Reversa de SaaS by RDD"
+  short_description: "Estuda um sistema que já existe, por fontes públicas e pela sua conta, antes do Brainstorm."
+  default_prompt: "Use a skill sdd-engenharia-reversa-saas para estudar o SaaS que eu vou indicar, só por fontes públicas e pela minha própria conta, registrando cada achado com a fonte."

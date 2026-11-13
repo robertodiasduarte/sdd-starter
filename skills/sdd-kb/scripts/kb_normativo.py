@@ -2,10 +2,10 @@
 """Normative-profile helpers for sdd-kb: rule frontmatter, source catalog, RULE_MAP, SHA-256.
 
 Usage:
-  python3 scripts/kb_normativo.py rule-map <kb-domain-dir>          # (re)write RULE_MAP.md
-  python3 scripts/kb_normativo.py rule-map [--check] <kb-domain-dir> # exit 2 if it drifted
+  python3 <pasta da skill sdd-kb>/scripts/kb_normativo.py rule-map <kb-domain-dir>          # (re)write RULE_MAP.md
+  python3 <pasta da skill sdd-kb>/scripts/kb_normativo.py rule-map [--check] <kb-domain-dir> # exit 2 if it drifted
                                   (--check also accepted after the directory)
-  python3 scripts/kb_normativo.py sha <file>                        # SHA-256 + today's date
+  python3 <pasta da skill sdd-kb>/scripts/kb_normativo.py sha <file>                        # SHA-256 + today's date
 
 validate_kb.py imports this module, so the RULE_MAP it checks is the one this script writes.
 Standard library only (Python 3.9+): the frontmatter is a closed subset of YAML, parsed here.
@@ -231,7 +231,7 @@ def main(argv: list) -> int:
         target = root / "RULE_MAP.md"
         if check:
             if not target.is_file() or target.read_text(encoding="utf-8") != text:
-                print("FAIL: RULE_MAP.md differs from rules/ — run `python3 scripts/kb_normativo.py rule-map <domain>`")
+                print("FAIL: RULE_MAP.md differs from rules/ — run `python3 <pasta da skill sdd-kb>/scripts/kb_normativo.py rule-map <domain>`")
                 return 2
             print("PASS: RULE_MAP.md matches rules/")
             return 0

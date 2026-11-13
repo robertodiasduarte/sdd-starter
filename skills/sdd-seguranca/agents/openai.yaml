@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Segurança by RDD"
+  short_description: "Confere as falhas de segurança mais comuns de app feito com IA, e o que fazer quando algo vazou."
+  default_prompt: "Use a skill sdd-seguranca para conferir a segurança do meu app antes de publicar, item por item, com a forma de conferir à mão cada um; se algo já vazou, comece pelo modo incidente."

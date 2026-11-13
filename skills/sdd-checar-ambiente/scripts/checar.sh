@@ -16,11 +16,24 @@
 # Uso: bash checar.sh            (de dentro da pasta do projeto)
 #      bash checar.sh --frente   (pré-voo da sdd-new-session: só git, repositório, remoto e alcance;
 #                                 todo achado vira 🔴 e a resposta diz que nada foi criado)
+#      bash checar.sh --segredo  (só o bloco 🔴 Dado exposto, sem rede: o doctor do sdd-open chama este
+#                                 modo; sai 1 com achado e 0 sem achado)
+#      bash checar.sh --editor   (só a detecção de editor, sem git e sem rede: 1ª linha o comando, 2ª opcional
+#                                 "dica: …"; sai 1 sem editor)
+#      bash checar.sh --editores (todos os editores achados, "<nome><TAB><comando>" por linha; sai 1 sem nenhum. A
+#                                 sdd-new-session usa a lista para perguntar o padrão na 1ª vez, com o slot editor vazio)
+# No modo normal, o `gh auth status` (10 s) roda junto com o ls-remote quando o origin é do GitHub, e sozinho
+# quando não há origin: gh ausente, deslogado ou sem resposta vira ⚠️, nunca 🔴.
 
 set -u
 
 MODO=normal
-[ "${1:-}" = "--frente" ] && MODO=frente
+case "${1:-}" in
+  --frente) MODO=frente ;;
+  --segredo) MODO=segredo ;;
+  --editor) MODO=editor ;;
+  --editores) MODO=editores ;;
+esac
 
 EXPOSTO=""
 IMPEDE=""
@@ -33,7 +46,156 @@ add_arrumar() { ARRUMAR="${ARRUMAR}- $1"$'\n'"  $2"$'\n'; }
 # Achado de remoto: no pré-voo da frente impede; no diagnóstico geral, depende do caso.
 add_remoto()  { if [ "${MODO}" = frente ]; then add_impede "$1" "$2"; else add_arrumar "$1" "$2"; fi; }
 tem() { command -v "$1" >/dev/null 2>&1; }
+
+# ── gh e instalação por sistema (F16) ────────────────────────────────────────
+# Copiado igual em sdd-iniciar-repo/scripts/inventario.sh (as skills são instaladas sozinhas):
+# tests/test_f16_textos.py compara o texto das duas cópias, de "# ── gh e instalação" até "# ── fim do gh".
+# SDD_CHECAR_UNAME e SDD_CHECAR_GH existem para os testes; o padrão é o sistema e o `gh` do PATH.
+sistema() {
+  case "${SDD_CHECAR_UNAME:-$(uname -s 2>/dev/null)}" in
+    Darwin) echo macos ;;
+    MINGW*|MSYS*|CYGWIN*|Windows*) echo windows ;;
+    *) echo linux ;;
+  esac
+}
+instalar_gh() {
+  case "$(sistema)" in
+    macos) echo "brew install gh   (sem Homebrew: instalador em https://cli.github.com); depois feche e abra o terminal" ;;
+    windows) echo "winget install --id GitHub.cli -e   (depois feche e abra o terminal)" ;;
+    *) echo "siga https://github.com/cli/cli/blob/trunk/docs/install_linux.md   (depois feche e abra o terminal)" ;;
+  esac
+}
+# ausente | deslogado | ok | sem resposta. Só lê (o gh consulta a API do GitHub), com teto de 10 s; a saída do
+# gh nunca é repassada, só a classificação. Como no ls-remote do checar.sh: o gh roda num grupo de processos
+# próprio (set -m) e o vigia mata o GRUPO, porque um filho vivo seguraria a saída depois do gh morto.
+gh_estado() {
+  local g="${SDD_CHECAR_GH:-gh}" s rc
+  command -v "${g}" >/dev/null 2>&1 || { echo ausente; return 0; }
+  s="$( ( set -m
+          LC_ALL=C GH_PROMPT_DISABLED=1 "${g}" auth status --hostname github.com </dev/null 2>&1 & p=$!
+          ( sleep 10; kill -KILL -- "-${p}" ) >/dev/null 2>&1 & w=$!
+          wait "${p}"; r=$?
+          kill -KILL -- "-${p}" 2>/dev/null
+          kill -- "-${w}" 2>/dev/null
+          echo "__rc=${r}" ) 2>/dev/null )"
+  rc="$(printf '%s\n' "${s}" | sed -n 's/^__rc=//p' | tail -1)"
+  if [ "${rc}" = 0 ]; then echo ok
+  elif [ "${rc}" = 137 ] || printf '%s' "${s}" | grep -qiE 'error connecting|dial tcp|could not resolve|timeout|timed out'; then
+    echo "sem resposta"
+  else echo deslogado; fi
+}
+# ── fim do gh ────────────────────────────────────────────────────────────────
+
+# ── editor (F16) ─────────────────────────────────────────────────────────────
+# 1º que existir: no PATH, a lista abaixo; fora do PATH, o app no macOS (open -a) e o .cmd no Windows.
+# SDD_CHECAR_EDITOR_PATH (padrão: o PATH) e SDD_APPS_DIRS (padrão: /Applications e ~/Applications) existem para
+# os testes. Resultado em EDITOR_CMD (o comando, como a sdd-new-session o usa) e EDITOR_DICA (opcional).
+EDITOR_CMD=""
+EDITOR_DICA=""
+editor_no_path() {   # $2 = o sistema, lido uma vez por quem chama (uname custa caro no Git Bash)
+  local d IFS=:
+  for d in ${SDD_CHECAR_EDITOR_PATH:-${PATH}}; do
+    [ -n "${d}" ] || continue
+    [ -f "${d}/$1" ] && [ -x "${d}/$1" ] && return 0
+    if [ "$2" = windows ] && { [ -f "${d}/$1.cmd" ] || [ -f "${d}/$1.exe" ]; }; then return 0; fi
+  done
+  return 1
+}
+editor_achado() {
+  local e d a c lad so IFS=:
+  so="$(sistema)"
+  for e in code cursor code-insiders windsurf zed subl idea pycharm webstorm; do
+    editor_no_path "${e}" "${so}" && { EDITOR_CMD="${e}"; return 0; }
+  done
+  case "${so}" in
+    macos)
+      # A ordem da lista de apps manda, como a do PATH: o VS Code em ~/Applications vence o Zed em /Applications.
+      for a in "Visual Studio Code" "Cursor" "Windsurf" "Zed" "Sublime Text"; do
+        for d in ${SDD_APPS_DIRS:-/Applications:${HOME:-}/Applications}; do
+          [ -d "${d}/${a}.app" ] || continue
+          EDITOR_CMD="open -a \"${a}\""
+          case "${a}" in
+            "Visual Studio Code") c=code ;; Cursor) c=cursor ;; Windsurf) c=windsurf ;; *) c="" ;;
+          esac
+          [ -n "${c}" ] && EDITOR_DICA="para abrir pelo terminal com '${c}', no ${a}: Command Palette (Cmd+Shift+P) → Shell Command: Install '${c}' command in PATH"
+          return 0
+        done
+      done ;;
+    windows)
+      lad="${LOCALAPPDATA:-}"
+      [ -n "${lad}" ] && command -v cygpath >/dev/null 2>&1 && lad="$(cygpath -u "${lad}")"
+      [ -n "${lad}" ] || return 1
+      for a in "Microsoft VS Code/bin/code.cmd" "cursor/resources/app/bin/cursor.cmd"; do
+        [ -f "${lad}/Programs/${a}" ] || continue
+        EDITOR_CMD="\"${lad}/Programs/${a}\""
+        EDITOR_DICA="o editor está instalado, mas o comando dele não está no PATH: reinstale marcando 'Add to PATH', ou use o caminho acima"
+        return 0
+      done ;;
+  esac
+  return 1
+}
+
+# Todos os editores achados, um por linha: "<nome>\t<comando>", na ordem da detecção (PATH, depois o app do macOS,
+# depois o .cmd do Windows); o mesmo editor achado por dois caminhos sai uma vez, pelo 1º. A sdd-new-session usa a lista
+# para perguntar o padrão na 1ª vez, em vez de escolher sozinha.
+editor_nome() {
+  case "$1" in
+    code|"Visual Studio Code"|*/code.cmd) echo "VS Code" ;; cursor|Cursor|*/cursor.cmd) echo "Cursor" ;;
+    code-insiders) echo "VS Code Insiders" ;; windsurf|Windsurf) echo "Windsurf" ;; zed|Zed) echo "Zed" ;;
+    subl|"Sublime Text") echo "Sublime Text" ;; idea) echo "IntelliJ IDEA" ;; pycharm) echo "PyCharm" ;;
+    webstorm) echo "WebStorm" ;; *) echo "$1" ;;
+  esac
+}
+editores_lista() {
+  local e d a n lad so vistos="|" IFS=:
+  so="$(sistema)"
+  for e in code cursor code-insiders windsurf zed subl idea pycharm webstorm; do
+    editor_no_path "${e}" "${so}" || continue
+    n="$(editor_nome "${e}")"
+    case "${vistos}" in *"|${n}|"*) continue ;; esac
+    vistos="${vistos}${n}|"; printf '%s\t%s\n' "${n}" "${e}"
+  done
+  case "${so}" in
+    macos)
+      for a in "Visual Studio Code" "Cursor" "Windsurf" "Zed" "Sublime Text"; do
+        for d in ${SDD_APPS_DIRS:-/Applications:${HOME:-}/Applications}; do
+          [ -d "${d}/${a}.app" ] || continue
+          n="$(editor_nome "${a}")"
+          case "${vistos}" in *"|${n}|"*) break ;; esac
+          vistos="${vistos}${n}|"; printf '%s\topen -a "%s"\n' "${n}" "${a}"
+          break
+        done
+      done ;;
+    windows)
+      lad="${LOCALAPPDATA:-}"
+      [ -n "${lad}" ] && command -v cygpath >/dev/null 2>&1 && lad="$(cygpath -u "${lad}")"
+      [ -n "${lad}" ] || return 0
+      for a in "Microsoft VS Code/bin/code.cmd" "cursor/resources/app/bin/cursor.cmd"; do
+        [ -f "${lad}/Programs/${a}" ] || continue
+        n="$(editor_nome "${a}")"
+        case "${vistos}" in *"|${n}|"*) continue ;; esac
+        vistos="${vistos}${n}|"; printf '%s\t"%s"\n' "${n}" "${lad}/Programs/${a}"
+      done ;;
+  esac
+}
+
+# --editores (F16): a lista inteira, sem git e sem rede. Sai 1 sem nenhum editor.
+if [ "${MODO}" = editores ]; then
+  L="$(editores_lista)"
+  [ -n "${L}" ] || exit 1
+  printf '%s\n' "${L}"
+  exit 0
+fi
+
+# --editor (F16): só a detecção, sem git e sem rede. 1ª linha: o comando; 2ª, opcional: "dica: …". Sai 1 sem editor.
+if [ "${MODO}" = editor ]; then
+  editor_achado || exit 1
+  printf '%s\n' "${EDITOR_CMD}"
+  [ -n "${EDITOR_DICA}" ] && printf 'dica: %s\n' "${EDITOR_DICA}"
+  exit 0
+fi
 # O pré-voo da frente sai 1 quando bloqueia (a skill para pelo código); o diagnóstico geral sai sempre 0.
+# (O --segredo não passa por aqui: sai pelo próprio bloco, logo abaixo da definição de dado_exposto.)
 sair() { if [ "${MODO}" = frente ] && [ -n "${IMPEDE}" ]; then exit 1; fi; exit 0; }
 
 # Identificação desta skill, lida do SKILL.md ao lado (fonte única da versão).
@@ -68,6 +230,48 @@ relatorio() {   # $1 = linha de resumo (sem o ✅)
     printf '✅ %s%s%s\n' "$(printf '%s' "$1" | cut -c1 | tr '[:lower:]' '[:upper:]')" "$(printf '%s' "$1" | cut -c2-)" "${IDENT}"
   fi
 }
+
+# ── dado exposto (seção 6 do diagnóstico e o modo --segredo inteiro) ──────────
+# Só olha o que o git já guarda (ls-files / grep --cached); não abre nada para escrita. Lê RAIZ e PUBLICO.
+exposto() {   # $1 = caminho, $2 = o que é, $3 = medida que protege
+  add_exposto "${2} ${1} está salvo no git. ${ONDE}" \
+    "git rm --cached \"${1}\" && echo \"${1}\" >> .gitignore"$'\n'"  ${3}"
+}
+dado_exposto() {
+  local f b
+  if [ "${PUBLICO}" -eq 1 ]; then
+    ONDE="Este repositório é público: o arquivo já está na internet."
+  else
+    ONDE="Tirar do git não apaga do histórico: se já houve push, quem tem acesso ao repositório tem o arquivo."
+  fi
+  # O pathspec (sem diferenciar maiúsculas) filtra no próprio git: o case abaixo roda só nos candidatos.
+  # Com basename | tr em cada arquivo rastreado, 5 mil arquivos levavam 12 s — e o doctor roda isto em todo init.
+  while IFS= read -r -d '' f; do
+    b="$(basename "${f}" | tr '[:upper:]' '[:lower:]')"
+    case "${b}" in
+      .env.example|.env.sample) ;;
+      .env|.env.*) exposto "${f}" "O arquivo de senhas" "Depois, troque as senhas e chaves que estão nele." ;;
+      *.pfx|*.p12) exposto "${f}" "O certificado digital" "Depois, revogue o certificado com a autoridade certificadora e emita outro." ;;
+    esac
+  done < <(git -C "${RAIZ}" ls-files -z -- ':(glob,icase)**/.env' ':(glob,icase)**/.env.*' \
+             ':(glob,icase)**/*.pfx' ':(glob,icase)**/*.p12' 2>/dev/null)
+  # .pem só é segredo quando traz a chave privada; certificado público é comum e não alarma.
+  while IFS= read -r -d '' f; do
+    exposto "${f}" "A chave privada" "Depois, gere uma chave nova e descarte esta."
+  done < <(git -C "${RAIZ}" grep --cached -l -z -I -e "PRIVATE KEY" -- '*.pem' '*.PEM' 2>/dev/null)
+}
+
+# --segredo: sem rede, sem agentes, sem frentes. Sem saber se o repositório é público, vale a frase
+# "Tirar do git não apaga do histórico" (PUBLICO=0). Fora de um repositório não há o que dizer.
+if [ "${MODO}" = segredo ]; then
+  RAIZ="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+  [ -n "${RAIZ}" ] || exit 0
+  PUBLICO=0
+  dado_exposto
+  [ -n "${EXPOSTO}" ] || exit 0
+  printf '🔴 Dado exposto\n%s' "${EXPOSTO}"
+  exit 1
+fi
 
 # ── 2. agentes (antes do git: vale mesmo fora de repositório) ─────────────────
 AGENTES=""
@@ -172,7 +376,7 @@ if [ "${MODO}" = normal ]; then
     "git config --global user.name \"Seu Nome\""
   [ -n "$(git config user.email 2>/dev/null)" ] || add_impede \
     "O git não tem e-mail configurado — o primeiro commit vai falhar." \
-    "git config --global user.email \"voce@exemplo.com\""
+    "git config --global user.email \"voce@example.com\""
 fi
 
 # Alcance do origin, somente leitura: `ls-remote` não muda nada. Sem prompt de senha (o agente
@@ -246,6 +450,18 @@ elif [ -z "$(git config --get remote.origin.url 2>/dev/null)" ]; then
              "git remote rename $(git remote | head -1) origin   (ou: git remote add origin <url do repositório>)"
 else
   PRINCIPAL="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
+  # F17: a ref origin/HEAD é local e envelhece (o remoto troca a branch padrão e ninguém roda set-head). O slot
+  # project.default_branch do sdd/config.yaml vale mais, desde que a branch dele exista no origin: o modelo traz
+  # "main" e um repositório em master não pode virar "main" por causa disso.
+  SLOT_PRINCIPAL=""
+  [ -f "${RAIZ}/sdd/config.yaml" ] && SLOT_PRINCIPAL="$(awk '/^project:/{p=1;next} /^[^[:space:]#]/{p=0} p && /^[[:space:]]+default_branch:/{sub(/^[[:space:]]+default_branch:[[:space:]]*/, ""); sub(/[[:space:]]+#.*$/, ""); gsub(/["'"'"' ]/, ""); print; exit}' "${RAIZ}/sdd/config.yaml" 2>/dev/null)"
+  if [ -n "${SLOT_PRINCIPAL}" ] && git show-ref --verify --quiet "refs/remotes/origin/${SLOT_PRINCIPAL}"; then
+    if [ -n "${PRINCIPAL}" ] && [ "${PRINCIPAL}" != "${SLOT_PRINCIPAL}" ]; then
+      add_arrumar "A referência local origin/HEAD aponta para ${PRINCIPAL}, mas a branch padrão do projeto (project.default_branch no sdd/config.yaml) é ${SLOT_PRINCIPAL}: valeu a do projeto." \
+                  "git remote set-head origin -a   (atualiza a referência local pela do remoto; se o remoto mudou de branch padrão de propósito, ajuste project.default_branch no sdd/config.yaml)"
+    fi
+    PRINCIPAL="${SLOT_PRINCIPAL}"
+  fi
   if [ -z "${PRINCIPAL}" ]; then
     for b in main master; do git show-ref --verify --quiet "refs/remotes/origin/${b}" && { PRINCIPAL="${b}"; break; }; done
   fi
@@ -258,6 +474,7 @@ fi
 # Roda EM PARALELO com o ls-remote (abaixo): em sequência, rede parada somava 3 s ao teto de 10 s.
 # Imprime __publico=1 quando é público; nada quando não é ou quando a consulta falha.
 PUBLICO=0
+GH=""   # estado do gh (F16): só no modo normal, com origin do GitHub ou sem origin
 SLUG="$(printf '%s' "${URL_ORIGIN}" \
   | sed -n -E 's#^(https?://([^@/]+@)?|ssh://([^@/]+@)?|git@)github\.com[:/]([^/]+/[^/]+)$#\4#p' | sed 's#\.git$##; s#/$##')"
 # Só curl (vem com macOS, Linux e o Git for Windows): ele tem teto de 3 s. O `gh repo view` não tem
@@ -273,10 +490,12 @@ if [ -n "${URL_ORIGIN}" ]; then
   # as duas não se misturarem no meio de uma linha. Teto total = o maior dos dois, não a soma.
   SAIDA="$(
     [ -n "${SLUG}" ] && [ "${MODO}" = normal ] && { publico </dev/null & }
+    [ -n "${SLUG}" ] && [ "${MODO}" = normal ] && { echo "__gh=$(gh_estado)" </dev/null & }
     s="$(alcance)"; wait; printf '%s\n' "${s}"
   )"
   [ -n "$(printf '%s\n' "${SAIDA}" | grep -x '__publico=1')" ] && PUBLICO=1
-  SAIDA="$(printf '%s\n' "${SAIDA}" | grep -v -x '__publico=1')"
+  GH="$(printf '%s\n' "${SAIDA}" | sed -n 's/^__gh=//p' | tail -1)"
+  SAIDA="$(printf '%s\n' "${SAIDA}" | grep -v -x '__publico=1' | grep -v '^__gh=')"
   RC="$(printf '%s\n' "${SAIDA}" | sed -n 's/^__rc=//p' | tail -1)"
   # Só as refs contam: stderr chega junto (avisos de redirecionamento ou de host novo não são refs).
   REFS="$(printf '%s\n' "${SAIDA}" | grep -E "^[0-9a-f]{40}"$'\t'"refs/heads/" || true)"
@@ -307,7 +526,7 @@ if [ -n "${URL_ORIGIN}" ]; then
         add_impede "Este computador ainda não confirmou a identidade de ${ONDE_HOST} para SSH." "${CMD}" ;;
       *"could not read username"*|*"could not read password"*|*"authentication failed"*|*"terminal prompts disabled"*|*"permission denied (publickey"*|*"repository not found"*|*"returned error: 403"*)
         if [ -n "${SLUG}" ]; then
-          if tem gh; then CMD="gh auth login"; else CMD="Instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
+          if tem "${SDD_CHECAR_GH:-gh}"; then CMD="gh auth login"; else CMD="Instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
           CMD="${CMD}"$'\n'"  Alternativas: chave SSH (ssh-keygen e cadastrar a chave pública no GitHub) ou o gerenciador de credenciais do git."
         else
           # Fora do GitHub, gh auth login não resolve: o login é o do próprio serviço.
@@ -329,7 +548,7 @@ if [ -n "${URL_ORIGIN}" ]; then
           # O askpass do editor (VS Code/Cursor) não é desligado: quem está logado no GitHub por ele alcança
           # o remoto sem janela nenhuma. O vigia cortou E o remoto, consultado sem askpass, pediu login: a
           # janela ficou esperando. Askpass definido sozinho não prova isso (rede parada nem o chama).
-          if tem gh; then CMD="Responda a janela do editor, ou rode: gh auth login"
+          if tem "${SDD_CHECAR_GH:-gh}"; then CMD="Responda a janela do editor, ou rode: gh auth login"
           else CMD="Responda a janela do editor, ou instale o GitHub CLI (https://cli.github.com) e rode: gh auth login"; fi
           add_impede "A janela de login do editor está esperando resposta (o git pediu usuário e senha para ${ONDE_HOST})." "${CMD}"
         elif [ "${RC}" = "143" ] || [ "${RC}" = "137" ] || [ -z "${ERRO}" ]; then
@@ -342,6 +561,24 @@ if [ -n "${URL_ORIGIN}" ]; then
         fi ;;
     esac
   fi
+fi
+
+# gh (F16): sem origin, a consulta roda sozinha (quem ainda vai publicar precisa saber cedo); origin fora do
+# GitHub, não roda. Nunca 🔴: SSH e o gerenciador de credenciais continuam valendo. Se o remoto já recusou com
+# "gh auth login" no 🔴, o aviso não se repete.
+if [ "${MODO}" = normal ] && [ -z "${URL_ORIGIN}" ]; then GH="$(gh_estado)"; fi
+if [ "${MODO}" = normal ]; then
+  case "${IMPEDE}" in
+    *"gh auth login"*) ;;
+    *) case "${GH}" in
+         ausente) add_arrumar "O programa do GitHub para o terminal (gh) não está instalado — sem ele, publicar o projeto e logar no GitHub ficam manuais." \
+                              "$(instalar_gh)" ;;
+         deslogado) add_arrumar "O gh está instalado, mas nenhuma conta do GitHub está logada nele — publicar o projeto vai pedir esse login." \
+                                "gh auth login   (GitHub.com → HTTPS → Yes → Login with a web browser)" ;;
+         "sem resposta") add_arrumar "Não deu para conferir o login do gh no GitHub agora (o GitHub não respondeu em 10 s)." \
+                                     "Rode de novo quando a conexão voltar; para ver na hora: gh auth status" ;;
+       esac ;;
+  esac
 fi
 
 if [ "${MODO}" = frente ]; then
@@ -398,28 +635,7 @@ if [ -f "${RAIZ}/.env.example" ] && [ ! -f "${RAIZ}/.env" ] \
 fi
 
 # ── 6. dado de cliente e segredos ────────────────────────────────────────────
-# Só olha o que o git já guarda (ls-files / grep --cached) e a pasta; não abre nada para escrita.
-if [ "${PUBLICO}" -eq 1 ]; then
-  ONDE="Este repositório é público: o arquivo já está na internet."
-else
-  ONDE="Tirar do git não apaga do histórico: se já houve push, quem tem acesso ao repositório tem o arquivo."
-fi
-exposto() {   # $1 = caminho, $2 = o que é, $3 = medida que protege
-  add_exposto "${2} ${1} está salvo no git. ${ONDE}" \
-    "git rm --cached \"${1}\" && echo \"${1}\" >> .gitignore"$'\n'"  ${3}"
-}
-while IFS= read -r -d '' f; do
-  b="$(basename "${f}" | tr '[:upper:]' '[:lower:]')"
-  case "${b}" in
-    .env.example|.env.sample) ;;
-    .env|.env.*) exposto "${f}" "O arquivo de senhas" "Depois, troque as senhas e chaves que estão nele." ;;
-    *.pfx|*.p12) exposto "${f}" "O certificado digital" "Depois, revogue o certificado com a autoridade certificadora e emita outro." ;;
-  esac
-done < <(git -C "${RAIZ}" ls-files -z 2>/dev/null)
-# .pem só é segredo quando traz a chave privada; certificado público é comum e não alarma.
-while IFS= read -r -d '' f; do
-  exposto "${f}" "A chave privada" "Depois, gere uma chave nova e descarte esta."
-done < <(git -C "${RAIZ}" grep --cached -l -z -I -e "PRIVATE KEY" -- '*.pem' '*.PEM' 2>/dev/null)
+dado_exposto
 
 if [ -f "${RAIZ}/.env" ] && [ -z "$(git -C "${RAIZ}" ls-files .env 2>/dev/null)" ] \
    && ! git -C "${RAIZ}" check-ignore -q .env 2>/dev/null; then
@@ -438,8 +654,9 @@ case "${FRENTES}" in
   1) TXT_FRENTES="1 frente aberta" ;;
   *) TXT_FRENTES="${FRENTES} frentes abertas" ;;
 esac
-EDITOR_ACHADO=""
-for e in code cursor subl; do tem "${e}" && { EDITOR_ACHADO="${e}"; break; }; done
+# O editor escolhido (a sdd-new-session grava em git config sdd.editor) vale mais que o detectado (F17, sobra da F16).
+EDITOR_ACHADO="$(git config --get sdd.editor 2>/dev/null)"
+if [ -z "${EDITOR_ACHADO}" ]; then editor_achado; EDITOR_ACHADO="${EDITOR_CMD}"; fi
 [ "${PUBLICO}" -eq 1 ] && REPO="${REPO} (público no GitHub)"
 RESUMO="repo ${REPO}, branch ${BRANCH}, ${TXT_FRENTES}, ${AGENTES}${EDITOR_ACHADO:+, editor ${EDITOR_ACHADO}}"
 relatorio "${RESUMO}"

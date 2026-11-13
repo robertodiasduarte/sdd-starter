@@ -68,9 +68,8 @@ def rel(path: Path, root: Path) -> str:
 
 def classify(path: Path, root: Path) -> str:
     r = rel(path, root)
-    # Arquivos de instrucao do projeto. AGENTS.md e o padrao aberto (agents.md), lido
-    # nativamente por Codex/Cursor/Gemini CLI e, desde o Claude Code 2.1.277, tambem por
-    # ele — por fallback, quando nao ha CLAUDE.md no caminho.
+    # Arquivos de instrucao do projeto: CLAUDE.md (Claude Code) e AGENTS.md, o padrao aberto
+    # (agents.md) que Codex, Cursor, Gemini CLI e outros leem.
     if r.endswith("CLAUDE.md") or r.endswith("AGENTS.md"):
         return "fonte-de-verdade"
     if r.startswith(".claude/commands/") or r.startswith(".codex/prompts/"):
@@ -189,7 +188,7 @@ def collect_inventory(root: Path) -> list[Path]:
             if p.is_file() and not p.is_symlink() and within(p, root):
                 items.add(p)
 
-    for name in [".claude/settings.json", ".claude/settings.local.json"]:
+    for name in [".claude/settings.json", ".claude/settings.local.json", ".codex/config.toml"]:
         p = root / name
         if p.is_file() and not p.is_symlink():
             items.add(p)
@@ -218,6 +217,9 @@ def reference_needles(path: Path, root: Path, text: str | None) -> set[str]:
     stem = path.stem
     if "/commands/" in f"/{rpath}":
         needles.add("/" + stem)
+    if rpath.startswith(".codex/prompts/"):
+        # o Codex chama um prompt próprio como /prompts:<nome>; sem este needle ele sairia com 0 referências
+        needles.add("/prompts:" + stem)
     if text:
         m = re.search(r"(?m)^name:\s*['\"]?([^'\"\n]+)", text)
         if m:

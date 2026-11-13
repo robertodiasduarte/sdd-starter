@@ -30,7 +30,7 @@ O Brainstorm investiga a solução nova. Informação de marketing não vale com
 
 No contrato disponível: no mínimo três respostas de descoberta antes de abordagens; pergunta de amostras; duas ou três abordagens; seleção confirmada; revisão YAGNI; pelo menos dois checkpoints. Não contar a pergunta de amostras como descoberta, inferir respostas ou transformar decisões sobre o concorrente em confirmações da nova solução. Aproveitar respostas explícitas já existentes em vez de repetir perguntas apenas para contar interações.
 
-Usar o molde `BRAINSTORM_TEMPLATE.md` no lugar que a dependência indicar (no SDD Open, `sdd/templates/`; em outras distribuições, um asset da própria skill). Colocar o link do levantamento e os IDs de apoio em `Context Gathered`, `Sample Data Inventory`, `Key Decisions Made` ou outras seções pertinentes já existentes. Distinguir influência de evidência e confirmação do usuário. Não acrescentar seções que alterem a estrutura canônica.
+Usar o molde `BRAINSTORM_TEMPLATE.md` no lugar que a dependência indicar (no SDD Open, a pasta de moldes do projeto; no starter, `assets/` da skill `sdd-brainstorm`). Colocar o link do levantamento e os IDs de apoio em `Context Gathered`, `Sample Data Inventory`, `Key Decisions Made` ou outras seções pertinentes já existentes. Distinguir influência de evidência e confirmação do usuário. Não acrescentar seções que alterem a estrutura canônica.
 
 Nomear o novo produto/feature com identificador próprio e estável. O nome não precisa conter o SaaS de referência. Lacunas sobre o concorrente podem permanecer sem bloquear decisões próprias, quando não forem necessárias à aceitação da nova solução.
 

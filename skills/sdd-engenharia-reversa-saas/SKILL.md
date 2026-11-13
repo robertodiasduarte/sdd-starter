@@ -6,21 +6,23 @@ license: MIT
 metadata:
   author: Roberto Dias Duarte
   methodology: Metodologia de Roberto Dias Duarte
-  version: "1.1.0"
+  version: "1.1.1"
   updated: "2026-11"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
 # SDD Engenharia Reversa de SaaS
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-engenharia-reversa-saas v1.1.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-engenharia-reversa-saas v1.1.1 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
 Conduzir `ENGENHARIA REVERSA → SDD BRAINSTORM → SDD DEFINE`. Esta é uma entrada opcional, anterior ao Brainstorm; não renumerar fases nem modificar o harness do projeto.
 
 1. Receber nome ou URL do SaaS e aproveitar o contexto já fornecido.
-2. Investigar progressivamente e produzir `ENGENHARIA_REVERSA_{SAAS}.md` usando o molde `.agents/skills/sdd-engenharia-reversa-saas/assets/ENGENHARIA_REVERSA_TEMPLATE.md` (sem essa pasta no projeto, o `assets/ENGENHARIA_REVERSA_TEMPLATE.md` do diretório real desta skill).
+2. Investigar progressivamente e produzir `ENGENHARIA_REVERSA_{SAAS}.md` usando o molde `<pasta desta skill>/assets/ENGENHARIA_REVERSA_TEMPLATE.md` (sem essa pasta no projeto, o `assets/ENGENHARIA_REVERSA_TEMPLATE.md` do diretório real desta skill).
 3. Conduzir a descoberta da nova solução com a skill `sdd-brainstorm` instalada.
 4. Após seu gate, conduzir a `sdd-define` instalada até o gate ou um rascunho explicitamente bloqueado.
 
@@ -47,7 +49,7 @@ Não pedir senhas ou tokens no chat. Se necessário, o usuário autentica a sess
 ## Como falar com o aluno
 
 Leia `references/como-falar.md` antes da primeira resposta: o glossário desta skill, o Status preenchido
-e um exemplo completo. Pergunta e parada seguem `sdd/templates/fragments/PERGUNTA_DECISAO.md`; sem esse
+e um exemplo completo. Pergunta e parada seguem `<pasta desta skill>/references/PERGUNTA_DECISAO.md`; sem esse
 arquivo no projeto, vale o formato descrito abaixo e nos exemplos de `references/como-falar.md`.
 Quem usa esta skill, em geral, nunca usou git nem terminal.
 
@@ -111,10 +113,10 @@ Separar `observado`, `documentado`, `informado`, `inferido` e `nao_verificado`. 
 
 Investigar apenas enquanto houver perguntas úteis ao escopo e fontes acessíveis; não exigir acesso interno para encerrar o levantamento disponível. Com pouca evidência, salvar como `parcial`, listar lacunas e seguir para descobrir a nova solução. Não inventar telas, testes ou métricas para preencher seções.
 
-Validar com `scripts/validate_reverse.py`. Se o projeto tem `.agents/skills/sdd-engenharia-reversa-saas/`, usar **sempre** o molde e o script dessa pasta: a cópia que o `sync` gera para cada agente ganha um cabeçalho em cada arquivo, e um levantamento feito do molde copiado sai com essas linhas e reprova no lint.
+Validar com `scripts/validate_reverse.py`, da pasta desta skill.
 
 ```bash
-python3 .agents/skills/sdd-engenharia-reversa-saas/scripts/validate_reverse.py sdd/features/ENGENHARIA_REVERSA_SAAS.md
+python3 <pasta desta skill>/scripts/validate_reverse.py sdd/features/ENGENHARIA_REVERSA_SAAS.md
 ```
 
 Sem essa pasta, resolver o diretório real desta skill como `SKILL_ROOT`; a variável não é criada automaticamente pelo host:
@@ -133,7 +135,7 @@ Passar o pedido original do usuário, o caminho do levantamento, os achados rele
 
 Preservar os gates da dependência: descoberta, amostras, abordagens, seleção, YAGNI e validações. Respostas anteriores podem ser aproveitadas quando realmente respondem às perguntas da nova solução; não inventar perguntas respondidas ou confirmações.
 
-Gerar `BRAINSTORM_{NOVA_SOLUCAO}.md` somente após seu gate, com o molde que a `sdd-brainstorm` instalada indicar (no SDD Open, `sdd/templates/BRAINSTORM_TEMPLATE.md`). Guardar a rastreabilidade nas seções existentes, sem mudar sua estrutura ou seu encerramento canônico.
+Gerar `BRAINSTORM_{NOVA_SOLUCAO}.md` somente após seu gate, com o molde que a `sdd-brainstorm` instalada indicar (no starter, `assets/BRAINSTORM_TEMPLATE.md` da skill `sdd-brainstorm`). Guardar a rastreabilidade nas seções existentes, sem mudar sua estrutura ou seu encerramento canônico.
 
 ### 5. Orquestrar o Define da nova solução
 
@@ -208,3 +210,11 @@ Contrato operacional aprovado ER-SDD-001 V1. Protocolos SDD instalados são depe
 ## Metodologia e autoria
 
 Esta skill foi construída com a metodologia de Roberto Dias Duarte.
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

@@ -2,7 +2,7 @@
 
 Quem pede o estudo de um SaaS conhece o negócio e, em geral, não sabe o que dá para afirmar a partir de
 um site e o que é suposição. A seção "Como falar com o aluno" do `SKILL.md` dá o formato; este arquivo dá
-as palavras e exemplos inteiros. Pergunta e parada seguem `sdd/templates/fragments/PERGUNTA_DECISAO.md`.
+as palavras e exemplos inteiros. Pergunta e parada seguem `<pasta desta skill>/references/PERGUNTA_DECISAO.md`.
 
 ## Glossário (explique na primeira vez em que o termo aparecer)
 

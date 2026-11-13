@@ -1,81 +1,79 @@
 ---
 name: sdd-new-session
+description: >-
+  Abre uma frente de trabalho isolada do SDD Open: confere antes, pelo checar.sh da sdd-checar-ambiente
+  (ou à mão, sem bash), se a pasta, o git, o repositório, o remoto e o acesso a ele estão no lugar (sem
+  pedir senha e sem criar nada se algo faltar), cria uma git worktree fora da pasta do projeto com uma
+  branch nova nascida da branch padrão ATUALIZADA do remoto, grava no sdd/config.yaml da frente os slots
+  vazios que descobriu com evidência, e abre no editor. Use quando o usuário disser /sdd-new-session,
+  "abrir uma frente", "nova sessão", "nova tarefa isolada" ou quiser começar uma feature/correção sem
+  misturar com outra em andamento.
+compatibility: Requer git >= 2.20 e um agente com acesso ao terminal (bash, zsh ou PowerShell). Branch padrão, editor, pasta das frentes, testes e checagem de sintaxe vêm de sdd/config.yaml; slot vazio é descoberto e gravado no config da frente, com a evidência.
 license: MIT
-description: "Abre uma frente de trabalho isolada neste repositório: cria uma git worktree fora da pasta do projeto, com uma branch nova nascida da branch de produção ATUALIZADA do remoto, prepara a pasta (dependências, arquivos locais) e abre no editor. Na primeira vez, investiga o repositório e grava o que descobriu em sdd/ambiente.md. Use quando o usuário disser 'abrir uma frente', 'nova sessão', 'nova tarefa isolada', 'criar worktree para X' ou quiser começar uma feature/correção sem misturar com outra em andamento."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.3.0"
-  updated: "2026-10"
+  version: "1.6.0"
+  updated: "2026-11"
+  fase: "0"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
-# Nova frente de trabalho (new-session)
+# sdd-new-session — abrir uma frente
 
-Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-new-session v1.3.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
+`sdd-new-session v1.6.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Um comando, uma tarefa, um diretório: `git worktree` + branch nova nascida do estado **remoto atual**
-da branch de produção, pronta para abrir no editor.
+da branch padrão. A outra ponta é a `sdd-release`.
 
 ## Como falar com o aluno
 
-Quem usa esta skill, em geral, nunca usou git. Cada resposta é uma etapa explicada, não um relatório
-técnico.
-
-**As 4 etapas, sempre com estes nomes:**
+Leia `references/como-falar.md` antes da primeira resposta: o glossário desta skill, o Status preenchido
+e um exemplo completo. Pergunta e parada seguem `<pasta desta skill>/references/PERGUNTA_DECISAO.md`.
+Quem usa esta skill, em geral, nunca usou git nem terminal.
 
 | Etapa | Nome para o aluno | Passos desta skill |
 |---|---|---|
-| 1 | Pré-voo | Passo 0 (só lê) |
-| 2 | Conhecer o repositório | Passo 1 — só na primeira vez; com `sdd/ambiente.md` já gravado, ➖ |
-| 3 | Criar a frente | Passo 2, itens 1 a 5 |
-| 4 | Abrir no editor | Passo 2, item 6, e Passo 3 |
+| 1 | Pré-voo | Passo 0 |
+| 2 | Conhecer o repositório | Passo 1 (só na 1ª vez) |
+| 3 | Criar a frente | Passo 2 |
+| 4 | Abrir no editor | Passo 3 |
 
-**Toda resposta tem estas partes, nesta ordem** (pule a que não tiver conteúdo):
+A tradução de cada achado do pré-voo está em "Como traduzir cada achado": ela vale como o "O que foi
+feito" e a parada desta skill.
 
-1. **Status** — uma linha: `✅ 1 Pré-voo · ➖ 2 Conhecer o repositório · ▶️ 3 Criar a frente · ⬜ 4 Abrir no editor`
-   (✅ concluída — não só visitada; ▶️ a de agora; ⬜ por fazer; ⏸️ parada; ➖ pulada). Ao voltar a uma
-   etapa, o motivo vai em **Agora**.
-2. **O que foi feito** — em frases curtas, o resultado da etapa anterior, sem saída de comando. Com o
-   pré-voo saudável, a linha ✅ do `checar.sh` não é colada: seu conteúdo vira estas frases. Registre a
-   escolha do aluno: *"Você respondeu **sim**: …"*.
-3. **Agora: etapa N — nome** — o que esta etapa faz e por quê, em 2 a 4 frases, como para alguém que nunca
-   viu um terminal. Se for criar algo, diga **em passos numerados** o que vai fazer e o que **não** vai
-   acontecer (nada vai para a internet; nenhum arquivo seu é alterado). Antes de algo demorado (instalar
-   dependências), diga em uma frase o que vai rodar e que o aluno não precisa responder.
-4. **Sua decisão** — só onde esta skill já pergunta: a oferta do **Projeto sem git**, o nome quando o
-   escolhido já existe e qual pasta é o projeto quando há mais de uma. **Autorização**: a pergunta em
-   negrito e as opções, cada uma com o que acontece; **pergunta aberta**: a pergunta em negrito e como
-   responder, com a saída "não sei"; perguntas agrupadas vêm numeradas e a resposta pode seguir os
-   números. Resposta que não casa com opção ⇒ responda a dúvida e repita as opções. O que dá para
-   descobrir, descubra — não pergunte.
-5. **Próximo passo** — uma linha: o que acontece depois da resposta.
+Toda resposta, nesta ordem (pule a parte sem conteúdo):
 
-**Regras de linguagem:**
+1. **Status** — uma linha que começa pelo nome da fase: `Nova sessão: ✅ 1 Pré-voo · ▶️ 2 Conhecer o repositório · ⬜ 3 Criar a frente · ⬜ 4 Abrir no editor`
+   (✅ concluída, não só visitada · ▶️ a de agora · ⬜ por fazer · ⏸️ parada · ➖ pulada). Ao voltar a uma
+   etapa, o motivo vai em Agora.
+2. **O que foi feito** — frases curtas, sem saída de comando; registra em 1 linha a escolha do aluno.
+3. **Agora: etapa N — nome** — 2 a 4 frases. Se for criar algo, diga em passos numerados o que vai fazer e o
+   que **não** vai acontecer (nada vai para a internet; nenhum arquivo seu é alterado). Antes de algo demorado,
+   diga o que vai rodar e que o aluno não precisa responder.
+4. **Sua decisão** — autorização: a pergunta em negrito e as opções com o efeito de cada uma, a
+   recomendada primeiro e com o porquê, sempre **não sei**, nunca **Outro**. Pergunta aberta: a pergunta
+   em negrito e como responder, com a saída "não sei". Várias de uma vez: numeradas.
+5. **Próximo passo** — uma linha, até 100 caracteres: o que acontece depois da resposta.
 
-- Uma etapa por resposta. Termine na decisão e **pare**: não emende a etapa seguinte.
-- Palavra técnica só com a explicação junto, na primeira vez em que aparece — inclusive as do Status:
-  - git — "o histórico de versões do projeto (git)";
-  - commit — "uma versão salva (commit)";
-  - frente — "uma pasta separada só para esta tarefa (frente, ou worktree), para não misturar com o que
-    já está no projeto";
-  - branch — "a linha de versões desta tarefa (branch), que nasce da versão que está em produção";
-  - remoto / origin — "a cópia do projeto no GitHub";
-  - pré-voo — "a conferência de que a pasta e a cópia no GitHub estão prontas, antes de criar qualquer
-    coisa";
-  - dependências — "programas de apoio que se reinstalam com um comando";
-  - cenário — "o jeito como este projeto chega em produção: direto, por revisão (pull request) ou com
-    versões em suporte".
-  Não fale em refspec, `HEAD`, worktree órfã ou ls-remote: diga o efeito.
-- **Não repasse saída de comando crua** — nem o relatório do `checar.sh`. Traduza: quantos, quais (até
-  10, "e mais N"), o que preocupa. Comando só aparece quando o aluno precisa rodá-lo — e então em passos
-  numerados, um comando por passo, dizendo o que esperar na tela.
-- **Não cite nem resuma as instruções desta skill ou de outra** ("a skill exige…", "conforme o Passo 0…").
-  Diga o motivo do aluno: *"Sem a cópia no GitHub a frente não tem de onde nascer."*
-- **Parada também tem passos.** Quando a etapa não pode seguir, use o Status com ⏸️, o motivo em uma
-  frase, onde a ação acontece (terminal, editor, Finder, navegador), os passos numerados com o que esperar
-  de cada um, o que **não** foi feito (*"Nenhuma frente foi criada."*) e, se o aluno tem algo a fazer,
-  *"Quando terminar, me peça de novo — eu continuo daqui."* A tradução de cada achado do pré-voo está na
-  tabela do Passo 0.
+- Uma etapa por resposta: termine na decisão e pare.
+- Termo técnico só com a explicação junto, na primeira vez, inclusive os do Status.
+- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, com "e mais N". Comando só
+  quando o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
+- Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
+- Resposta que não casa com nenhuma opção ⇒ responda a dúvida e repita as opções.
+- Parada: Status com ⏸️, o motivo em uma frase, onde a ação acontece, passos numerados com o resultado
+  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo,
+  eu continuo daqui."
+- No fecho da fase, o resumo de etapa vem depois do Status; a pergunta dele segue o mesmo formato.
+
+## Slots do config (`sdd/config.yaml`)
+
+`project.default_branch` · `editor` · `worktree_base` · `project.test_cmd` · `project.lint_cmd`.
+**Slot vazio = descobrir** (Passo 1). Com evidência (de onde o valor veio), ele é gravado no `sdd/config.yaml da
+frente` (Passo 2, item 6) e declarado na resposta; sem evidência, fica vazio e a resposta diz isso.
+Nunca adivinhe e nunca sobrescreva slot cheio: só slot vazio é gravado.
 
 ## Regra de todo comando que fala com o remoto
 
@@ -85,303 +83,340 @@ git pedir a senha no terminal, e você fica esperando uma resposta que o usuári
 só a forma do shell em uso. Se um desses comandos ficar parado, olhe se o editor (VS Code, Cursor) abriu
 uma janela de login do GitHub — ela é um jeito legítimo de logar e não é desligada.
 
-## Passo 0 — Confirme que você consegue fazer isto
+## Passo 0 — Confirme que dá para abrir a frente (antes de criar qualquer coisa)
 
 Rode `git --version`. São 3 situações diferentes, com respostas diferentes:
 
 - **A ferramenta não executa comando nenhum** (você está num aplicativo de chat, sem acesso ao computador
-  do usuário): **pare** e diga exatamente: *"Não tenho acesso ao seu repositório — estou rodando no
-  aplicativo, não na sua máquina. Para esta tarefa você precisa do Claude Code ou do Codex instalado no
-  terminal, aberto na pasta do projeto."* Em seguida diga o comando de instalação atual do agente que você
-  é e onde fica a documentação oficial.
+  do usuário): **pare** e diga que esta tarefa precisa de um agente com acesso ao terminal, aberto na pasta
+  do projeto, com o comando de instalação atual do agente que você é.
 - **O comando executa, mas o git não existe** (`git: command not found`; no PowerShell,
   `CommandNotFoundException` ou `'git' is not recognized`): **pare** e diga *"O git não está instalado
   neste computador."* com o link https://git-scm.com/downloads, e que depois de instalar é preciso fechar
-  e abrir o terminal de novo. Termine com *"Nada foi criado. Depois de instalar, peça a frente de novo."*
-  Não diga que você está num aplicativo de chat: você está no terminal.
-- **O git existe**: siga para o pré-voo. Ele vem antes de tudo porque também responde quando a pasta
-  **não** é um repositório — e diz **qual** é o caso (pasta sincronizada pela nuvem, pasta pessoal,
-  projeto numa subpasta, pasta vazia, projeto sem git). Nunca responda só "`git init`".
+  e abrir o terminal de novo. Não diga que você está num aplicativo de chat: você está no terminal.
+- **O git existe**: siga para o pré-voo. Ele também responde quando a pasta **não** é um repositório, e
+  diz qual é o caso.
 
-**Pré-voo.** Com o git no lugar, confira onde a pasta está e se a frente consegue nascer do remoto,
-**antes** de criar qualquer coisa (inclusive o `sdd/ambiente.md`):
+### Pré-voo pelo script (caminho principal)
 
-- Se existir a skill `sdd-checar-ambiente` na mesma pasta de skills desta (`.claude/skills/`,
-  `.agents/skills/` ou a pasta global do agente) e houver bash, rode
-  `bash <pasta das skills>/sdd-checar-ambiente/scripts/checar.sh --frente` e **leia a saída — ela não é
-  repassada ao aluno**: cada achado tem a sua tradução na tabela **Como traduzir cada achado** abaixo.
-  Código de saída 1 (bloco `🔴 Impede o trabalho`) ⇒ **pare aí**, respondendo pela tabela — se o achado for
-  *"Este projeto ainda não usa git"*, veja também **Projeto sem git** abaixo. Código 0 ⇒ a única linha é
-  `✅ Pronto para abrir a frente: …`; siga (o conteúdo dela vira o "O que foi feito" da etapa 1). Saiu 0
-  **sem** essa linha (um relatório completo, com ⚠️ ou
-  `✅ Repo …`)? A `sdd-checar-ambiente` instalada é anterior à 1.1.0 e não conhece o `--frente`: não conte
-  isso como pré-voo — faça as checagens à mão abaixo e sugira atualizar a skill.
-  Saída com *"provavelmente o terminal foi aberto na pasta errada"* ⇒ a `sdd-checar-ambiente` instalada
-  é anterior à 1.2.0 e não diz qual é o caso: faça as checagens 0 e A–D abaixo à mão e sugira atualizá-la.
-- Sem a skill ou sem bash (PowerShell puro), faça as mesmas checagens à mão, nesta ordem, parando na
-  primeira que falhar:
-  0. **Pasta sincronizada** (antes de tudo, com ou sem repositório): o caminho (`pwd -P` no bash/zsh,
-     `(Get-Location).Path` no PowerShell) tem `Library/Mobile Documents`, `Library/CloudStorage`,
-     `iCloudDrive`, `OneDrive`, `Dropbox`, `Google Drive`, `My Drive` ou `Meu Drive`; ou, no Mac, a pasta
-     está em `~/Desktop` ou `~/Documents` e `ls -ld ~/Library/Mobile\ Documents/com~apple~CloudDocs/Documents`
-     (ou `Desktop`) mostra um atalho (`->`) — é a Mesa e Documentos no iCloud, e o caminho não muda.
-     ⇒ *"Esta pasta está dentro do <provedor>, que sincroniza tudo o que muda — o .git e as frentes se
-     corrompem ou duplicam."*: mover o projeto para fora da nuvem (ex.: `~/Projetos`) pelo Finder ou
-     Explorador de Arquivos e abrir o terminal lá.
-  Com `git rev-parse --show-toplevel` falhando, diga **qual** é o caso, nesta ordem:
-     - A. **Pasta pessoal** — a pasta é `~` (`$HOME`; no PowerShell, `$env:USERPROFILE`) ⇒ *"O terminal
-       está na sua pasta pessoal, não na pasta de um projeto."* (não varra a pasta pessoal).
-     - B. **Git numa subpasta** — bash/zsh:
-       `find . -mindepth 1 -maxdepth 3 \( -name node_modules -o -name .Trash -o -name Library \) -prune -o -name .git -print`;
-       PowerShell: `Get-ChildItem -Recurse -Depth 2 -Force -Filter .git -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch 'node_modules' } | ForEach-Object { Split-Path $_.FullName -Parent }`.
-       Uma pasta ⇒ *"O projeto está em ./X — o terminal foi aberto uma pasta acima dele."*: abrir o chat
-       de novo dentro dela. Duas ou três ⇒ liste e pergunte qual. Mais de três ⇒ diga quantas e pergunte
-       qual é o projeto, sem listar todas.
-     - C. **Pasta vazia** — nada além de `.DS_Store`, `desktop.ini`, `Thumbs.db` (`ls -A`; no PowerShell,
-       `Get-ChildItem -Force`) ⇒ *"Ainda não há projeto nesta pasta."*: começar pela skill
-       `sdd-brainstorm`; o git entra quando houver o que guardar.
-     - D. **Arquivos sem git** ⇒ *"Este projeto ainda não usa git — e a frente nasce do git."*: veja
-       **Projeto sem git** abaixo.
-  Com repositório:
-  1. `git remote` vazio ⇒ *"O repositório não tem remoto — a frente nasce dele."* com
-     `git remote add origin <url do repositório>`. Há remoto, mas nenhum chamado `origin` (um fork com só
-     `upstream`, por exemplo) ⇒ *"O repositório tem remoto, mas nenhum chamado origin — a frente nasce do
-     origin."* com `git remote rename <nome> origin` (ou `git remote add origin <url>`). Não é login.
-  2. Com janela de login do editor configurada (`GIT_ASKPASS` ou `SSH_ASKPASS` definidos, ou `git config core.askPass` não vazio — o terminal de VS Code ou Cursor), comece por um diagnóstico: a mesma consulta
-     sem a janela e sem credencial guardada, que não pede nada a ninguém, com teto de 10 segundos —
-     `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS= GCM_INTERACTIVE=never GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=8" git -c credential.helper= -c core.askPass= ls-remote --heads origin`
-     (PowerShell: `$a=$env:GIT_ASKPASS; try { $env:GIT_TERMINAL_PROMPT=0; $env:GIT_ASKPASS=''; $env:GCM_INTERACTIVE='never'; git -c credential.helper= -c core.askPass= ls-remote --heads origin } finally { $env:GIT_ASKPASS=$a }`).
-     Parado ou erro de rede ⇒ é rede, não janela: `GIT_ASKPASS` definido não prova login nenhum (com a rede
-     parada o git nem chega a pedir senha). Qualquer outra resposta ⇒ o remoto respondeu; siga.
-     Depois (ou direto, sem `GIT_ASKPASS`), a consulta de verdade, com a janela do editor ligada (quem está
-     logado por ela passa): `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=8" git ls-remote --heads origin`
-     (o `GIT_SSH_COMMAND` só se não houver ssh próprio configurado — `GIT_SSH_COMMAND`, `GIT_SSH` ou
-     `core.sshCommand`; com ele o ssh não fica parado pedindo frase-senha nem confirmação do host) (PowerShell:
-     `$env:GIT_TERMINAL_PROMPT=0; $env:GCM_INTERACTIVE='never'; git ls-remote --heads origin` — o
-     `GCM_INTERACTIVE` impede a janela do gerenciador de credenciais do Windows, sem desligar a credencial
-     já guardada) — se passar de 10 segundos sem resposta,
-     interrompa. Parada **depois de o diagnóstico ter pedido login** (`could not read Username`,
-     `terminal prompts disabled`, `Permission denied (`) ⇒ *"A janela de login do editor está esperando
-     resposta."*: responder a janela, ou `gh auth login` para não depender dela; parada em qualquer outro
-     caso ⇒ rede. Erro de login (`could not read Username`, `Authentication failed`,
-     `Permission denied (publickey)`, `Repository not found`) ⇒ *"O GitHub não deixou este computador ler
-     o repositório: ou o endereço está errado, ou o repositório é privado e este computador não está logado
-     no GitHub."* com `gh auth login` (alternativas, numa linha: chave SSH ou o gerenciador de credenciais
-     do git); remoto fora do GitHub ⇒ *"O remoto `<host>` recusou o acesso deste computador (login ou
-     permissão)."*, com o login daquele serviço — nunca `gh auth login`. `Host key verification failed` ⇒ `ssh -T git@<host>` e responder `yes` — não é login.
-     `Could not resolve host`, `timed out`, ou parado sem prova de pedido de login ⇒ sem internet ou rede bloqueada (não fale
-     em senha). Qualquer outra mensagem ⇒ a linha "Qualquer outro achado" da tabela abaixo: *"Não consegui
-     ler a cópia do projeto no GitHub por um motivo que não reconheço."* e `git remote -v` — não chute a
-     causa e não mostre a linha de erro ao aluno.
-  3. Nenhuma branch listada ⇒ *"O repositório remoto ainda não tem nenhum commit — a frente nasce dele."*
-     com o primeiro commit e `GIT_TERMINAL_PROMPT=0 git push -u origin <branch atual>`.
-  Qualquer bloqueio é uma parada da etapa 1 (Status ⏸️), traduzida pela tabela abaixo: termina com
-  *"Nenhuma frente foi criada."* e, quando o aluno tem algo a fazer, *"Quando terminar, me peça de novo —
-  eu continuo daqui."*
-- **Projeto sem git** (o achado D, ou o mesmo texto vindo do `checar.sh`). Esta skill não commita nem
-  publica, e pôr um projeto no git sem conferir antes leva planilha de cliente, `.env` e certificado A1
-  para o GitHub. Então:
-  - se existir a skill `sdd-iniciar-repo` na mesma pasta de skills desta, a resposta segue a moldura de
-    **Como falar com o aluno** (Status com ⏸️ na etapa 1, "O que foi feito", "Agora" em uma frase), sem
-    o bloco 🔴, sem *"Depois de resolver, peça a frente de novo"* (você mesmo vai resolver) e sem citar
-    ou explicar esta instrução; a decisão é esta, com as duas opções:
-    > Este projeto ainda não usa git — e a frente nasce do git.
-    >
-    > **Quer que eu ponha este projeto no git e num GitHub privado agora? Eu confiro antes o que não pode
-    > ir e peço seu OK em cada etapa.**
-    > - **sim** — sigo a `sdd-iniciar-repo` do início (ela pede seu OK em cada etapa) e, quando ela
-    >   terminar, volto aqui e abro a frente.
-    > - **não** — paro aqui; nada é criado nem alterado.
-
-    Com o sim, siga a `sdd-iniciar-repo` do início; quando ela terminar, volte ao pré-voo e abra a
-    frente. Sem o sim, pare com *"Nenhuma frente foi criada."*;
-  - se não existir, diga que a skill `sdd-iniciar-repo` faz isso e que ela vem com
-    `npx skills add robertodiasduarte/sdd-starter -a <claude-code ou codex> -g -y`; depois, é pedir
-    *"use a skill sdd-iniciar-repo para pôr este projeto no git"*. Pare com *"Nada foi criado."*
-  Repositório sem remoto (item 1) num projeto que ainda não está no GitHub é o mesmo caso: a
-  `sdd-iniciar-repo` retoma de onde ele parou.
-- Pré-voo saudável não vira relatório: o conteúdo da linha ✅ entra no "O que foi feito", e siga para o
-  Passo 1.
-
-**Como traduzir cada achado** (do `checar.sh --frente` ou da checagem à mão). O aluno recebe a coluna
-"Diga ao aluno", o lugar, os passos e o fechamento — nunca o relatório do script nem a linha de erro do git:
-
-| Achado (como o script ou a checagem o identifica) | Diga ao aluno | Onde | Passos (um comando por passo, com o que esperar) | Fecha com |
-|---|---|---|---|---|
-| Pasta sincronizada ("Esta pasta está dentro do <provedor>…") | Esta pasta é sincronizada pela nuvem (<provedor>), e aqui o histórico do projeto se corrompe. | Finder / Explorador de Arquivos | 1. Mover a pasta do projeto para fora da nuvem, por exemplo `~/Projetos` (ela some da nuvem e aparece lá). 2. Abrir o terminal na pasta nova. | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| A. Pasta pessoal ("O terminal está na sua pasta pessoal…") | O terminal está aberto na sua pasta pessoal, não na pasta de um projeto. | terminal / editor | 1. Abrir o chat de novo dentro da pasta do projeto. | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| B. Uma subpasta com `.git` ("O projeto está em ./X…") | O projeto está na pasta X, um nível abaixo de onde o terminal foi aberto. | terminal / editor | 1. Abrir o chat de novo dentro de X. | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| B. Duas ou três subpastas ("Há repositórios git nas subpastas…") | Há mais de um projeto aqui dentro; preciso saber qual é o seu. | — | — | **Sua decisão** (autorização): **"Qual destas pastas é o seu projeto?"** — uma opção por pasta: *"X — te digo como abrir o chat lá dentro."* |
-| B. Mais de três ("Há N pastas com git aqui dentro…") | Há N pastas com projeto aqui dentro; preciso saber qual é a sua. | — | — | **Sua decisão** (pergunta aberta): **"Qual é a pasta do seu projeto? Responda com o nome dela."** |
-| C. Pasta vazia ("Ainda não há projeto nesta pasta.") | Esta pasta está vazia: ainda não há projeto para abrir uma frente. | — | 1. Começar pela skill `sdd-brainstorm`; o git entra quando houver o que guardar. | Nenhuma frente foi criada. |
-| D. Projeto sem git ("Este projeto ainda não usa git…") | Este projeto ainda não usa git — e a frente nasce do git. | com a `sdd-iniciar-repo`: — ; sem ela: terminal | Com a `sdd-iniciar-repo` instalada: a oferta do bloco **Projeto sem git** (sim / não). Sem ela: 1. `npx skills add robertodiasduarte/sdd-starter -a <claude-code ou codex> -g -y` (pede uma confirmação e lista as skills instaladas). 2. Fechar e abrir o agente de novo. 3. Pedir *"use a skill sdd-iniciar-repo para pôr este projeto no git"* (ela começa conferindo o que há na pasta). | Com a oferta: a decisão. Sem ela: Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| Git sem nome ou e-mail (o `--frente` não produz este achado hoje; é o do modo normal do `checar.sh`) | O git ainda não sabe quem você é; sem isso a primeira versão salva falha. | terminal | 1. `git config --global user.name "Seu Nome"` (não mostra nada). 2. `git config --global user.email "voce@exemplo.com"` (não mostra nada). | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| Sem remoto ("O repositório não tem remoto…", item 1) | Este projeto ainda não tem uma cópia no GitHub — e a frente nasce dela. | terminal (ou —, com a oferta) | Projeto ainda sem GitHub, com a `sdd-iniciar-repo` instalada: a mesma oferta sim / não (ela retoma de onde o projeto parou). Projeto ainda sem GitHub e sem a `sdd-iniciar-repo`: os 3 passos de instalação da linha D. Já existe o repositório no GitHub: 1. `git remote add origin <endereço do repositório>` (não mostra nada). | Com a oferta: a decisão. Senão: Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| Remoto sem `origin` ("…nenhum chamado origin…", item 1) | O projeto tem uma cópia remota, mas com outro nome; a frente precisa que ela se chame origin. | terminal | 1. `git remote rename <nome> origin` (não mostra nada). | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| Credencial recusada ("O GitHub não deixou este computador ler o repositório…") | O GitHub não deixou este computador ler o repositório: ou o endereço está errado, ou ele é privado e este computador não está logado. | terminal e navegador | 1. `gh auth login` (abre o navegador; entre com a conta do GitHub e volte ao terminal). 2. Pedir a frente de novo. Remoto fora do GitHub: o login daquele serviço. | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| Servidor não confirmado (`Host key verification failed`) | Este computador nunca confirmou a identidade do servidor; não é problema de senha. | terminal e navegador | 1. `ssh -T git@<host>` (ele mostra a impressão digital do servidor e pergunta se confia). 2. No GitHub, antes de responder, confira a impressão digital em https://docs.github.com/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints; batendo, responda `yes`. | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| Janela de login do editor ("A janela de login do editor está esperando resposta.") | O seu editor abriu uma janela de login que está esperando a sua resposta. | editor | 1. Responder a janela (ou `gh auth login`, para não depender dela). | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| Sem rede ("Não consegui falar com <host> agora…") ou remoto vazio ("O repositório remoto ainda não tem nenhum commit…") | Sem internet ou rede bloqueada agora — não é senha. / A cópia no GitHub ainda está vazia; a frente nasce da primeira versão salva. | terminal | Rede: 1. Quando a conexão voltar, pedir a frente de novo. Vazio, já havendo uma versão salva neste computador: 1. `GIT_TERMINAL_PROMPT=0 git push -u origin <branch atual>` (mostra o envio). Vazio, sem nenhuma versão salva: 1. `git add <arquivos, pelo nome>` (não mostra nada). 2. `git commit -m "primeira versão"` (lista o que foi salvo). 3. o mesmo envio acima. | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. |
-| Qualquer outro achado | Não consegui ler a cópia do projeto no GitHub por um motivo que não reconheço. | terminal | 1. `git remote -v` — confira se o endereço do origin é o do seu repositório. 2. Pedir a frente de novo. | Nenhuma frente foi criada. Quando terminar, me peça de novo — eu continuo daqui. (Nunca a linha de erro do git.) |
-
-⛔ Não invente uma frente assumindo como o projeto é. Uma frente criada a partir de suposição falha na
-primeira vez que for usada, e o usuário não vai saber por quê. Parar aqui é melhor que entregar algo
-plausível e errado.
-
-## Regra número um: não pergunte o que dá para descobrir
-
-Investigue e decida. Só pergunte o que for genuinamente ambíguo — e aí com a sua recomendação e o
-motivo, para o usuário só confirmar. Tudo o que você assumir sozinho vai para a seção `## Suposições`
-de `sdd/ambiente.md`, onde ele corrige em uma linha.
-
-## Passo 1 — Descubra o ambiente (uma vez por repositório)
-
-O checkout principal é o primeiro caminho de `git worktree list --porcelain` (linha `worktree …`).
-Se existir `<checkout principal>/sdd/ambiente.md`, **leia e use** — não redescubra o que já está
-escrito. Se não existir, investigue sem perguntar — mas, se o nome da tarefa já veio no pedido, faça
-**antes** a checagem de colisão do Passo 2 (item 2): nome repetido aborta sem gravar nada, nem o
-`sdd/ambiente.md`.
+Com bash, e com a skill `sdd-checar-ambiente` na mesma pasta de skills desta (`.agents/skills/`,
+`.claude/skills/` ou `.cursor/skills/`), rode de dentro da pasta do projeto:
 
 ```bash
-GIT_TERMINAL_PROMPT=0 git remote show origin
-git branch -r
-git log --oneline -20
-git tag --list
-git worktree list
+bash <pasta das skills>/sdd-checar-ambiente/scripts/checar.sh --frente
 ```
 
-E leia, se existirem: `README.md`, `package.json`, `composer.json`, `requirements.txt`, `Makefile`,
-`.gitignore`, `.env.example`, `.github/workflows/`, `CLAUDE.md`, `AGENTS.md`.
+**Leia a saída; não a repasse ao usuário.** Pelo código de saída:
 
-Extraia:
+- **exit 1** (bloco `🔴 Impede o trabalho`) ⇒ **pare**. Para cada achado, responda pela tabela **Como
+  traduzir cada achado** abaixo (a linha cujo trecho aparece na mensagem) e termine com *"Nada foi criado.
+  Depois de resolver, peça a frente de novo."*
+- **exit 0** com a linha `✅ Pronto para abrir a frente: repo <r>, principal <b>` ⇒ siga para o Passo 1;
+  o `<b>` é a branch principal do projeto (o slot `project.default_branch` quando ela existe no remoto; senão, a do
+  remoto).
+- **Qualquer outra coisa** — o script não existe, não há bash (PowerShell puro), ou saiu 0 **sem** essa
+  linha (versão antiga, que não conhece o `--frente`) ⇒ faça o **Pré-voo à mão** abaixo.
 
-- **Branch principal** — a "HEAD branch" do `GIT_TERMINAL_PROMPT=0 git remote show origin`. Não é "a branch em que estou agora".
+### Pré-voo à mão (sem bash ou sem o script)
+
+Nesta ordem, parando na primeira que falhar:
+
+0. **Pasta sincronizada** (antes de tudo, com ou sem repositório): o caminho (`pwd -P` no bash/zsh,
+   `(Get-Location).Path` no PowerShell) tem `Library/Mobile Documents`, `Library/CloudStorage`, `iCloudDrive`,
+   `OneDrive`, `Dropbox`, `Google Drive`, `My Drive` ou `Meu Drive`; ou, no Mac, a pasta está em `~/Desktop` ou
+   `~/Documents` e `ls -ld ~/Library/Mobile\ Documents/com~apple~CloudDocs/Documents` (ou `Desktop`) mostra um
+   atalho (`->`) — é a Mesa e Documentos no iCloud, e o caminho não muda. ⇒ *"Esta pasta está dentro do
+   <provedor>, que sincroniza tudo o que muda — o .git e as frentes se corrompem ou duplicam."*: mover o projeto
+   para fora da nuvem (ex.: `~/Projetos`) pelo Finder ou Explorador de Arquivos e abrir o terminal lá.
+
+Com `git rev-parse --show-toplevel` falhando, a pasta não é um repositório: **pare** e diga **qual** é o caso,
+nesta ordem:
+
+- A. **Pasta pessoal** — a pasta é `~` (`$HOME`; no PowerShell, `$env:USERPROFILE`) ⇒ *"O terminal está na sua
+  pasta pessoal, não na pasta de um projeto."* (não varra a pasta pessoal).
+- B. **Git numa subpasta** — bash/zsh:
+  `find . -mindepth 1 -maxdepth 3 \( -name node_modules -o -name .Trash -o -name Library \) -prune -o -name .git -print`;
+  PowerShell: `Get-ChildItem -Recurse -Depth 2 -Force -Filter .git -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch 'node_modules' } | ForEach-Object { Split-Path $_.FullName -Parent }`.
+  Uma pasta ⇒ *"O projeto está em ./X — o terminal foi aberto uma pasta acima dele."*: abrir o agente de novo
+  dentro dela. Duas ou três ⇒ liste e pergunte qual. Mais de três ⇒ diga quantas e pergunte qual é o projeto,
+  sem listar todas.
+- C. **Pasta vazia** — nada além de `.DS_Store`, `desktop.ini`, `Thumbs.db` (`ls -A`; no PowerShell,
+  `Get-ChildItem -Force`) ⇒ *"Ainda não há projeto nesta pasta."*: começar pela skill `sdd-brainstorm`; o git
+  entra quando houver o que guardar.
+- D. **Arquivos sem git** ⇒ *"Este projeto ainda não usa git — e a frente nasce do git."*: a skill
+  `sdd-iniciar-repo` põe o projeto no git e num GitHub privado.
+
+Depois, o remoto, nesta ordem, parando na primeira que falhar:
+
+1. `git remote` vazio ⇒ *"O repositório não tem remoto — a frente nasce dele."* com
+   `git remote add origin <url do repositório>`. Há remoto, mas nenhum chamado `origin` (um fork com só
+   `upstream`, por exemplo) ⇒ *"O repositório tem remoto, mas nenhum chamado origin — a frente nasce do
+   origin."* com `git remote rename <nome> origin` (ou `git remote add origin <url>`). Não é login.
+2. Com janela de login do editor configurada (`GIT_ASKPASS` ou `SSH_ASKPASS` definidos, ou `git config core.askPass` não vazio — o terminal de VS Code ou Cursor), comece por um diagnóstico: a mesma consulta
+   sem a janela e sem credencial guardada, que não pede nada a ninguém, com teto de 10 segundos —
+   `GIT_TERMINAL_PROMPT=0 GIT_ASKPASS= GCM_INTERACTIVE=never GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=8" git -c credential.helper= -c core.askPass= ls-remote --heads origin`
+   (PowerShell: `$a=$env:GIT_ASKPASS; try { $env:GIT_TERMINAL_PROMPT=0; $env:GIT_ASKPASS=''; $env:GCM_INTERACTIVE='never'; git -c credential.helper= -c core.askPass= ls-remote --heads origin } finally { $env:GIT_ASKPASS=$a }`).
+   Parado ou erro de rede ⇒ é rede (veja abaixo), não janela: `GIT_ASKPASS` definido não prova login
+   nenhum — com a rede parada o git nem chega a pedir senha. Qualquer outra resposta ⇒ o remoto respondeu;
+   siga. Depois (ou direto, sem `GIT_ASKPASS`), a consulta de verdade, com a janela do editor ligada (quem
+   está logado por ela passa): `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=8" git ls-remote --heads origin`
+   (o `GIT_SSH_COMMAND` só se o usuário não tiver ssh próprio configurado — `GIT_SSH_COMMAND`, `GIT_SSH` ou
+   `core.sshCommand`; com ele, o ssh não fica parado pedindo a frase-senha da chave nem a confirmação do host)
+   (PowerShell: `$env:GIT_TERMINAL_PROMPT=0; $env:GCM_INTERACTIVE='never'; git ls-remote --heads origin` —
+   o `GCM_INTERACTIVE` impede a janela do gerenciador de credenciais do Windows, sem desligar a credencial
+   já guardada). Passou de 10 segundos sem resposta?
+   Interrompa e veja quem está esperando. Leia o resultado:
+   - `could not read Username`, `Authentication failed`, `Permission denied (publickey)`,
+     `Repository not found` ⇒ *"O GitHub não deixou este computador ler o repositório: ou o endereço está
+     errado, ou o repositório é privado e este computador não está logado no GitHub."* com `gh auth login`
+     (sem `gh`: instalar em https://cli.github.com); alternativas, numa linha só: chave SSH ou o
+     gerenciador de credenciais do git. Remoto fora do GitHub (GitLab, Bitbucket…) ⇒ *"O remoto `<host>`
+     recusou o acesso deste computador (login ou permissão)."* — o remédio é o login daquele serviço, nunca
+     `gh auth login`.
+   - `Host key verification failed` ⇒ este computador nunca confirmou a identidade do servidor por SSH:
+     `ssh -T git@<host>` e responder `yes`. Não é problema de login.
+   - Parado **depois de o diagnóstico ter pedido login** (`could not read Username`,
+     `terminal prompts disabled`, `Permission denied (`) ⇒ *"A janela de login do editor está esperando
+     resposta."*: responder a janela, ou `gh auth login` para não depender dela. Nunca diga "sem internet"
+     nesse caso.
+   - Diagnóstico parado, parado sem prova de pedido de login, `Could not resolve host`, `timed out`,
+     `Failed to connect` ⇒ *"Não consegui falar
+     com `<host>` agora (sem internet ou rede bloqueada)."* — **não** fale em senha nem em login.
+   - Qualquer outra mensagem ⇒ *"Não consegui ler o remoto:"* com a 1ª linha do erro, como veio, e
+     `git remote -v` para conferir o endereço. Não chute a causa.
+3. Nenhuma branch listada ⇒ *"O repositório remoto ainda não tem nenhum commit — a frente nasce dele."*
+   com o primeiro commit (`git add <arquivos>` e `git commit -m "primeiro commit"`) e
+   `GIT_TERMINAL_PROMPT=0 git push -u origin <branch atual>`.
+
+### Como traduzir cada achado
+
+O usuário recebe "Diga" e os passos — nunca o relatório do script nem a linha de erro do git. A 1ª coluna
+é um trecho literal da mensagem do `checar.sh --frente`: a linha certa é a cujo trecho aparece no achado.
+
+| Achado (trecho da mensagem) | Diga | Passos (um comando por passo, com o que esperar) |
+|---|---|---|
+| `Esta pasta está dentro do` | Esta pasta é sincronizada pela nuvem (o provedor vem na mensagem), e aqui o histórico do projeto se corrompe. | 1. Mover a pasta do projeto para fora da nuvem (ex.: `~/Projetos`) pelo Finder ou Explorador de Arquivos. 2. Abrir o terminal e o agente na pasta nova. |
+| `O terminal está na sua pasta pessoal` | O terminal está aberto na sua pasta pessoal, não na pasta de um projeto. | 1. Abrir o agente de novo dentro da pasta do projeto. |
+| `o terminal foi aberto uma pasta acima dele` | O projeto está na subpasta que a mensagem cita, um nível abaixo de onde o terminal foi aberto. | 1. Abrir o agente de novo dentro dessa subpasta. |
+| `Há repositórios git nas subpastas` | Há mais de um projeto aqui dentro; preciso saber qual é o seu. | Pergunte, com uma opção por subpasta citada: **"Qual destas pastas é o seu projeto?"** — e diga como abrir o agente lá dentro. |
+| `pastas com git aqui dentro` | Há várias pastas com projeto aqui dentro; preciso saber qual é a sua. | Pergunte: **"Qual é a pasta do seu projeto? Responda com o nome dela."** |
+| `Ainda não há projeto nesta pasta` | Esta pasta está vazia: ainda não há projeto para abrir uma frente. | 1. Começar pela skill `sdd-brainstorm`; o git entra quando houver o que guardar. |
+| `Este projeto ainda não usa git` | Este projeto ainda não usa git — e a frente nasce do git. | Ofereça a skill `sdd-iniciar-repo` (vem com o starter): **"Posso pôr este projeto no git e num GitHub privado, conferindo antes o que não pode ir?"** — sim: siga a `sdd-iniciar-repo`; não: pare. |
+| `O git não está instalado` | O git não está instalado neste computador. | 1. Instalar por https://git-scm.com/downloads. 2. Fechar e abrir o terminal. |
+| `O repositório não tem remoto` | Este projeto ainda não tem uma cópia no GitHub — e a frente nasce dela. | Projeto ainda sem GitHub: a mesma oferta da `sdd-iniciar-repo` (ela retoma de onde o projeto parou). Repositório já existe no GitHub: 1. `git remote add origin <endereço>` (não mostra nada). |
+| `nenhum chamado origin` | O projeto tem uma cópia remota com outro nome; a frente precisa que ela se chame origin. | 1. `git remote rename <nome> origin` (não mostra nada). |
+| `ainda não tem nenhum commit` | A cópia no GitHub ainda está vazia; a frente nasce da primeira versão salva. | Já há versão salva neste computador: 1. `GIT_TERMINAL_PROMPT=0 git push -u origin <branch atual>` (mostra o envio). Sem nenhuma: 1. `git add <arquivos, pelo nome>`. 2. `git commit -m "primeira versão"`. 3. o mesmo envio. |
+| `ainda não confirmou a identidade de` | Este computador nunca confirmou a identidade do servidor; não é problema de senha. | 1. `ssh -T git@<host>` (mostra a impressão digital e pergunta se confia). 2. No GitHub, conferir a impressão digital em https://docs.github.com/authentication/keeping-your-account-and-data-secure/githubs-ssh-key-fingerprints antes de responder `yes`. |
+| `não deixou este computador ler` | O GitHub não deixou este computador ler o repositório: ou o endereço está errado, ou ele é privado e este computador não está logado. | 1. `gh auth login` (abre o navegador; entre com a conta do GitHub e volte). 2. Pedir a frente de novo. |
+| `recusou o acesso deste computador` | O remoto (fora do GitHub) recusou o acesso deste computador — login ou permissão. | 1. Fazer o login daquele serviço (token ou chave SSH cadastrada nele); nunca `gh auth login`. |
+| `Não consegui falar com` | Não consegui falar com o remoto agora: sem internet ou rede bloqueada — não é senha. | 1. Quando a conexão voltar, pedir a frente de novo. |
+| `A janela de login do editor está esperando` | O seu editor abriu uma janela de login que está esperando a sua resposta. | 1. Responder a janela (ou `gh auth login`, para não depender dela). |
+| `Não consegui ler o remoto:` | Não consegui ler a cópia do projeto por um motivo que não reconheço. | 1. `git remote -v` — conferir se o endereço do origin é o do seu repositório. 2. Pedir a frente de novo. |
+| Qualquer outro achado | Não consegui conferir o projeto por um motivo que não reconheço. | 1. Pedir a frente de novo; se repetir, rodar a skill `sdd-checar-ambiente` para o diagnóstico completo. |
+
+Qualquer parada do Passo 0 termina com *"Nada foi criado. Depois de resolver, peça a frente de novo."*
+Pré-voo saudável não vira relatório: uma linha (`✅ Pronto para abrir a frente: repo <r>, principal <b>`) e
+siga.
+
+⛔ Não invente uma frente assumindo como o projeto é. Uma frente criada a partir de suposição falha na
+primeira vez que for usada, e o usuário não vai saber por quê.
+
+<!-- INSTALAR-INICIO -->
+**Instalar o `git` e o `gh` (o programa do GitHub para o terminal)** — o comando do sistema em uso:
+
+| Sistema | git | gh |
+|---|---|---|
+| macOS | `xcode-select --install` (ou `brew install git`) | `brew install gh` (sem Homebrew: o instalador em https://cli.github.com) |
+| Windows | `winget install --id Git.Git -e` | `winget install --id GitHub.cli -e` |
+| Linux | o gerenciador da distribuição (`sudo apt install git`) | https://github.com/cli/cli/blob/trunk/docs/install_linux.md |
+
+Depois de instalar, feche e abra o terminal. Login no GitHub: `gh auth login` → **GitHub.com** → **HTTPS** →
+**Yes** → **Login with a web browser**. O `gh` não é obrigatório: quem entra por chave SSH ou pelo gerenciador de
+credenciais do git não precisa dele.
+<!-- INSTALAR-FIM -->
+
+## Passo 1 — Descubra os slots (não pergunte o que dá para descobrir)
+
+Leia o `sdd/config.yaml` do checkout principal. Para cada slot, guarde o valor e, se veio de descoberta,
+a evidência — ela vai para o Passo 2, item 6.
+
+- **Branch padrão** — a "HEAD branch" de `GIT_TERMINAL_PROMPT=0 git remote show origin` (nunca o `principal` da linha ✅ do pré-voo,
+  que já prefere o slot e tornaria a comparação abaixo inútil). Não é "a branch em que estou agora".
+  - `project.default_branch` vazio ⇒ use a do remoto (evidência: `git remote show origin`).
+  - Cheio e igual à do remoto ⇒ siga.
+  - Cheio e **diverge** da do remoto (o exemplo do config vem com `main`; o remoto pode ser `master`) ⇒
+    **pare e pergunte** qual vale, com as duas opções e o efeito de cada uma. Nada foi criado; slot cheio
+    nunca é sobrescrito. A resposta vale para esta frente (é dela que a frente nasce); o slot só muda se o
+    usuário pedir, e aí no config da frente, com a evidência.
+- **Pasta das frentes** — `worktree_base`; vazio ⇒ `../<nome-do-repo>-frentes` (evidência: "padrão do
+  sdd-open"). Fora do repositório: dentro dele, a worktree apareceria como arquivo não rastreado em todas as
+  outras frentes.
+- **Editor** — `editor`; **cheio ⇒ use como está**, inclusive com argumentos (`open -a "Cursor"`); `terminal:<agente>`
+  (`terminal:claude`, `terminal:codex`) ⇒ modo terminal com esse agente (Passo 3). Slot vazio ⇒ a preferência deste
+  computador, `git config --get sdd.editor` rodado na pasta do projeto (cheia ⇒ use como está, do mesmo jeito). **As
+  duas vazias ⇒ pergunte, uma vez só, e nunca escolha sozinho:** rode `bash <pasta da sdd-checar-ambiente>/scripts/checar.sh --editores` (uma linha por
+  editor achado neste computador, `<nome><TAB><comando>`, na ordem da detecção: o PATH, depois o app do macOS por
+  `open -a "<App>"`, depois o `.cmd` de `%LOCALAPPDATA%\Programs`; nada e exit 1 sem editor; sem bash, `Get-Command
+  <nome>` sobre `code`, `cursor`, `code-insiders`, `windsurf`, `zed`, `subl`, `idea`, `pycharm`, `webstorm` e os mesmos
+  caminhos do `%LOCALAPPDATA%`). **Confira a lista antes de usá-la:** ela só vale se a `version:` do `SKILL.md` da
+  `sdd-checar-ambiente` for 1.5.0 ou maior **e** toda linha não vazia da saída tiver a forma `<nome><TAB><comando>`
+  (exatamente um TAB, texto dos dois lados). Uma `sdd-checar-ambiente` anterior à 1.5.0 não conhece `--editores`, cai no
+  diagnóstico normal e sai 0: a saída seria o resumo do ambiente, não editores. Versão menor, versão ilegível ou linha
+  fora da forma ⇒ trate como "nenhum editor achado", diga em 1 frase que a `sdd-checar-ambiente` instalada é antiga e
+  que atualizá-la (o `doctor` do pacote aponta a skill velha; o guia do aluno, em "Quando sair versão nova", diz
+  como) traz a lista, e siga. Depois, pergunte:
+
+  **Sua decisão** — [D2 · muda o produto] **Onde você quer abrir as frentes deste projeto?**
+  - **o 1º editor da lista** (recomendado) — o 1º na ordem da detecção (o comando no PATH vem antes do app do macOS
+    e do `.cmd` do Windows); grava o comando dele como ele saiu da lista.
+  - **cada outro editor da lista**, pelo nome — grava o comando dele.
+  - **só no terminal, com Claude Code** — sem editor: a frente abre num terminal novo e você roda `claude` nela;
+    grava `editor: "terminal:claude"`.
+  - **só no terminal, com Codex** — o mesmo, com `codex`; grava `editor: "terminal:codex"`.
+  - **dizer o meu comando** — você diz o comando que abre o seu editor, ou `terminal:<comando do seu agente>`; grava
+    como você disser.
+  - **não sei** — explico em uma frase o que cada opção faz e repito a pergunta.
+
+  Sem editor achado, a pergunta só tem as opções de terminal, **dizer o meu comando** e **não sei**. A resposta é uma
+  preferência deste computador, não do projeto: grave-a com `git config --local sdd.editor '<valor>'` na pasta do
+  projeto, nunca no slot (o `sdd/config.yaml` da frente só chega à branch padrão na integração, e a pergunta voltaria em
+  cada frente aberta até lá). O `git config` vale na hora para todas as frentes deste repositório, nunca é commitado, e a
+  pergunta não volta enquanto ele estiver cheio. Diga na resposta onde ficou, como trocar
+  (`git config --local sdd.editor '<outro>'`) e que, para fixar o editor para o time todo, basta preencher o slot `editor`.
+- **Testes e checagem de sintaxe** — `project.test_cmd` e `project.lint_cmd`, só com **evidência literal**,
+  nesta ordem (a primeira fonte que tiver o comando vence):
+  1. o comando que um workflow de `.github/workflows/` roda num step de teste (ou de lint), copiado do
+     `run:` como está;
+  2. `scripts.test` do `package.json` ⇒ `npm test` — exceto o placeholder do npm
+     (`echo "Error: no test specified" && exit 1`); `scripts.lint` ⇒ `npm run lint`;
+  3. alvo `test:` (ou `lint:`) do `Makefile` ⇒ `make test` (`make lint`).
+
+  Duas fontes diferentes no mesmo nível (dois workflows com comandos diferentes, por exemplo) ou nenhuma
+  ⇒ o slot fica vazio e a resposta diz por quê. O `test_cmd` alimenta os gates `kind: test`: um chute
+  roda a coisa errada.
 - **Preparação** — `package.json` versionado com `node_modules` no `.gitignore` ⇒ `npm install` na pasta
-  nova (senão ela nasce quebrada). Mesma lógica para `requirements.txt`, `composer.json`.
-- **Arquivos locais fora do git** — `.env` no `.gitignore` e `.env.example` versionado ⇒ a pasta nova
-  precisa de uma cópia do `.env` do checkout principal.
-- **Skills do agente fora do git** — cada pasta em `.claude/skills/` ou `.agents/skills/` sem nenhum
-  arquivo versionado (`git ls-files <pasta>` vazio, pasta por pasta) ⇒ precisa ser copiada para a frente;
-  sem isso, a `sdd-release` não existe dentro dela.
-- **Editor** — o primeiro que existir de `code`, `cursor`, `subl` (`command -v <nome>` no bash/zsh,
-  `Get-Command <nome>` no PowerShell).
-- **Cenário de branching**, pela evidência do repositório (critério do material "Git na Prática"):
-
-| Cenário | Como reconhecer | Estratégia | A frente termina em |
-|---|---|---|---|
-| **A — entrega contínua, sem revisor** | Sem `develop`/`staging` no remoto; histórico de commits diretos na principal | Trunk-Based simplificado | merge direto na principal |
-| **B — entrega via Pull Request** | Histórico com "Merge pull request #…"; `.github/workflows/`; mais de um autor | GitHub Flow | push da branch + PR |
-| **C — várias versões em suporte** | Tags de versão **e** branches `release/*` ou `hotfix/*` no remoto | GitFlow | PR para `develop` (a branch nasce de `develop`) |
-
-Escolha sempre o mais simples que serve. Empate entre A e B ⇒ **A** (acrescentar PR depois é trivial;
-tirar cerimônia que virou hábito, não). C exige as **duas** evidências; repositório de uma pessoa quase
-nunca é C — se você concluiu C, reveja.
-
-Grave em `<checkout principal>/sdd/ambiente.md` (crie a pasta `sdd/` se preciso), neste formato — uma
-chave por linha, para o usuário corrigir à mão:
-
-```markdown
-# Ambiente deste repositório
-
-> Gerado pelas skills sdd-new-session/sdd-release. Está errado? Corrija a linha — as skills leem daqui.
-
-- branch_principal: main
-- cenario: A (Trunk-Based) — evidência: <o que você viu, ex.: "20 últimos commits diretos na main, sem develop no remoto">
-- pasta_das_frentes: ../<nome-do-repo>-frentes
-- editor: code
-- preparacao: npm install
-- arquivos_locais: .env
-- deploy: <preencha só se descobriu; senão "a descobrir pelo sdd-release">
-- testes: <comando, se descobriu>
-- sintaxe: <comando, se descobriu>
-- versionamento: nenhum
-
-## Suposições
-
-- assumi <X> porque <Y>
-```
-
-Não commite esse arquivo: ele é do usuário, que decide se versiona.
+  nova; mesma lógica para `requirements.txt` e `composer.json`. `.env` no `.gitignore` com `.env.example`
+  versionado ⇒ copiar o `.env` do checkout principal.
+- **Skills do agente fora do git** — cada pasta em `.claude/skills/` ou `.agents/skills/` sem nenhum arquivo
+  versionado (`git ls-files <pasta>` vazio, pasta por pasta) ⇒ precisa ser copiada para a frente; sem isso, a
+  `sdd-release` não existe dentro dela.
 
 ## Passo 2 — Crie a frente
 
-Receba o nome da tarefa em linguagem natural e, na ordem:
-
-1. **Slug**: minúsculas, hífens, sem acento (ex.: "Relatório mensal" → `relatorio-mensal`).
+1. **Slug** do nome da tarefa: minúsculas, hífens, sem acento ("Relatório mensal" → `relatorio-mensal`).
 2. **Aborte se a branch ou a pasta já existirem** (`git show-ref --verify refs/heads/<slug>`,
-   `GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin <slug>`, e a pasta `<pasta_das_frentes>/<slug>`). Não invente outro
-   nome: peça outro ao usuário. Nada pode ter sido criado antes desta checagem.
-3. `GIT_TERMINAL_PROMPT=0 git fetch origin "+refs/heads/<branch-base>:refs/remotes/origin/<branch-base>"`
-   (refspec explícito: num clone de uma branch só, o fetch só com o nome da branch não atualiza
-   `origin/<branch-base>`) e
-   `git worktree add <pasta_das_frentes>/<slug> -b <slug> origin/<branch-base>` — a partir do estado
-   **remoto**, não do local, que pode estar atrasado. `<branch-base>` é a principal (A, B) ou `develop` (C).
-   Cenário C sem `origin/develop` (`GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin develop` vazio)? Pare antes de criar
-   qualquer coisa e diga: o critério aponta GitFlow, mas não há `develop` de onde a frente possa nascer.
-4. Na pasta nova: rode a preparação, se houver.
-5. **Copie para a frente o que o git não leva**: os arquivos locais (`.env`) e **cada pasta de skill não
-   versionada**, sempre a partir do checkout principal (caminhos absolutos, entre aspas):
+   `GIT_TERMINAL_PROMPT=0 git ls-remote --heads origin <slug>`, e a pasta `<pasta das frentes>/<slug>`).
+   Não invente outro nome: peça outro ao usuário. Nada pode ter sido criado antes desta checagem.
+3. `GIT_TERMINAL_PROMPT=0 git fetch origin "+refs/heads/<padrão>:refs/remotes/origin/<padrão>"` (refspec
+   explícito: num clone de uma branch só, o fetch só com o nome da branch não atualiza `origin/<padrão>`) e
+   `git worktree add <pasta das frentes>/<slug> -b <slug> origin/<padrão>` — a partir do estado **remoto**,
+   não do local, que pode estar atrasado.
+4. Na pasta nova: a preparação, se houver; os arquivos locais (`.env`), copiados do checkout principal; e
+   os **documentos SDD da feature** que ainda não foram salvos no git (o BRAINSTORM, o DEFINE e o DESIGN
+   escritos no checkout principal não vêm com a worktree):
+   `bash <pasta das skills>/sdd-new-session/scripts/copiar-docs.sh <checkout principal> <pasta das frentes>/<slug> <slug>`,
+   rodado do checkout principal, porque o script pode ainda não existir na branch de onde a frente nasceu.
+   Ele só copia quando o nome é **idêntico** ao da frente (`DEFINE_RELATORIO_MENSAL.md` ↔
+   `relatorio-mensal`), nunca sobrescreve o que a frente já tem e nunca segue link. Repasse em palavras:
+   quantos copiou e quais; cada `PARECIDO`, com o motivo ("o nome é parecido, não idêntico: não copiei")
+   e onde copiar à mão se for desta frente; cada `NAO_COPIADO` (o documento está num commit do checkout
+   principal que ainda não foi enviado: enviar o commit e atualizar a frente, ou copiar à mão);
+   `NADA A COPIAR` não é erro. Qualquer outro exit ⇒ diga a causa
+   que ele imprimiu; a frente já existe e continua válida.
+   Copie também **cada pasta de skill não versionada** (a descoberta acima), a partir do checkout principal
+   (caminhos absolutos, entre aspas):
    `mkdir -p "<frente>/.claude/skills" && cp -R "<checkout principal>/.claude/skills/<skill>" "<frente>/.claude/skills/"`,
-   idem `.agents/skills/`.
-   Confira que `<frente>/.claude/skills/sdd-release` (ou `.agents/skills/sdd-release`) existe quando existe
-   no checkout principal — sem ela, a frente não consegue ser fechada. O Claude Code pede aprovação para
-   escrever em `.claude/`: se a cópia for negada, **não pare** — termine a frente e, na resposta, entregue
-   o comando de cópia pronto e a alternativa de instalar as skills uma vez para todos os projetos
-   (`npx skills add robertodiasduarte/sdd-starter -a <motor> -g -y`).
-6. Abra no editor (`code <pasta>`). **Sem editor, não aborte**: a frente já está pronta; mostre o caminho
-   para abrir à mão.
+   idem `.agents/skills/`. Confira que `<frente>/.claude/skills/sdd-release` (ou `.agents/skills/sdd-release`)
+   existe quando existe no checkout principal — sem ela, a frente não consegue ser fechada. O agente pode pedir
+   aprovação para escrever na pasta de skills: se a cópia for negada, **não pare** — termine a frente e, na
+   resposta, entregue o comando de cópia pronto.
+5. Abra no editor. O comando é `<editor> "<pasta da frente>"`, com o slot como ele está. **Com o slot
+   `terminal:<agente>`, ou sem editor, não aborte**: é o modo terminal — a frente já está pronta, e o Passo 3 diz como
+   seguir nela.
+6. **Grave os slots descobertos no `sdd/config.yaml da frente`** (`<pasta das frentes>/<slug>/sdd/config.yaml`),
+   nunca no do checkout principal: lá o arquivo ficaria modificado, a frente não o veria, e o `git pull`
+   depois da integração abortaria. Regras:
+   - só slot vazio (`""` ou sem valor) recebe valor; slot cheio fica como está; o `editor` não entra aqui (a escolha
+     dele vai para o `git config`, no Passo 1);
+   - valor com aspas duplas dentro (`open -a "Visual Studio Code"`, o caminho de um `.cmd`) vai entre aspas
+     simples no YAML: `editor: 'open -a "Visual Studio Code"'`;
+   - na linha de cima do slot, a evidência: `# descoberto por sdd-new-session (AAAA-MM-DD): <evidência>`;
+   - mesma chave, mesma indentação; nada mais do arquivo muda; **não commite** — o valor vai para a branch
+     padrão junto com a feature.
 
-A pasta fica **fora** do repositório (`../<repo>-frentes/<slug>`): dentro dele, a worktree apareceria
-como arquivo não rastreado e sujaria o `git status` de todas as outras frentes.
+   ```yaml
+   project:
+     # descoberto por sdd-new-session (2026-10-29): .github/workflows/ci.yml, step "Unit tests"
+     test_cmd: "python3 -m unittest discover -s tests"
+   ```
 
-**O que esta skill NÃO faz:** não commita, não faz push, não apaga, não integra. Só cria. Tudo o que
-destrói ou publica é entregue como comando — ou fica para a skill `sdd-release`.
+   A frente não tem `sdd/config.yaml` (o `sdd/` não está versionado na branch padrão) ⇒ **não grave**;
+   diga os valores descobertos e que, para as frentes herdarem, o `sdd/config.yaml` precisa ser commitado
+   na branch padrão.
+
+**O que esta skill NÃO faz:** não commita, não faz push, não apaga, não integra. Só cria. Fechar a frente
+é da `sdd-release`.
 
 ## Passo 3 — Responda
 
-Na moldura de **Como falar com o aluno**: o Status pelo resultado efetivo (✅ no que foi feito; ➖ na etapa
-2 quando `sdd/ambiente.md` já existia; ➖ na etapa 4 sem editor, com o caminho para abrir à mão), e os
-itens abaixo distribuídos entre "O que foi feito" (1, 2 e 4), "Próximo passo" (3 e 5) e a última linha.
-Nesta ordem:
+1. **Caminho** da pasta e **nome da branch**.
+2. **Como encerrar**: a `sdd-release` de dentro da pasta nova; à mão, depois de integrar,
+   `git worktree remove "<pasta>"` e `git branch -d <slug>`.
+3. **Slots gravados** no `sdd/config.yaml` da frente, cada um com o valor e a evidência; slots que ficaram
+   vazios e por quê. Avise que eles chegam à branch padrão junto com a feature.
+4. **Em modo terminal** (slot `terminal:<agente>`, ou sem editor), o **Próximo passo** são 3 passos numerados:
+   1. abra um terminal novo; 2. `cd "<pasta da frente>"`; 3. rode nele o agente do slot (`claude`, `codex`…; sem
+   slot, o que você usa).
+5. **Última linha, destacada**, na forma que vale para este computador:
+   - com editor: `⚠️ Continue na janela nova. Esta sessão do agente continua presa à pasta onde foi aberta —
+     nenhum cd muda isso. Build, commit e push rodam lá dentro.`
+   - em modo terminal: `⚠️ Continue num terminal novo aberto na pasta da frente. Esta sessão do agente continua presa
+     à pasta onde foi aberta — nenhum cd muda isso. Build, commit e push rodam lá.`
 
-1. **Cenário** (A, B ou C) com a evidência — o que você viu, não "parece ser".
-2. **Caminho** da pasta e **nome da branch**.
-3. **Como encerrar** esta frente, pronto para copiar: no fim, use a skill `sdd-release` de dentro da
-   pasta nova; ou, à mão, o comando de integração do cenário seguido de
-   `git worktree remove <pasta>` e `git branch -d <slug>`.
-4. **Suposições** que você fez (se houver) e onde corrigi-las (`sdd/ambiente.md`).
-5. No cenário A, trabalhando sozinho com IA: lembre de pedir uma revisão do código à IA antes de
-   integrar — não há segundo humano olhando.
-6. **Última linha, destacada:**
-   `⚠️ Continue na janela nova. Esta sessão do agente continua presa à pasta onde foi aberta — nenhum
-   cd muda isso. Build, commit e push rodam lá dentro.`
+## Por que cada regra existe
 
-## Por que cada regra existe (não apague sem ler)
-
-- **A branch nasce de `origin/<branch-base>` atualizada** (a principal; `develop` no cenário C) — nascer da branch atual herda trabalho pela
-  metade de outra tarefa, e a frente nova "já vem com código estranho".
-- **A mesma branch não abre em duas worktrees** — o Git recusa. Por isso não se volta para a principal
-  dentro da pasta da frente: integra-se pelo caminho do cenário e atualiza-se no checkout principal.
-- **Se outra frente for integrada antes desta**, esta nasceu de um ponto que já não existe. Antes de
-  integrar: `GIT_TERMINAL_PROMPT=0 git fetch origin` + `git merge origin/<branch-base>` + **rodar os testes de novo** — é aí que
-  o conflito entre as duas aparece. (A `sdd-release` faz isso.)
-- **Worktree e branch órfãs se acumulam** — depois de integrar, `git worktree remove` **e**
-  `git branch -d`. O `-d` minúsculo é proteção: só apaga o que já foi integrado.
-- **Pasta que não é repositório tem quatro casos opostos** — "abra na pasta certa" e "ponha o projeto no
-  git" são respostas contrárias; juntar as duas numa frase deixou um aluno sem saber qual era a dele. E
-  "`git init`" sozinho leva a pasta inteira, com planilha de cliente, para o primeiro commit.
-- **Pasta sincronizada para antes de tudo** — iCloud, OneDrive, Dropbox e Google Drive sincronizam arquivo
-  por arquivo; `.git` e worktrees se corrompem ou duplicam. No Mac com Mesa e Documentos no iCloud o
-  caminho não denuncia: a evidência é o atalho dentro do iCloud Drive.
 - **O pré-voo vem antes de qualquer criação** — sem remoto, com o remoto vazio ou sem login, o
-  `git worktree add … origin/<principal>` falha no meio e deixa a pasta pela metade; o aluno não sabe o que
-  apagar. Parar antes, dizendo a causa e que nada foi criado, é o que permite simplesmente pedir de novo.
+  `git worktree add … origin/<padrão>` falha no meio; parar antes, dizendo a causa e que nada foi criado, é
+  o que permite simplesmente pedir de novo.
+- **O pré-voo é um script, com tradução numa tabela** — o script decide o caso do mesmo jeito sempre; a
+  tabela diz ao usuário o que fazer sem colar saída crua. Um teste do sdd-open confere que toda mensagem do
+  script tem linha na tabela. Sem bash, o caminho à mão continua valendo.
 - **Git ausente não é "você está no app de chat"** — o diagnóstico errado manda instalar o agente que já
   está instalado.
-- **A sessão do agente não migra** — abrir a pasta nova abre outra janela, mas a sessão onde a skill
-  rodou fica ancorada no diretório de origem. Sem o aviso final, a frente inteira acaba sendo feita no
-  lugar errado e isso só aparece na hora do commit.
+- **Nenhum comando de rede pede senha** — o pedido de senha aparece no terminal do agente, não na tela do
+  usuário; o agente trava sem que ninguém veja.
+- **A branch nasce de `origin/<padrão>` atualizada** — nascer da branch atual herda trabalho pela metade
+  de outra tarefa.
+- **A mesma branch não abre em duas worktrees** — o Git recusa. Por isso não se volta para a branch padrão
+  dentro da pasta da frente: integra-se pela `sdd-release` e atualiza-se no checkout principal.
+- **Worktree e branch órfãs se acumulam** — depois de integrar, `git worktree remove` **e** `git branch -d`.
+  O `-d` minúsculo é proteção: só apaga o que já foi integrado.
+- **Pasta que não é repositório tem quatro casos opostos** — "abra na pasta certa" e "ponha o projeto no git"
+  são conselhos contrários; uma frase única para os dois deixava o aluno sem saber qual era o caso dele.
+- **Skill fora do git não vai sozinha para a frente** — a worktree só traz o que está versionado; sem a cópia,
+  a frente nasce sem a `sdd-release` e não consegue ser fechada.
+- **Branch padrão que diverge do remoto para tudo** — o `fetch` de `origin/<padrão>` falharia no meio da
+  criação, ou a frente nasceria da branch errada.
+- **Slot só com evidência literal, e só o vazio** — um comando de teste chutado faz o Verify Gate rodar a
+  coisa errada; sobrescrever um slot cheio apaga uma decisão do usuário.
+- **Grava na frente, não no checkout principal** — o principal ficaria com o config modificado, a frente
+  não veria o valor, e o `git pull` depois da integração abortaria.
+- **A sessão do agente não migra** — abrir a pasta nova abre outra janela; sem o aviso final, a frente
+  inteira acaba sendo feita no lugar errado.
+
+## Encerramento (obrigatório)
+
+Feche com o **resumo de etapa** (`<pasta desta skill>/references/RESUMO_ETAPA.md`); o 🏃 é
+`/sdd-new-session`.
 
 ---
 
-Parte do SDD Starter by RDD — https://github.com/robertodiasduarte/sdd-starter
+Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

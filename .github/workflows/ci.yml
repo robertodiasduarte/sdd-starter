@@ -13,6 +13,9 @@ jobs:
         with:
           fetch-depth: 0   # o version gate compara com a base, que o checkout raso nao traz
 
+      - name: Generated files gate
+        run: python3 scripts/check-gerado.py
+
       - name: Content safety gate
         run: bash scripts/publish-check.sh
 
@@ -35,6 +38,7 @@ jobs:
       - name: Skill tests
         run: |
           for t in skills/*/tests; do
+            [ -d "$t" ] || continue   # sem nenhuma pasta tests/, o glob volta literal
             echo "== $t"
             python3 -B -m unittest discover -s "$t" -p 'test_*.py'
           done

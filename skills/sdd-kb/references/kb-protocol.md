@@ -36,7 +36,7 @@ Quando o domínio cresce, três tipos de apoio aparecem — nenhum é necessári
 |---|---|---|
 | `reference` | `reference/*.md` | Consulta exaustiva (lista completa, transcrição de norma, tabela longa). Sem limite de linhas: ninguém lê inteiro, consulta-se |
 | `spec` | `specs/*.yaml` | O mesmo conhecimento em formato que um programa lê (catálogo, critérios, enum), com `source` e data de validação no topo |
-| registro | bloco em `_index.yaml` | Nome, descrição, caminho, perfil e data do domínio. Obrigatório — é o que torna o domínio encontrável |
+| registro | bloco em `sdd/kb/_index.yaml` | Nome, descrição, caminho, perfil e data do domínio. Obrigatório — é o que torna o domínio encontrável |
 
 No **perfil normativo** (`perfil: normativo` no registro), mais quatro, todos ligados a datas e fontes — detalhes em [normativo.md](normativo.md):
 
@@ -66,7 +66,7 @@ Quando um arquivo estoura o limite, quase sempre há dois assuntos dentro dele. 
 Um domínio começa com:
 
 ```
-{dominio}/
+sdd/kb/<slug>/
 ├── index.md              ← porta de entrada
 ├── quick-reference.md    ← consulta rápida
 ├── concepts/
@@ -83,7 +83,7 @@ Cresça acrescentando arquivos aos mesmos diretórios. Não crie estrutura nova 
 
 ## 5. O registro é obrigatório
 
-Todo domínio precisa ser registrado no índice do projeto (`_index.yaml`). Um domínio que existe em pasta mas não está no índice é **invisível**: quem consulta o índice não descobre que ele existe, e a IA não sabe que pode consultá-lo.
+Todo domínio precisa ser registrado no índice do projeto (`sdd/kb/_index.yaml`). Um domínio que existe em pasta mas não está no índice é **invisível**: quem consulta o índice não descobre que ele existe, e a IA não sabe que pode consultá-lo.
 
 Isso não é hipótese. Em um acervo real de 43 domínios, 4 estavam fora do índice — bases inteiras que ninguém encontrava. Por isso o registro é o último passo obrigatório, e o validador reprova quem o pula.
 

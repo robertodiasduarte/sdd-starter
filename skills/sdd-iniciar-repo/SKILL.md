@@ -4,14 +4,16 @@ license: MIT
 description: "Põe no git e num GitHub privado um projeto que ainda não usa git, sem levar junto dado de cliente: confere a pasta (fora de iCloud/OneDrive/Dropbox/Google Drive), lista o que entraria no git sinalizando senha (.env), certificado A1 (.pfx), planilha e arquivo grande, propõe o .gitignore, oferece o alarme de commit da sdd-higiene-dado antes do primeiro commit e só commita e publica com o OK explícito de cada etapa. Fala com quem nunca usou git: uma etapa por vez, com o que foi feito, o que vem agora e as opções de cada decisão. Retoma de onde parou (git sem commit, commit sem GitHub, envio que falhou). Use quando o usuário disser 'pôr no git', 'criar o repositório', 'subir para o GitHub', 'este projeto não tem git', ou quando a sdd-new-session ou a sdd-checar-ambiente disserem que o projeto ainda não usa git. Não limpa histórico que já vazou, não faz login no GitHub pelo usuário e não automatiza outro host (GitLab etc.), só entrega os comandos."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.0"
-  updated: "2026-10"
+  version: "1.2.0"
+  updated: "2026-11"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
 # Iniciar repositório (iniciar-repo)
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-iniciar-repo v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-iniciar-repo v1.2.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Um projeto que ainda não usa git sai daqui com a primeira versão salva e um repositório **privado** no
 GitHub, sem levar planilha de cliente, `.env` ou certificado junto. Quatro decisões do aluno no caminho:
@@ -104,6 +106,34 @@ Ao usuário, mostre só a forma do shell em uso. Os comandos `git` e `gh` são i
   - **Linux**: o gerenciador de pacotes da distribuição (`sudo apt install git`, por exemplo).
 
   Pare: *"Nada foi criado. Quando terminar, me peça de novo — eu continuo daqui."*
+- **`gh --version` falha, ou `gh auth status` diz que não há conta logada**: **não pare**. Avise já, porque
+  a última etapa (publicar no GitHub) depende dele: *"Para a última etapa — publicar no GitHub — você vai
+  precisar do programa do GitHub para o terminal (gh) e de entrar na sua conta nele. Quer instalar agora,
+  enquanto eu confiro o resto?"*
+
+  **Sua decisão** — [auto · de rotina] **Instalo o programa do GitHub agora ou depois?**
+  - **instalar agora** (recomendado) — eu mostro os passos do seu sistema (tabela abaixo) e sigo conferindo o
+    projeto enquanto você instala; quando terminar, me avise e eu confiro de novo.
+  - **depois** — eu sigo, e paro só na publicação (Passo 6), com os mesmos passos.
+  - **não sei** — explico em uma frase para que serve o gh e repito a pergunta.
+
+  Sem conta logada, o passo é só o login (`gh auth login`); sem o programa, instalar e depois logar. A linha
+  `gh:` do inventário (Passo 2) diz o mesmo: se o aluno já respondeu aqui, não pergunte de novo.
+
+<!-- INSTALAR-INICIO -->
+**Instalar o `git` e o `gh` (o programa do GitHub para o terminal)** — o comando do sistema em uso:
+
+| Sistema | git | gh |
+|---|---|---|
+| macOS | `xcode-select --install` (ou `brew install git`) | `brew install gh` (sem Homebrew: o instalador em https://cli.github.com) |
+| Windows | `winget install --id Git.Git -e` | `winget install --id GitHub.cli -e` |
+| Linux | o gerenciador da distribuição (`sudo apt install git`) | https://github.com/cli/cli/blob/trunk/docs/install_linux.md |
+
+Depois de instalar, feche e abra o terminal. Login no GitHub: `gh auth login` → **GitHub.com** → **HTTPS** →
+**Yes** → **Login with a web browser**. O `gh` não é obrigatório: quem entra por chave SSH ou pelo gerenciador de
+credenciais do git não precisa dele.
+<!-- INSTALAR-FIM -->
+
 - **Os scripts desta skill precisam de bash.** No macOS e no Linux já existe. No Windows, o Git for
   Windows traz o Git Bash: com `bash` fora do PATH no PowerShell, rode
   `& "$env:ProgramFiles\Git\bin\bash.exe" "<pasta desta skill>\scripts\inventario.sh"`. Sem nenhum bash,
@@ -142,6 +172,8 @@ Numa retomada, o status já começa com as etapas feitas marcadas ✅ (ou ➖, s
      **pare**, com *"Nada foi criado."*
    - Saída **1**: o inventário não conseguiu listar os arquivos. Não siga com um inventário pela metade:
      diga o que aconteceu e pare, *"Nada foi criado."*
+   - A 2ª linha é `gh: ausente`, `gh: deslogado`, `gh: ok` ou `gh: sem resposta` (o GitHub não respondeu em
+     10 s): é o aviso antecipado do Passo 0; repasse só se mudou desde lá.
    - Saída **0**: siga. O inventário lista o que entraria no git (respeitando um `.gitignore` que já
      exista), sinaliza senhas e certificados, planilhas, arquivos acima de 50 MB, dependências e — se já
      há commits — o que **já passou pelo histórico**, e termina com a proposta de `.gitignore`.
@@ -170,7 +202,7 @@ Numa retomada, o status já começa com as etapas feitas marcadas ✅ (ou ➖, s
    certificados, dependências, arquivos do sistema; planilhas e cada arquivo grande, se apareceram).
 3. **Identidade do git**: `git config user.name` e `git config user.email`. Vazio ⇒ explique que cada
    versão salva leva o nome e o e-mail de quem salvou, e dê os passos: 1.
-   `git config --global user.name "Seu Nome"`; 2. `git config --global user.email "voce@exemplo.com"`
+   `git config --global user.name "Seu Nome"`; 2. `git config --global user.email "voce@example.com"`
    (iguais nos dois shells; o e-mail de preferência é o mesmo da conta do GitHub). Pare: a primeira
    versão falharia sem isso.
 4. **Achado no histórico** (bloco 🔴 *Já passaram pelo histórico*): senha ou certificado ali ⇒ **não
@@ -214,8 +246,8 @@ A primeira versão salva é a de maior risco: ela leva a pasta inteira. Antes de
   que dá para salvar passando por cima dele depois de conferir, e como tirá-lo. Caminho do arquivo e
   comando de desinstalar só se o aluno perguntar.
 - **Não existe**: diga em uma frase o que ela faz (barra a versão com CPF/CNPJ válido, `.env`,
-  certificado ou planilha nova), que se instala com
-  `npx skills add robertodiasduarte/sdd-starter -a <claude-code ou codex> -g -y`, e pergunte
+  certificado ou planilha nova), que ela vem com o starter e volta a ficar ao lado desta quando as skills
+  são instaladas de novo (`npx skills add robertodiasduarte/sdd-starter`), e pergunte
   **"Quer seguir sem o alarme?"** com **sim** (sigo para a etapa 4) e **não** (paro para você instalar;
   depois me peça de novo). Sem um sim, pare: *"Nada foi commitado."*
 
@@ -261,9 +293,10 @@ commit, que conferiu e quer gravar.
 
 ## Passo 6 — Publicar no GitHub, privado (etapa 5, 4ª decisão)
 
-1. `gh --version` falha ⇒ o programa do GitHub para o terminal não está instalado. Passos:
-   1. instale — Mac: baixe o instalador em https://cli.github.com; Windows: `winget install --id GitHub.cli -e`
-      no PowerShell (ou o instalador do mesmo site);
+1. `gh --version` falha ⇒ o programa do GitHub para o terminal não está instalado (o aluno escolheu
+   **depois** no Passo 0, ou ele sumiu desde então). Passos:
+   1. instale com o comando do sistema em uso, da tabela do Passo 0 (macOS `brew install gh`; Windows
+      `winget install --id GitHub.cli -e`; Linux, o link da tabela);
    2. feche e abra o terminal;
    3. rode `gh auth login` e responda: **GitHub.com** → **HTTPS** → **Yes** → **Login with a web
       browser**; copie o código que aparecer e cole na página que abrir no navegador.
@@ -373,4 +406,12 @@ usuário rodar depois de criar o repositório vazio e **privado** lá:
 
 ---
 
-Parte do SDD Starter by RDD — https://github.com/robertodiasduarte/sdd-starter
+Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.
