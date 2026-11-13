@@ -1,7 +1,7 @@
 # GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
-9a9e0a51ae432f07a9b7115049adf0096eb941595f44076bdc6593825adf0634  SKILL.md
+1b45bf1b2fae1f45b6930f8be518f5f81ef51c3533c5ce2a4694ded58917dbe2  SKILL.md
 1b39950ab4677a76cc4404d2412c987c4045af78cc26254ab883e6e513c9083d  agents/openai.yaml
 840bd0dc39391e089de589adbb86665c8b53a46e14f1a9e23a0f90b9c52ab010  references/PERGUNTA_DECISAO.md
-14b536e0a79eb9ae471adf6bc4563d2662097b2238c85aeb9a3cb4929d4079cf  references/RESUMO_ETAPA.md
+f60b83a53f58a74d5a439d5f8365424cc3a800545c5ef29a5b067a114b398429  references/RESUMO_ETAPA.md
 a9478e88debd3df0b9787b67f50caab87c241aa3bd2568aedf00f69a10c5af7a  references/como-falar.md
 621b19708464ceff11d187fd579c80e27d6ca96a6c24ff2d8d8a3a6cbeea6759  scripts/copiar-docs.sh

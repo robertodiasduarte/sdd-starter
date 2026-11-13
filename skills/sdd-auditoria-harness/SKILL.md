@@ -4,7 +4,7 @@ description: "Audita read-only o harness SDD de um repositório para FAXINA E DE
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "1.2.1"
+  version: "1.2.2"
   updated: "2026-11"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
@@ -13,7 +13,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # Auditoria Read-Only do Harness SDD
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-auditoria-harness v1.2.1 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-auditoria-harness v1.2.2 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Como falar com o aluno
 

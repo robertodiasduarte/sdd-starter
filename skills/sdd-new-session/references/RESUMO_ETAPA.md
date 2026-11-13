@@ -16,7 +16,7 @@ que mais precisam dele). Aqui ele vira contrato.
 ````markdown
 ## 📍 Linha de produção — {FEATURE}
 
-✅ setup — ✅ /brainstorm — ✅ /define — ➖ /ux-review — 🏃 /design — ⬜ review adversarial — ⬜ /build — ⬜ /release
+✅ setup — ✅ /brainstorm — ✅ /define — ➖ /ux-review — 🏃 /design — ⬜ /build — ⬜ /release
 
 **Onde estamos:** {≤2 linhas: o que esta etapa produziu + o fato notável que o leitor não adivinha}
 
@@ -43,11 +43,11 @@ que mais precisam dele). Aqui ele vira contrato.
 |---|---|
 | setup | worktree + branch (`git rev-parse --abbrev-ref HEAD`) |
 | /sdd-brainstorm | `sdd/features/BRAINSTORM_{F}.md` |
-| /sdd-define | `sdd/features/DEFINE_{F}.md` |
-| /sdd-ux-review | `sdd/reviews/UX_REVIEW_{F}.md` |
-| /sdd-design | `sdd/features/DESIGN_{F}.md` |
-| /sdd-build | `sdd/reports/BUILD_REPORT_{F}.md` |
-| /sdd-release | `sdd/releases/{F}/` **com ledger do slice ATUAL** — famílias com vários slices (ex.: `ALERTAS_AULA_GRUPO` tem s1/s2/s3) já têm ledger no `main`: casar o slice desta frente, senão a fase Release sai `✅` antes do ship |
+| /sdd-define | `sdd/features/DEFINE_{F}.md` ou `sdd/DEFINE_{F}.md` |
+| /sdd-ux-review | `sdd/reviews/UX_REVIEW_{F}.md` ou `sdd/UX_REVIEW_{F}.md` |
+| /sdd-design | `sdd/features/DESIGN_{F}.md` ou `sdd/DESIGN_{F}.md` |
+| /sdd-build | `sdd/reports/BUILD_REPORT_{F}.md` ou `sdd/BUILD_REPORT_{F}.md` |
+| /sdd-release | a frente publicada: o commit dela na principal, ou o PR dela aberto ou integrado |
 
 **Nada é escrito em disco.** O kanban é derivado na hora, a cada resumo — por isso não pode
 divergir da realidade: ele *é* a realidade. Nunca criar arquivo de estado paralelo.
@@ -66,7 +66,7 @@ divergir da realidade: ele *é* a realidade. Nunca criar arquivo de estado paral
 Primária, uma linha (use sempre que couber em ~100 caracteres):
 
 ```markdown
-✅ setup — ✅ /brainstorm — ✅ /define — ➖ /ux-review — 🏃 /design — ⬜ review adversarial — ⬜ /build — ⬜ /release
+✅ setup — ✅ /brainstorm — ✅ /define — ➖ /ux-review — 🏃 /design — ⬜ /build — ⬜ /release
 ```
 
 Fallback, duas linhas — quebre **no `🏃`**, com o passado acima e o futuro abaixo (nunca
@@ -76,7 +76,7 @@ quebrar no meio de uma casa, nunca abreviar nomes: `/define` e `/design` viram a
 
 ```markdown
 ✅ setup — ✅ /brainstorm — ✅ /define — ➖ /ux-review — 🏃 /design
-⬜ review adversarial — ⬜ /build — ⬜ /release
+⬜ /build — ⬜ /release
 ```
 
 ## Exemplo real completo
@@ -86,7 +86,7 @@ quebrar no meio de uma casa, nunca abreviar nomes: `/define` e `/design` viram a
 ````markdown
 ## 📍 Linha de produção — CERTIFICADO_POR_MODULO
 
-✅ setup — ➖ /sdd-brainstorm — ✅ /sdd-define — ✅ /sdd-ux-review — ✅ /sdd-design — 🏃 review adversarial — ⬜ /sdd-build — ⬜ /sdd-release
+✅ setup — ➖ /sdd-brainstorm — ✅ /sdd-define — ✅ /sdd-ux-review — 🏃 /sdd-design — ⬜ /sdd-build — ⬜ /sdd-release
 
 **Onde estamos:** 3 commits na branch, zero código ainda — o ponto certo pra revisar a
 abordagem.

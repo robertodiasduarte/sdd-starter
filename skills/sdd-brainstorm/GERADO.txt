@@ -1,0 +1,7 @@
+# GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
+0a91bb267721de59dacd9a256048b85c17d389fc11fba0f81b1f33b40b15d2d1  SKILL.md
+1b21ad6739bb96a06ef14d51774932a717a0a45126a4abddfacae341e27a89b0  agents/openai.yaml
+55707dca355b7c59eef9f7244974914242ac9945c220131397e85cb0a3bfea14  references/BRAINSTORM_TEMPLATE.md
+840bd0dc39391e089de589adbb86665c8b53a46e14f1a9e23a0f90b9c52ab010  references/PERGUNTA_DECISAO.md
+f60b83a53f58a74d5a439d5f8365424cc3a800545c5ef29a5b067a114b398429  references/RESUMO_ETAPA.md
+d93e9cc96ac5e08666d3ebc6003e90236759938742d0dc7a9240271d68190491  references/como-falar.md

@@ -12,7 +12,7 @@ Coloque as skills SDD no seu agente e rode seu primeiro fluxo.
 npx skills add robertodiasduarte/sdd-starter -a claude-code -y
 ```
 
-Instala as 15 skills em `.claude/skills/` do projeto onde você rodou. Para instalar uma vez e valer em todos os projetos, acrescente `-g` (vai para `~/.claude/skills/`).
+Instala as 18 skills em `.claude/skills/` do projeto onde você rodou. Para instalar uma vez e valer em todos os projetos, acrescente `-g` (vai para `~/.claude/skills/`).
 
 ### Codex
 
@@ -30,7 +30,7 @@ Se você alterna entre Claude Code e Codex no mesmo repositório, instale para o
 npx skills add robertodiasduarte/sdd-starter -a claude-code,codex -y
 ```
 
-Os documentos que as skills geram ficam em `sdd/`, uma pasta só, que os dois enxergam. Se o projeto já tiver `.claude/sdd/`, as skills continuam nela.
+Os documentos que as skills geram ficam em `sdd/`, uma pasta só, que os dois enxergam: o Brainstorm em `sdd/features/`, o Handoff em `sdd/handoffs/`, a revisão de governança em `sdd/reviews/`; até a próxima geração, `sdd-define`, `sdd-design` e `sdd-build` gravam direto em `sdd/` e recebem o documento anterior pelo caminho que você indicar. Se o projeto já tiver `.claude/sdd/`, as skills continuam nela. Na web não há pasta: cada documento sai no chat.
 
 ### Outros agentes, ou sem Node.js
 

@@ -1,291 +1,224 @@
 ---
 name: sdd-brainstorm
+description: Fase 0 do SDD Open — explora uma ideia vaga por diálogo antes de virar requisito. Faz perguntas uma de cada vez, coleta amostras, propõe 2–3 abordagens com prós e contras, aplica YAGNI e grava sdd/features/BRAINSTORM_{FEATURE}.md. Use quando o usuário disser "quero fazer algo mas não sei bem o quê", trouxer notas soltas ou pedir /sdd-brainstorm.
+compatibility: Funciona na web (claude.ai, ChatGPT), onde o documento sai no chat, e em qualquer agente com acesso ao projeto.
 license: MIT
-description: "Conduz o brainstorm da Fase 0 de um fluxo SDD/AgentSpec por interação com o usuário: explora contexto, faz perguntas de descoberta uma por vez, coleta amostras, compara 2–3 abordagens, aplica YAGNI, valida incrementalmente e gera um BRAINSTORM pronto para a fase /define. Use para ideias vagas de software, automações, agentes, produtos ou features que ainda precisam de exploração antes de formalizar requisitos; também quando o usuário pedir para transformar uma conversa, problema ou notas iniciais em um brainstorm estruturado."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.0"
-  updated: "2026-10"
+  version: "2.4.0"
+  updated: "2026-11"
+  fase: "0"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
-# SDD Brainstorm
+# sdd-brainstorm — Fase 0 (opcional)
 
-Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-brainstorm v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
+`sdd-brainstorm v2.4.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
-## Quick start
+Explorar antes de especificar. O produto desta fase é **clareza**, não código: um documento
+que o `/sdd-define` consegue transformar em spec com pouca pergunta.
 
-Transformar uma ideia inicial em uma direção validada antes de formalizar requisitos.
-
-1. Capturar a ideia original sem reescrevê-la como requisito fechado.
-2. Levantar apenas o contexto de projeto realmente disponível.
-3. Fazer perguntas de descoberta **uma por vez**.
-4. Fazer no mínimo 3 perguntas antes de propor abordagens.
-5. Perguntar obrigatoriamente por amostras, exemplos de saída, ground truth ou código relacionado.
-6. Propor 2–3 abordagens distintas, com uma recomendação explícita.
-7. Aplicar YAGNI ao escopo.
-8. Obter confirmação do usuário sobre a abordagem.
-9. Fazer no mínimo 2 checkpoints de validação incremental.
-10. Só então gerar o documento BRAINSTORM.
-
-Consultar [references/brainstorm-protocol.md](references/brainstorm-protocol.md) para a política de interação. Para o artefato final, usar obrigatoriamente o asset canônico [assets/BRAINSTORM_TEMPLATE.md](assets/BRAINSTORM_TEMPLATE.md) como molde estrutural.
-
-## Quando usar / Quando não usar
-
-Usar quando a ideia ainda precisa ser explorada, quando existem alternativas relevantes, quando o problema está mais claro que a solução, ou quando o usuário quer preparar a entrada para uma fase posterior de definição.
-
-Não usar como substituto de uma especificação formal quando problema, usuários, objetivos, critérios de sucesso, restrições e escopo já estão claros. Nesses casos, recomendar seguir diretamente para a fase de definição. Não usar para implementar código, desenhar arquitetura detalhada ou executar release.
-
-## Dados necessários
-
-Entrada mínima:
-- ideia, problema, pedido, notas ou feature a explorar.
-
-Entradas opcionais:
-- arquivos/notas do usuário;
-- contexto do projeto;
-- estrutura de diretórios e padrões existentes;
-- amostras de entrada;
-- exemplos de saída esperada;
-- ground truth ou dados verificados;
-- código relacionado;
-- restrições técnicas, operacionais, prazo ou orçamento.
-
-Não exigir conector externo. Não assumir acesso à internet, repositório remoto ou sistema do usuário. Se o contexto não estiver acessível, registrar a limitação em vez de inventar observações.
-
-### Asset obrigatório de saída
-
-O arquivo [assets/BRAINSTORM_TEMPLATE.md](assets/BRAINSTORM_TEMPLATE.md) é o molde oficial do Brainstorm produzido por esta Skill. Ele é um **asset de saída**, não material conceitual de referência. Sempre reutilizá-lo para criar o `.md` final, em vez de reconstruir o documento apenas de memória.
+```text
+Fase 0: /sdd-brainstorm → sdd/features/BRAINSTORM_{F}.md   (ESTA SKILL)
+Fase 1: /sdd-define     → DEFINE_{F}.md
+UX:     ux-review       → UX_REVIEW_{F}.md (a do seu projeto, criada pela ux-review-builder)
+Fase 2: /sdd-design     → DESIGN_{F}.md
+Fase 3: /sdd-build      → código + BUILD_REPORT_{F}.md
+Fase 4: /sdd-release    → publicação com 1 OK
+```
 
 ## Como falar com o aluno
 
-Leia `references/como-falar.md` antes da primeira resposta: glossário desta skill e um exemplo completo.
+Leia `references/como-falar.md` antes da primeira resposta: o glossário desta skill, o Status preenchido
+e um exemplo completo. Pergunta e parada seguem `<pasta desta skill>/references/PERGUNTA_DECISAO.md`.
 Quem usa esta skill, em geral, nunca usou git nem terminal.
 
 | Etapa | Nome para o aluno | Passos desta skill |
 |---|---|---|
-| 1 | Entender | 1 e 2 |
-| 2 | Perguntas | 3 (uma por resposta) |
-| 3 | Amostras | 4 |
-| 4 | Abordagens | 5 e 6 |
-| 5 | Validar | 7 (um checkpoint por resposta) |
-| 6 | Gravar | 8 e 9 |
+| 1 | Entender | 1 |
+| 2 | Perguntas | 2 (uma por resposta) |
+| 3 | Amostras | 3 |
+| 4 | Abordagens | 4 e 5 (YAGNI) |
+| 5 | Validar | 6 |
+| 6 | Gravar | 7 |
 
-Toda resposta, nesta ordem (pule a parte sem conteúdo): **Status** (`Brainstorm: ✅ 1 … · ▶️ 2 … · ⬜ 3 …`;
-✅ concluída, não só visitada; ⏸️ parada; ➖ pulada; ao voltar a uma etapa, o motivo vai em Agora) ·
-**O que foi feito** (frases curtas, sem saída de comando; registra a escolha do aluno) ·
-**Agora: etapa N — nome** (2 a 4 frases; antes de algo demorado, diga o que vai fazer e que não precisa
-responder) · **Sua decisão** (autorização: pergunta em negrito + opções com o efeito de cada uma;
-pergunta aberta: pergunta em negrito + como responder, com a saída "não sei"; agrupadas, numeradas) ·
-**Próximo passo** (uma linha).
+Toda resposta, nesta ordem (pule a parte sem conteúdo):
 
-- Uma etapa por resposta; termine na decisão e pare.
-- Termo técnico só com a explicação junto, na primeira vez — inclusive os do Status (glossário na referência).
-- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, "e mais N". Comando só quando
-  o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
+1. **Status** — uma linha que começa pelo nome da fase: `Brainstorm: ✅ 1 Entender · ▶️ 2 Perguntas · ⬜ 3 Amostras · ⬜ 4 Abordagens · ⬜ 5 Validar · ⬜ 6 Gravar`
+   (✅ concluída, não só visitada · ▶️ a de agora · ⬜ por fazer · ⏸️ parada · ➖ pulada). Ao voltar a uma
+   etapa, o motivo vai em Agora.
+2. **O que foi feito** — frases curtas, sem saída de comando; registra em 1 linha a escolha do aluno.
+3. **Agora: etapa N — nome** — 2 a 4 frases. Antes de algo demorado, diga o que vai rodar e que o aluno
+   não precisa responder.
+4. **Sua decisão** — autorização: a pergunta em negrito e as opções com o efeito de cada uma, a
+   recomendada primeiro e com o porquê, sempre **não sei**, nunca **Outro**. Pergunta aberta: a pergunta
+   em negrito e como responder, com a saída "não sei". Várias de uma vez: numeradas.
+5. **Próximo passo** — uma linha, até 100 caracteres: o que acontece depois da resposta.
+
+- Uma etapa por resposta: termine na decisão e pare.
+- Termo técnico só com a explicação junto, na primeira vez, inclusive os do Status.
+- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, com "e mais N". Comando só
+  quando o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
 - Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
-- Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
-- Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
-  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
-  continuo daqui."
+- Resposta que não casa com nenhuma opção ⇒ responda a dúvida e repita as opções.
+- Parada: Status com ⏸️, o motivo em uma frase, onde a ação acontece, passos numerados com o resultado
+  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo,
+  eu continuo daqui."
+- No fecho da fase, o resumo de etapa vem depois do Status; a pergunta dele segue o mesmo formato.
 
-## Procedimento passo a passo
+## Entrada
 
-### 1. Classificar a entrada
+`/sdd-brainstorm <ideia | arquivo de notas | problema>`. Se não vier nada, pergunte
+"O que você quer construir ou resolver?".
 
-Identificar o tipo predominante:
-- ideia vaga;
-- pedido específico;
-- problema;
-- feature request;
-- comparação entre alternativas;
-- notas/arquivo.
+## Processo
 
-Ajustar o foco sem pular as etapas obrigatórias. Uma ideia vaga pede exploração; um pedido específico pede validação do entendimento; um problema pede investigação da dor antes das soluções; uma feature request deve ter sua necessidade questionada; uma comparação deve enfatizar trade-offs.
+### 1. Contexto
 
-### 2. Reunir contexto
+Leia `AGENTS.md` (se existir) e `<pasta desta skill>/references/BRAINSTORM_TEMPLATE.md`. Explore a estrutura do
+projeto e os commits recentes (se tiver acesso a eles): o que já existe que
+se parece com o pedido? Onde uma feature assim moraria?
 
-Preservar o texto original da ideia como `Raw Input`.
+Como tratar cada tipo de entrada (o foco muda; as etapas obrigatórias, não):
 
-Separar:
-- fatos fornecidos pelo usuário;
-- observações verificáveis em arquivos/contexto acessível;
-- inferências.
+| Entrada | Como tratar |
+|---|---|
+| ideia vaga | "conte mais" antes de qualquer opção: o problema e quem sente a dor |
+| pedido específico | confirme o entendimento numa frase antes de perguntar o resto |
+| problema | investigue a dor (quando acontece, quanto custa) antes de falar de solução |
+| feature | questione a necessidade: o que a pessoa faz hoje sem ela, e o que muda com ela |
+| comparação entre alternativas | o que se ganha e o que se perde em cada uma |
+| notas ou arquivo | leia tudo antes da primeira pergunta e cite o que já está respondido |
 
-Não transformar inferência em fato. Quando houver acesso ao projeto, observar estrutura, padrões existentes, localização provável, domínios técnicos relevantes e impacto de infraestrutura. Quando não houver, marcar como `N/A`, `desconhecido` ou `não fornecido`.
+### 2. Perguntas de descoberta — UMA por vez
 
-### 3. Fazer descoberta conversacional
+Mínimo **3** antes de propor abordagem. Prefira múltipla escolha (2–4 opções); a
+recomendada vem **primeiro**, com "(Recomendado)" e o motivo em uma frase.
 
-Fazer **uma única pergunta por mensagem**.
+| Tipo | Quando |
+|---|---|
+| Múltipla escolha | as opções são claras (preferido) |
+| Aberta | território desconhecido |
+| De esclarecimento | a resposta anterior foi vaga |
 
-Preferir múltipla escolha quando as opções forem claras e incluir uma opção aberta quando necessário. Usar pergunta aberta quando o território ainda for desconhecido. Se a resposta vier vaga ou contraditória, perguntar um esclarecimento antes de avançar.
+Boas perguntas: "Para quem é?", "O que muda no dia de quem usa?", "Como você saberia que
+ficou pronto?", "O que NÃO precisa estar na primeira versão?".
 
-Cobrir, no mínimo:
-1. propósito/problema central;
-2. usuário ou beneficiário;
-3. restrições, limites ou contexto relevante;
-4. sinal de sucesso, quando ainda não estiver claro.
+**Perfil de risco (sempre, uma pergunta aberta).** Antes das abordagens, pergunte as 3 de segurança juntas,
+para responder em uma linha cada: **Quem pode ver cada dado? Quem pode mudar? Quanto alguém pode pedir?**
+("quanto pedir" = tentativas de login, chamadas pagas, inclusive à IA, e arquivos enviados). "Não sei" vale e é
+registrado assim. As respostas vão para `## Perfil de risco` do documento; o passo de segurança do Define (skill
+`sdd-seguranca`) as lê para saber se há login, dado de terceiros, rota pública, envio de arquivo ou chamada paga.
+Esta pergunta não conta entre as 3 de descoberta.
 
-Fazer **no mínimo 3 perguntas de descoberta antes de propor abordagens**. Não contar a pergunta de amostras como uma das 3.
+### 3. Amostras (aterramento)
 
-Após cada resposta, registrar internamente:
-- pergunta;
-- resposta;
-- impacto na solução.
+Sempre pergunte: "Existe algo que ancore a solução? (a) arquivos de entrada reais, (b) exemplos
+da saída esperada, (c) dados verificados, (d) nada disponível". Se existir, leia e descreva no
+documento — amostra real vale mais que descrição.
 
-### 4. Coletar amostras
+### 4. Abordagens — 2 ou 3, com recomendação
 
-Perguntar, em uma única interação, se há:
-- arquivos de entrada;
-- exemplos de saída esperada;
-- ground truth/dados verificados;
-- código ou padrão relacionado;
-- nenhuma amostra disponível.
+```markdown
+### Abordagem A: {Nome} ⭐ Recomendada
+**Por quê:** {1–2 frases}  ·  **Prós:** …  ·  **Contras:** …
 
-Se houver amostras, analisá-las apenas com as ferramentas disponíveis e registrar como elas influenciam a solução. Se não houver, seguir normalmente sem penalizar o usuário.
+### Abordagem B: {Nome}
+**Por que não recomendada:** …
+```
 
-### 5. Propor 2–3 abordagens
+Lidere com a recomendação. Nunca entregue três opções sem opinião.
 
-Somente depois do gate de descoberta.
+### 5. YAGNI
 
-Apresentar primeiro a abordagem recomendada e justificar a recomendação. Para cada abordagem, informar:
-- nome;
-- descrição;
-- vantagens;
-- desvantagens/trade-offs.
+Para cada funcionalidade que surgiu: precisa para a primeira versão? Resolve o problema
+central? Se não, sai — e fica **registrada** na tabela "Removidas", com o motivo e se pode
+voltar depois. O que sai é tão importante quanto o que fica.
 
-As abordagens devem ser substantivamente diferentes, não apenas variações cosméticas. Comparar complexidade, risco, esforço, flexibilidade e aderência ao problema quando relevante.
+### 6. Validação incremental
 
-Pedir que o usuário confirme uma abordagem. Se ele rejeitar todas, revisar o entendimento e voltar ao ponto necessário.
+Apresente o entendimento em blocos de 200–300 palavras e confirme cada um antes do
+próximo. Mínimo **2** confirmações. Se o usuário corrigir, volte: "Entendi diferente. Revisando…".
 
-### 6. Aplicar YAGNI
+### 7. Documento
 
-Revisar componentes e features propostos perguntando:
-- isto é necessário para o MVP?
-- isto resolve o problema central agora?
+Preencha `<pasta desta skill>/references/BRAINSTORM_TEMPLATE.md` e grave em
+`sdd/features/BRAINSTORM_{FEATURE}.md` (nome em CAIXA_ALTA_COM_UNDERSCORE, estável — é o
+`feature_id` de toda a linha). Inclua a seção **Suggested Requirements for /define** com
+problema, usuários, critérios de sucesso mensuráveis e fora de escopo confirmado. Sem acesso aos arquivos do
+projeto, não há o que gravar: entregue no chat, como em **Sem terminal** abaixo.
 
-Remover ou adiar itens que falhem nesses testes. Documentar o que foi removido/adiado e por quê. Se nenhum item puder ser removido de forma responsável, registrar que a revisão YAGNI foi executada e que nenhum corte adicional foi identificado; nunca inventar um corte só para preencher a seção.
+## Se o agente não puder perguntar (sessão autônoma)
 
-### 7. Validar incrementalmente
+Responda cada pergunta pela evidência disponível, marque a resposta como `ASSUMIDO` e liste as
+assunções em "O que precisa de você" no fechamento. Nunca invente uma resposta do usuário.
 
-Depois que houver uma direção escolhida, apresentar a solução em blocos curtos e verificáveis, idealmente com 200–300 palavras quando o conteúdo justificar.
+## Sem terminal (sem acesso aos arquivos do projeto)
 
-Realizar no mínimo 2 checkpoints, por exemplo:
-- checkpoint 1: conceito, limites e componentes;
-- checkpoint 2: fluxo de dados, falhas, dependências e comportamento esperado.
+Na web (claude.ai, ChatGPT) ou em qualquer agente que não lê nem grava os arquivos do projeto, o brainstorm é o
+mesmo; só a entrega muda:
 
-Em cada checkpoint:
-1. apresentar a seção;
-2. pedir feedback/confirmar entendimento;
-3. ajustar se necessário;
-4. só então seguir.
+- **Entregue o documento inteiro no chat**, com o nome sugerido (`BRAINSTORM_{FEATURE}.md`) e uma frase dizendo que
+  nada foi gravado: a pessoa copia para um arquivo. Nunca diga que gravou, leu ou conferiu um arquivo que não viu.
+- **Fato, observação e inferência separados:** o que a pessoa disse (fornecido), o que você viu num arquivo ou trecho
+  que ela colou (observado) e o que você concluiu (inferido). Sem acesso ao projeto, a estrutura, os commits e os
+  padrões ficam como `não fornecido`, nunca como inspecionados.
+- **Não sobrescreva em silêncio:** se já existe um BRAINSTORM da mesma feature, pergunte se atualiza o antigo ou cria
+  outro.
+- **YAGNI com zero cortes vale:** se nada pode sair com responsabilidade, registre que a revisão foi feita e nada saiu;
+  nunca invente um corte. Métrica que ainda não tem número vira "a definir", nunca um número inventado.
 
-Se o usuário corrigir um entendimento anterior, voltar e atualizar decisões dependentes.
+## Quality Gate
 
-### 8. Gerar o BRAINSTORM
+```text
+[ ] ≥3 perguntas de descoberta feitas (ou ASSUMIDO marcado)
+[ ] Perfil de risco: as 3 perguntas de segurança respondidas (ou "não sei") em ## Perfil de risco
+[ ] Pergunta de amostras feita
+[ ] ≥2 abordagens exploradas, com recomendação
+[ ] YAGNI aplicado e registrado
+[ ] ≥2 validações incrementais
+[ ] Abordagem escolhida confirmada pelo usuário (ou marcada pendente)
+[ ] Requisitos-rascunho para o Define incluídos
+[ ] Resposta fechada com o resumo de etapa (`<pasta desta skill>/references/RESUMO_ETAPA.md`)
+```
 
-Gerar o artefato somente quando:
-- 3+ perguntas de descoberta tiverem sido respondidas;
-- a pergunta de amostras tiver sido feita;
-- 2+ abordagens tiverem sido exploradas;
-- YAGNI tiver sido aplicado;
-- uma abordagem tiver sido confirmada;
-- 2+ checkpoints tiverem sido concluídos.
+## Por que cada regra existe
 
-Usar obrigatoriamente [assets/BRAINSTORM_TEMPLATE.md](assets/BRAINSTORM_TEMPLATE.md) como **fonte de verdade do documento final**.
+- **Uma pergunta por mensagem** — duas perguntas juntas recebem uma resposta só, quase sempre à mais
+  fácil; a outra some sem ninguém perceber.
+- **Pelo menos 3 perguntas antes das abordagens** — abordagem proposta cedo ancora a conversa: as
+  perguntas seguintes passam a confirmar a solução em vez de entender o problema.
+- **Sempre perguntar por amostras** — uma planilha real derruba suposições que uma descrição não
+  derruba (o campo que vem vazio, o formato que muda no meio do mês).
+- **Liderar com a recomendação** — três opções sem opinião devolvem a decisão a quem pediu ajuda
+  justamente para decidir.
+- **O que sai pelo YAGNI fica registrado** — com o motivo e se pode voltar depois, o registro impede
+  que a ideia volte escondida no Design como se ninguém a tivesse descartado.
+- **Duas confirmações antes de gravar** — o documento vira a entrada do Define; um mal-entendido gravado
+  aqui chega ao código com cara de requisito.
+- **Sessão autônoma marca `ASSUMIDO`, nunca inventa a resposta do usuário** — no documento, uma resposta
+  inventada não se distingue de uma real, e o Define a trata como decisão tomada.
 
-Ao gerar o arquivo:
-1. copiar/usar o asset como molde;
-2. substituir todos os placeholders `{...}` com dados sustentados pela conversa;
-3. remover apenas seções explicitamente opcionais que não se apliquem, como `Approach C`;
-4. preservar a ordem e os títulos das seções canônicas;
-5. não criar uma estrutura alternativa de Brainstorm quando o asset estiver disponível;
-6. registrar lacunas não resolvidas como `TBD`, `N/A`, limitação ou dependência conhecida, no local apropriado do template.
+## Encerramento (obrigatório)
 
-O nome preferencial do arquivo final é `BRAINSTORM_{FEATURE_NAME}.md`, com `{FEATURE_NAME}` em formato legível e estável para o projeto.
+Feche com o **resumo de etapa** — contrato em `<pasta desta skill>/references/RESUMO_ETAPA.md`.
+Esta fase é pré-linha: renderize o kanban completo **sem casa 🏃 própria**. Os 4 blocos, na
+ordem: micro-kanban · Onde estamos (≤2 linhas) · O que precisa de você (só se houver pergunta
+bloqueante; senão omita o bloco) · O que vem depois, na ordem (com ⚠️ inline onde uma
+landmine morde).
 
-**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
-
-Se houver filesystem de projeto gravável, salvar como `sdd/BRAINSTORM_{FEATURE_NAME}.md` (ou `.claude/sdd/BRAINSTORM_{FEATURE_NAME}.md` quando essa pasta já existir), sem sobrescrever silenciosamente um arquivo existente.
-
-Se não houver filesystem acessível, entregar o Markdown completo em chat e indicar o nome sugerido do arquivo.
-
-### 8.1. Finalizar sem criar um segundo fluxo de descoberta
-
-Antes do handoff, consolidar no próprio BRAINSTORM quaisquer lacunas ainda conhecidas. O fechamento não deve abrir uma nova frente de trabalho, por exemplo:
-
-- "a principal informação a obter paralelamente...";
-- "antes da próxima fase, colete...";
-- "Ready for: `/define ...`".
-
-A fase seguinte deve receber o Brainstorm como artefato de entrada. Se alguma informação ficou indisponível durante a exploração, registrá-la como `TBD`, limitação ou dependência no Markdown, sem substituir o `Next Step` definido abaixo.
-
-### 9. Preparar o handoff
-
-A seção `Suggested Requirements for /define` deve conter somente o que foi sustentado pela conversa:
-- problem statement draft;
-- target users;
-- critérios de sucesso mensuráveis quando disponíveis;
-- restrições;
-- out of scope.
-
-Não fabricar métricas. Quando um critério de sucesso ainda não puder ser quantificado, marcá-lo como ponto a definir em vez de inventar um número.
-
-Ao concluir, o `Next Step` deve conter **somente** esta instrução:
-
-`Execute o **SDD Define by RDD**.`
-
-Não encerrar com comandos como `Ready for: /define ...`.
-Não sugerir, no fechamento, coleta paralela de amostras, ground truth, código ou outras informações. Essas necessidades devem ser tratadas durante a própria fase de Brainstorm e registradas no documento quando permanecerem como lacunas conhecidas.
-
-## Validações e checklist de qualidade
-
-Antes de declarar o brainstorm concluído, verificar:
-
-- [ ] Raw Input preservado.
-- [ ] Contexto separa fatos de inferências.
-- [ ] Pelo menos 3 perguntas de descoberta foram respondidas.
-- [ ] As perguntas foram feitas uma por vez.
-- [ ] A pergunta de amostras foi feita.
-- [ ] Foram exploradas pelo menos 2 abordagens realmente distintas.
-- [ ] Existe uma abordagem recomendada com justificativa.
-- [ ] O usuário confirmou a abordagem selecionada.
-- [ ] YAGNI foi aplicado e o resultado foi registrado.
-- [ ] Foram concluídos pelo menos 2 checkpoints de validação.
-- [ ] Decisões importantes e alternativas rejeitadas foram registradas.
-- [ ] O handoff para Define contém somente requisitos sustentados pela conversa.
-- [ ] O `Next Step` contém somente: `Execute o **SDD Define by RDD**.`
-- [ ] O fechamento não contém `Ready for: /define ...` nem recomenda coleta paralela de informações.
-- [ ] Nenhuma incerteza foi convertida silenciosamente em fato.
-- [ ] O documento final foi gerado a partir de [assets/BRAINSTORM_TEMPLATE.md](assets/BRAINSTORM_TEMPLATE.md), sem alterar silenciosamente sua estrutura canônica.
-
-## Tratamento de exceções
-
-- **Usuário quer pular perguntas:** explicar de forma breve que o brainstorm ainda pode continuar, mas não concluir o handoff enquanto os gates mínimos não forem atendidos.
-- **Usuário já traz requisitos completos:** oferecer seguir diretamente para definição em vez de prolongar artificialmente o brainstorm.
-- **Respostas contraditórias:** perguntar uma clarificação, uma por vez, e atualizar decisões afetadas.
-- **Sem amostras:** registrar `None available`/`N/A` e continuar.
-- **Sem acesso ao projeto:** não alegar que estrutura, commits ou padrões foram inspecionados.
-- **Usuário muda a direção após escolher uma abordagem:** reabrir comparação/YAGNI e repetir os checkpoints impactados.
-- **Nenhum corte YAGNI responsável:** registrar revisão sem cortes; não fabricar exclusões.
-
-## Examples
-
-**Entrada vaga**
-`Quero automatizar o processamento de notas fiscais, mas ainda não sei como.`
-
-Começar pela descoberta do problema e do resultado desejado. Não apresentar arquitetura na primeira resposta.
-
-**Feature request**
-`Quero adicionar um chatbot ao portal do cliente.`
-
-Questionar primeiro a necessidade, público e resultado esperado; depois comparar alternativas, incluindo a possibilidade de uma solução mais simples que um chatbot completo.
-
-**Notas com contexto**
-`Tenho estas notas de reunião e alguns exemplos de entrada/saída. Faça o brainstorm.`
-
-Ler o material disponível, preservar fatos, conduzir as perguntas faltantes uma por vez e usar as amostras como grounding antes de propor abordagens.
+**Próximo passo:** peça a skill `sdd-define` com este BRAINSTORM (na web, mande o documento junto com o pedido).
 
 ---
 
 Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

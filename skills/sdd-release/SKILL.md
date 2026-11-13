@@ -1,17 +1,21 @@
 ---
 name: sdd-release
+description: "Fecha uma frente de trabalho e a leva para produção com UM ponto de aprovação: verifica sozinha o que vai subir (sintaxe, testes, segredo no diff, base desatualizada), mostra uma vez o que exatamente vai para produção e se o push publica sozinho (inclusive pela Vercel ligada ao GitHub), e só depois do OK do usuário commita, integra, publica e confere. Use de dentro da pasta da frente quando o usuário disser 'release', 'publicar', 'subir para produção', 'fechar a frente' ou 'integrar'. É a outra ponta da skill sdd-new-session."
+compatibility: "Requer git; para conferir o deploy, o gh (GitHub CLI) com o login que você já tem. Nenhum token é pedido."
 license: MIT
-description: "Fecha uma frente de trabalho e a leva para produção com UM ponto de aprovação: verifica sozinha o que vai subir (sintaxe, testes, segredo no diff, base desatualizada), mostra uma vez o que exatamente vai para produção e se o push publica sozinho, e só depois do OK do usuário commita, integra, publica e confere. Use de dentro da pasta da frente quando o usuário disser 'release', 'publicar', 'subir para produção', 'fechar a frente' ou 'integrar'. É a outra ponta da skill sdd-new-session."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.3.0"
-  updated: "2026-10"
+  version: "2.12.0"
+  updated: "2026-11"
+  fase: "4"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
 # Release — fechar a frente com um OK
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-release v1.3.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-release v2.12.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Verificar o que vai subir, mostrar **uma vez** o que vai para produção e — só depois do OK — integrar e
 publicar.
@@ -99,12 +103,13 @@ Ao usuário, mostre só a forma do shell em uso. Se um desses comandos ficar par
 - Rode `git rev-parse --show-toplevel` e `git branch --show-current`. Se não for um repositório git, ou se
   a branch atual **for** a principal, pare e diga: esta skill roda de dentro da pasta de uma frente (criada
   pela `sdd-new-session` ou por `git worktree add`).
-- O checkout principal é o primeiro caminho de `git worktree list --porcelain`. Se existir
-  `<checkout principal>/sdd/ambiente.md`, **leia e use** (branch principal, cenário, testes, deploy).
+- O checkout principal é o primeiro caminho de `git worktree list --porcelain`. Se existir `sdd/config.yaml`
+  na frente (a `sdd-new-session` grava lá o que descobriu) ou o antigo `<checkout principal>/sdd/ambiente.md`,
+  **leia e use** como ponto de partida (branch principal, cenário, testes, deploy, banco).
 
 ## Passo 1 — Descubra o que faltar (sem perguntar)
 
-Só o que `sdd/ambiente.md` não disser:
+Só o que esses arquivos não disserem:
 
 ```bash
 GIT_TERMINAL_PROMPT=0 git remote show origin
@@ -119,6 +124,16 @@ E leia: `README.md`, `package.json` (seção `scripts`), `Makefile`, `.github/wo
 - **Branch principal** — a "HEAD branch" do remoto.
 - **Como o código chega em produção** — a descoberta mais importante. Seja honesto:
   - **Deploy automático**: um workflow dispara em push na principal ⇒ **o push É o deploy**.
+  - **Deploy automático pela Vercel** (o projeto foi ligado à Vercel pelo GitHub): **o push na principal É o
+    deploy de produção**, e cada push de outra branch ou PR ganha um preview (uma cópia de teste, com endereço
+    próprio). O sinal que vale é um status com nome começando por `Vercel` no último commit da principal
+    (`gh api "repos/{owner}/{repo}/commits/<último commit da principal>/status" --jq '.statuses[].context'`);
+    `vercel.json` ou a pasta `.vercel/` no projeto são só pista (a ligação pelo GitHub não precisa de nenhum dos
+    dois). Só o status ⇒ a Vercel publica. Só o arquivo ⇒ diga que o projeto tem configuração da Vercel mas o
+    GitHub não mostra deploy dela (a ligação pode estar desligada): no bloco do OK, "o push publica sozinho?"
+    fica "não confirmei". **Sem conseguir consultar** (o `gh` não está instalado, não está logado ou a consulta
+    falhou), nunca conclua "Nenhum": a resposta é "não confirmei: não consegui consultar o GitHub", e a Fase 3 trata
+    o push na principal como se publicasse.
   - **Deploy manual**: há um comando de publicação (`npm run deploy`, `make deploy`, um script).
   - **Nenhum**: o repositório só guarda código ⇒ "release" = integrar na principal, sem fingir que publicou.
 - **Testes** (`npm test`, `pytest`, um job de CI) e **checagem de sintaxe** para os arquivos tocados
@@ -137,10 +152,8 @@ E leia: `README.md`, `package.json` (seção `scripts`), `Makefile`, `.github/wo
   em diante, `<alvo>` é ela. Comparar ou integrar uma frente do cenário C contra a principal levaria para
   produção o que ainda está em desenvolvimento.
 
-Grave o que descobriu em `sdd/ambiente.md` do checkout principal (chaves `deploy`, `testes`, `sintaxe`,
-`versionamento`, `banco`), criando o arquivo no formato da `sdd-new-session` se ele não existir. A chave
-`banco` normalmente já foi gravada pela `sdd-build` ao aplicar a migration (ferramenta · projeto nome e ref ·
-como aplicar · como provar); projeto sem banco ⇒ `- banco: nenhum`.
+Não grave arquivo de ambiente: o que você descobriu vale para esta release. A chave `banco` de um
+`sdd/ambiente.md` antigo (gravada pela `sdd-build` ao aplicar a migration) continua sendo lida.
 
 ## Fase 1 — Verificar (sozinha, sem perguntar)
 
@@ -148,7 +161,7 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
 
 0. **Identidade do git.** `git config user.name` e `git config user.email` — os dois preenchidos. Faltou
    algum? Pare aqui, com os comandos `git config --global user.name "Seu Nome"` e
-   `git config --global user.email "voce@exemplo.com"`: o commit da Fase 3 falharia **depois** do OK, e o
+   `git config --global user.email "voce@example.com"`: o commit da Fase 3 falharia **depois** do OK, e o
    usuário teria aprovado algo que não sobe.
 1. **O que exatamente vai subir** — inclusive o que ainda não foi commitado:
    - `git status --short --untracked-files=all` — arquivos modificados e **novos** (`??`, um por arquivo,
@@ -171,11 +184,11 @@ Tudo aqui é local e reversível. Nesta ordem, **parando na primeira falha**:
      `<base>` é `$(git merge-base origin/<alvo> HEAD)`. É o que o OK aprova; a Fase 3 confere antes de
      commitar. Um commit reescrito depois do OK muda o `HEAD` mesmo que o conteúdo final seja igual.
 2. **Migration e banco andam juntos.** Se o que vai subir (o diff e os arquivos novos do item 1) tem
-   `*.sql` ou algo em `migrations/`, a migration precisa constar **aplicada**: a chave `- banco:` em
-   `sdd/ambiente.md` **e** a seção `## Migrations aplicadas` do BUILD_REPORT da frente, com aquele arquivo
-   (ou "já aplicada em <data>"). Falta um dos dois? **Pare aqui, antes do bloco do OK**, dizendo qual lado
-   falta e o caminho: a migration se aplica pelo passo 11 da `sdd-build` (descobre o projeto, confirma nome e
-   ref, aplica, prova por leitura e grava os dois registros). O inverso também para: migration registrada
+   `*.sql` ou algo em `migrations/`, a migration precisa constar **aplicada**: a seção `## Migrations
+   aplicadas` do BUILD_REPORT da frente, com aquele arquivo (ou "já aplicada em <data>") e o projeto do banco.
+   Falta? **Pare aqui, antes do bloco do OK**, dizendo o que falta e o caminho: a migration se aplica pelo passo
+   "Aplicar a migration" da `sdd-build` (descobre o projeto, confirma nome e ref, aplica, prova por leitura e
+   grava o registro). O inverso também para: migration registrada
    como aplicada **sem** o `.sql` no que sobe (o arquivo ficou de fora do commit) ⇒ `git add` do arquivo e
    rode a `sdd-release` de novo. Publicar código que chama uma coluna que o banco não tem, ou um banco que
    mudou sem o arquivo no repositório, são os dois jeitos de git e banco divergirem.
@@ -217,11 +230,13 @@ ainda precisa entrar no commit, não o que sobe>
 **O que muda em produção:** <uma frase, em português — "muda o cálculo do relatório mensal da tela
 inicial", não "altera handler.js">
 
-**O push publica sozinho?** <sim, o workflow X publica ao receber o push na main | não: <por quê>>
+**O push publica sozinho?** <sim, o workflow X publica ao receber o push na main | sim, a Vercel publica
+ao receber o push na main (num PR, só o preview) | não confirmei: <o que viu> | não: <por quê>>
 
 **O deploy espera os testes?** <sim — os testes rodam no mesmo job, antes da publicação (ou: o job de
 publicação tem `needs:` no de testes) | não — o workflow X publica sem esperar os testes do Y: um teste
-vermelho não impede a publicação | não se aplica: o push não publica>
+vermelho não impede a publicação | não — a Vercel publica sem esperar os testes do GitHub: quem os rodou foi
+esta verificação, antes do OK | não se aplica: o push não publica>
 
 **Banco:** <migration `<arquivo>` aplicada em `<projeto nome (ref)>` em <data> | sem migração nesta frente>
 
@@ -235,8 +250,8 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
 ```
 
 - Verificação ausente dita como ausente é informação; em silêncio, é falsa segurança.
-- **"Banco:"** vem dos dois registros conferidos no item 2 da Fase 1 (`- banco:` do `sdd/ambiente.md` e
-  `## Migrations aplicadas` do BUILD_REPORT) — é afirmação, não pergunta. Frente sem `.sql` escreve "sem
+- **"Banco:"** vem do registro conferido no item 2 da Fase 1 (`## Migrations aplicadas` do BUILD_REPORT) —
+  é afirmação, não pergunta. Frente sem `.sql` escreve "sem
   migração nesta frente".
 - **"O deploy espera os testes?"** se descobre lendo `.github/workflows/*`: os testes estão no mesmo job,
   antes do passo que publica, ou o job que publica tem `needs:` apontando para o de testes? Um step de
@@ -309,6 +324,24 @@ diff e nos arquivos novos> · base <atualizada | andou N commits: será integrad
      (`gh workflow run <arquivo> --ref <principal>`, se o workflow aceita disparo manual) ou com um push novo.
    - Verde não prova teste: se o step de teste tem `continue-on-error`, `|| true` ou termina sempre em
      `exit 0`, diga "o deploy terminou, mas o workflow não roda testes antes de publicar" — sem ✅.
+   **Com a Vercel**, o deploy não é um workflow: ele aparece no GitHub como um status do commit e como um
+   deployment (o que esta skill sabe disso vem da documentação da Vercel, vercel.com/docs/git/vercel-for-github;
+   se o seu GitHub mostrar outra coisa, diga o que viu). Pelo SHA publicado:
+   - `gh api "repos/{owner}/{repo}/commits/<SHA publicado>/status" --jq '.statuses[] | select(.context | startswith("Vercel")) | [.state, .target_url] | @tsv'`
+   - `success` ⇒ pegue o endereço: `gh api "repos/{owner}/{repo}/deployments?sha=<SHA publicado>" --jq '.[0].id'`
+     e `gh api "repos/{owner}/{repo}/deployments/<id>/statuses" --jq '.[0].environment_url'` ⇒ "No ar: o deploy
+     do seu commit `<sha curto>` terminou na Vercel — <endereço>". Esse é o endereço **deste deploy**; o domínio
+     do site, se o projeto tiver um, passa a mostrar a mesma versão. Abra o endereço (ou peça ao aluno para
+     abrir) e diga se a página respondeu.
+   - `pending` ⇒ ainda publicando: consulte de novo a cada ~30 s, até 10 min; passou disso, diga que continua
+     publicando e dê o link do status (o `target_url`) — sem dizer "no ar".
+   - `failure` ou `error` ⇒ diga que o deploy da Vercel falhou e dê o link do status, onde está o erro. **Não
+     refaça o deploy por conta própria**: corrigir e publicar de novo é uma frente nova.
+   - Nenhum status da Vercel depois de ~2 min ⇒ diga que não achou o deploy da Vercel para este commit (a
+     ligação pode estar desligada, ou a Vercel decidiu não construir) — nunca "no ar".
+   - Nos cenários B e C, o PR ganha um preview: `gh pr checks <número do PR>` mostra o check da Vercel, e o
+     endereço do preview está no comentário da Vercel no PR (`gh pr view <número do PR> --comments`). Produção
+     só muda depois do merge: confira então pelo SHA do merge, como acima.
    Há URL? Veja se responde. Sem `gh` ou sem como confirmar? Diga isso: "publicado, sem verificação
    automática disponível" é honesto; "✅ tudo certo" sem ter olhado, não é.
 7. **Checkout principal e limpeza**, entregues como comandos (de dentro da worktree ela não consegue se
@@ -343,6 +376,10 @@ Resposta final: o Status todo ✅ e três linhas — o que subiu, onde está, o 
 - **Migration no commit e migration aplicada andam juntas**: o push publica o código, não o banco. Sem a
   conferência, um deploy automático põe no ar código que chama uma coluna que não existe — e o bloco do OK
   teria dito "o push publica sozinho? sim" como se isso bastasse.
+- **A Vercel é conferida pelo status do commit, não por um workflow**: ela publica sem passar pelo GitHub
+  Actions; procurar um workflow que não existe faria a skill dizer "não achei o deploy" de algo que está no ar.
+- **Nenhum token, nunca**: o `gh` usa o login que já existe; pedir ou colar token no chat é o jeito mais comum de
+  uma chave vazar.
 - **O deploy é conferido pelo SHA**: com dois pushes seguidos, o "último run" é de outro commit, e um
   run verde de outro commit não diz nada sobre o seu.
 - **Nunca `gh run rerun` de deploy antigo**: o rerun usa o commit daquele run — com fila, ele roda depois
@@ -352,4 +389,12 @@ Resposta final: o Status todo ✅ e três linhas — o que subiu, onde está, o 
 
 ---
 
-Parte do SDD Starter by RDD — https://github.com/robertodiasduarte/sdd-starter
+Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

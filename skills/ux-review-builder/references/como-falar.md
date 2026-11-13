@@ -44,12 +44,14 @@ conferir olhando a tela, cada uma com um código fixo para ser citada depois. Na
 bloqueiam uma feature que as desrespeite, então precisam ser só as que você sustenta. Mostro as 8 em uma
 linha cada; as três primeiras são as obrigatórias.
 
-**Sua decisão** — **As 8 regras estão certas?**
-- **aprovar** — gravo as 8 como estão e sigo para a governança (quem aprova mudanças no padrão).
+**Sua decisão** — [D2 · muda o produto] **As 8 regras estão certas?**
+- **aprovar** (recomendado) — gravo as 8 como estão e sigo para a governança (quem aprova mudanças no
+  padrão); as 8 saíram das suas respostas, e ajustar depois custa só uma versão nova do padrão.
 - **ajustar** — diga o número da regra e o que muda (ex.: "a 3 vira recomendada"); eu reescrevo e mostro
   de novo.
 - **ver uma na tela** — escolha um número e eu descrevo como fica uma tela que cumpre e uma que não
   cumpre aquela regra.
+- **não sei** — explico com a regra 1 o que muda para quem usa a tela quando ela é obrigatória.
 
 **Próximo passo** — Com as regras confirmadas, a etapa 5 define quem aprova mudanças e como o padrão
 ganha versão.

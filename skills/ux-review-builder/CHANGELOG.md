@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0 - 2026-11
+
+- A skill passa a morar no SDD Open (era só do sdd-starter, que agora a recebe gerada do Open): linha de
+  identificação com a versão do Open; o `agents/openai.yaml` sai da pasta e vira linha da tabela do gerador.
+- Num projeto com a `sdd-ux-review`, o padrão fica em `sdd/UX_STANDARD.md` e é ela que o lê; a `ux-review`
+  gerada vira opcional. Entrevista, regras, artefatos e validador não mudam.
+
 ## 1.4.0 - 2026-10
 
 - Seção "Como falar com o aluno": 6 etapas com nome fixo (Modo · Público · Referências · Regras ·

@@ -1,236 +1,190 @@
 ---
 name: sdd-handoff
+description: Passa o bastão para uma sessão nova e mantém a FICHA DA FEATURE do SDD Open — um arquivo por feature em sdd/handoffs/HANDOFF_{FEATURE}.md, com estado agregado, pendências, alertas e um prompt de retomada autossuficiente (IDs, caminhos e comandos colados). Use quando o usuário disser "estou no limite de contexto", "documenta pra continuar depois", "passa o bastão", /sdd-handoff, quando a fase Release rodar, ou quando o agente perceber que o contexto está acabando no meio de um trabalho longo.
+compatibility: Funciona na web (claude.ai, ChatGPT), onde a ficha sai no chat, e em qualquer agente com acesso ao projeto. Não depende de memória proprietária de nenhum agente.
 license: MIT
-description: "Fecha um ciclo de trabalho e passa o bastão para a próxima sessão: registra o que foi feito, o que ficou pendente (separando o que está quebrado do que é melhoria), quais são os próximos passos e o que não pode quebrar — e gera um prompt de retomada que funciona sozinho, sem depender da conversa anterior. Mantém um único arquivo de handoff por feature, com cada etapa nova no topo. Use quando o usuário disser que vai parar, que o contexto está acabando, que terminou uma etapa, que quer documentar para continuar depois, ou ao final da fase de Build de um fluxo SDD."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.0"
-  updated: "2026-10"
+  version: "2.2.0"
+  updated: "2026-11"
+  fase: "transversal"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
-# SDD Handoff
+# sdd-handoff — ficha da feature + passar o bastão
 
-Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-handoff v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
+`sdd-handoff v2.2.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
-## Quick start
+Duas responsabilidades, sempre nesta ordem:
 
-Registrar o estado do trabalho e preparar a retomada, de forma que a próxima sessão — que não viu nada desta conversa — consiga continuar sem redescobrir o que já foi decidido.
-
-1. Inferir o modo pelo contexto (*continuar* ou *entregar*) e confirmar em uma linha.
-2. Resolver a família: já existe handoff desta feature? Atualizar, não criar outro.
-3. Reunir o estado a partir da conversa — buscando agora os dados que faltarem.
-4. Preencher a ficha e a seção da etapa (seis seções).
-5. Classificar as pendências em 🐛 bug fix e ✨ feature improvement.
-6. No modo *entregar*, percorrer o checklist de fechamento (que não bloqueia nada).
-7. Gravar o arquivo — ou, sem filesystem, entregar no chat dizendo o que fazer com ele.
-8. Gerar o prompt de retomada, com todo dado colado.
-
-Consultar [references/handoff-protocol.md](references/handoff-protocol.md) para as regras de decisão. Para os artefatos, usar obrigatoriamente [assets/HANDOFF_TEMPLATE.md](assets/HANDOFF_TEMPLATE.md) e [assets/SESSION_PROMPT_TEMPLATE.md](assets/SESSION_PROMPT_TEMPLATE.md) como moldes. O arquivo [assets/HANDOFF_EXAMPLE.md](assets/HANDOFF_EXAMPLE.md) mostra o nível de detalhe esperado.
-
-## Quando usar / Quando não usar
-
-Usar quando o usuário sinalizar que vai parar, que o contexto está no limite, que terminou uma etapa, ou pedir explicitamente para documentar/passar o bastão. Usar também ao final de um fluxo SDD, depois do Build.
-
-Não usar para escrever documentação de produto, manual de uso ou README — o handoff é registro de trabalho em andamento, não documentação de entrega. Não usar para publicar/implantar nada: esta skill documenta o ciclo, não executa release.
-
-## Dados necessários
-
-Entrada mínima:
-- a conversa atual, com o trabalho que foi feito.
-
-Entradas opcionais:
-- arquivo de handoff anterior da mesma feature;
-- artefatos do fluxo SDD (Brainstorm, Define, Design, Build Report);
-- acesso ao projeto para conferir nomes de arquivo, dados e estado.
-
-Não exigir acesso a filesystem, repositório ou sistema externo. Quando algo não estiver acessível, registrar a limitação em vez de inventar.
-
-### Assets obrigatórios de saída
-
-[assets/HANDOFF_TEMPLATE.md](assets/HANDOFF_TEMPLATE.md) é o molde oficial do documento de handoff e [assets/SESSION_PROMPT_TEMPLATE.md](assets/SESSION_PROMPT_TEMPLATE.md) é o molde do prompt de retomada. São **assets de saída**, não material conceitual: sempre reutilizá-los para montar o resultado final, em vez de reconstruir a estrutura de memória.
+1. **Manter a ficha da feature** — `sdd/handoffs/HANDOFF_{FEATURE}.md`, **um arquivo por
+   feature** (nunca por slice), com o estado agregado no topo.
+2. **Gerar o prompt da próxima sessão** (opcional quando não há continuação).
 
 ## Como falar com o aluno
 
-Leia `references/como-falar.md` antes da primeira resposta: glossário desta skill e um exemplo completo.
+Leia `references/como-falar.md` antes da primeira resposta: o glossário desta skill, o Status preenchido
+e um exemplo completo. Pergunta e parada seguem `<pasta desta skill>/references/PERGUNTA_DECISAO.md`.
 Quem usa esta skill, em geral, nunca usou git nem terminal.
 
 | Etapa | Nome para o aluno | Passos desta skill |
 |---|---|---|
-| 1 | Modo | 1 (confirmado em uma linha, sem menu) |
-| 2 | Estado | 2 e 3 |
-| 3 | Ficha e pendências | 4 e 5 |
-| 4 | Documento | 6 (só no modo *entregar*) e 7 |
-| 5 | Prompt de retomada | 8 |
+| 1 | Família | 0 |
+| 2 | Estado | 1 |
+| 3 | Ficha | 2 |
+| 4 | Prompt de retomada | 3 e 3b |
+| 5 | Limpeza | 4 |
 
-Toda resposta, nesta ordem (pule a parte sem conteúdo): **Status** (`Handoff: ✅ 1 … · ▶️ 2 … · ⬜ 3 …`;
-✅ concluída, não só visitada; ⏸️ parada; ➖ pulada; ao voltar a uma etapa, o motivo vai em Agora) ·
-**O que foi feito** (frases curtas, sem saída de comando; registra a escolha do aluno) ·
-**Agora: etapa N — nome** (2 a 4 frases; antes de algo demorado, diga o que vai fazer e que não precisa
-responder) · **Sua decisão** (só onde esta skill já pergunta — a família em dúvida, o checklist do modo
-*entregar*; autorização: pergunta em negrito + opções com o efeito de cada uma; pergunta aberta: pergunta
-em negrito + como responder, com a saída "não sei"; as quatro perguntas do checklist, numeradas, podem ser
-respondidas pelos números) · **Próximo passo** (uma linha).
+Toda resposta, nesta ordem (pule a parte sem conteúdo):
 
-- Uma etapa por resposta; termine na decisão e pare. Quem pede handoff está sem tempo: sem decisão, siga.
-- Termo técnico só com a explicação junto, na primeira vez — inclusive os do Status (glossário na referência).
-- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, "e mais N". Comando só quando
-  o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
+1. **Status** — uma linha que começa pelo nome da fase: `Handoff: ✅ 1 Família · ✅ 2 Estado · ▶️ 3 Ficha · ⬜ 4 Prompt de retomada · ⬜ 5 Limpeza`
+   (✅ concluída, não só visitada · ▶️ a de agora · ⬜ por fazer · ⏸️ parada · ➖ pulada). Ao voltar a uma
+   etapa, o motivo vai em Agora.
+2. **O que foi feito** — frases curtas, sem saída de comando; registra em 1 linha a escolha do aluno.
+3. **Agora: etapa N — nome** — 2 a 4 frases. Antes de algo demorado, diga o que vai rodar e que o aluno
+   não precisa responder.
+4. **Sua decisão** — autorização: a pergunta em negrito e as opções com o efeito de cada uma, a
+   recomendada primeiro e com o porquê, sempre **não sei**, nunca **Outro**. Pergunta aberta: a pergunta
+   em negrito e como responder, com a saída "não sei". Várias de uma vez: numeradas.
+5. **Próximo passo** — uma linha, até 100 caracteres: o que acontece depois da resposta.
+
+- Uma etapa por resposta: termine na decisão e pare.
+- Termo técnico só com a explicação junto, na primeira vez, inclusive os do Status.
+- Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, com "e mais N". Comando só
+  quando o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
 - Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
-- Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
-- Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
-  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
-  continuo daqui."
+- Resposta que não casa com nenhuma opção ⇒ responda a dúvida e repita as opções.
+- Parada: Status com ⏸️, o motivo em uma frase, onde a ação acontece, passos numerados com o resultado
+  esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo,
+  eu continuo daqui."
+- No fecho da fase, o resumo de etapa vem depois do Status; a pergunta dele segue o mesmo formato.
 
-## Procedimento passo a passo
+## Princípio
 
-### 1. Inferir o modo e confirmar
+A próxima sessão começa com **zero memória** desta conversa — em qualquer agente, em qualquer
+máquina. Ela só lê o repositório e o prompt que você der. Então o handoff é **autossuficiente,
+concreto e acionável**: IDs reais, caminhos, comandos exatos, sem "como discutimos".
 
-Identificar pelo contexto qual dos dois modos se aplica (tabela de sinais em [references/handoff-protocol.md](references/handoff-protocol.md) § 1):
+A ficha é projeção narrativa; a fonte determinística do que foi publicado é o ledger
+(`sdd/releases/{F}/*.yaml`). O que só a ficha guarda é a narrativa: casos, alertas, próximos
+passos — então é isso que ela carrega bem.
 
-- **continuar** — o trabalho segue depois. Entrega ficha + prompt de retomada.
-- **entregar** — a etapa terminou. Entrega o mesmo, mais o checklist de fechamento.
+## Processo
 
-Confirmar em **uma linha** e seguir. Não abrir menu de escolha, não fazer pergunta de múltipla escolha sobre isso: quem pede um handoff normalmente está sem contexto ou sem tempo. Sem sinal claro, assumir *continuar* e dizer que assumiu.
+### 0. Resolver a família (antes de criar arquivo)
 
-### 2. Resolver a família da feature
+Slug drift é a doença que este passo mata: a mesma feature não pode gerar
+`HANDOFF_PAGAMENTO_PIX.md` e `HANDOFF_PIX_CHECKOUT_S2.md`. Procure por domínio:
+`ls sdd/handoffs/`, `ls sdd/releases/`, o `{F}` dos artefatos em `sdd/features/`. Achou ficha
+→ **atualize-a**. Ambíguo → proponha o match e confirme dentro de uma pergunta que já vai
+acontecer. Só crie arquivo novo para família genuinamente nova; o slug escolhido é o
+`feature_id` canônico em ledger, ficha e artefatos.
 
-Antes de criar qualquer arquivo, verificar se já existe handoff desta feature — buscando por domínio, não por nome exato. Se existir, **atualizar o arquivo existente**, acrescentando a etapa nova no topo. Em dúvida, perguntar mostrando o que encontrou. Detalhes em [references/handoff-protocol.md](references/handoff-protocol.md) § 2.
+### 1. Capturar o estado (varrer a conversa)
 
-Um handoff por feature. Etapas são seções dentro dele, nunca arquivos separados.
+- **Feito** — o que foi construído/decidido/publicado, com versões, SHAs, arquivos.
+- **Casos e testes em aberto** — entidades reais com **IDs concretos** (id, e-mail, caminho).
+- **Falta** — o que resta, o que está bloqueado e por quê.
+- **Próximos passos** — lista **ordenada**, cada item com comando ou arquivo.
+- **Alertas** — o que pode quebrar, invariantes, o que **não** mexer.
+- **Git** — branch, pasta, se já está na branch padrão, comando de limpeza.
 
-### 3. Reunir o estado
+Se falta um ID que você sabe que existe, **rode o comando agora** para pegá-lo — a próxima
+sessão não terá como.
 
-Varrer a conversa e reconstruir:
+### 2. Persistir a ficha
 
-- **O que foi feito** — o que foi construído, decidido, corrigido. Com nomes de arquivo e decisões explícitas.
-- **Casos e testes em aberto** — o que estava sendo testado, **com os dados reais**: qual cliente, qual arquivo, qual data, qual identificador.
-- **Pendências** — o que está quebrado (🐛) e o que é incremento planejado (✨).
-- **Próximos passos** — lista ordenada, cada item com o dado exato e o critério de pronto.
-- **Alertas** — o que não pode quebrar; o que está fora de escopo.
-- **Onde está o trabalho** — pasta, projeto, branch.
+Use `<pasta desta skill>/references/HANDOFF_TEMPLATE.md`. Regras:
 
-**Se faltar um dado que você consegue buscar agora, busque agora.** A próxima sessão não terá como. Um handoff que diz "o cliente que estava com erro" obriga a próxima sessão a redescobrir qual era.
+- **Slice novo = subseção nova no topo** do histórico; a ficha do cabeçalho reflete o agregado.
+- **Sem total autoritativo de slices** ("s2 de s3" ❌): escopo muda. Mudança de escopo ou
+  pausa é **linha nova** em um bloco `## Eventos`, nunca sobrescrita silenciosa.
+- **DoD manda no ✅**: só marcar completa quando o Definition of Done estiver objetivamente
+  satisfeito.
+- **Cap ~10 KB**: ao passar, comprimir slices antigos fechados em 1 linha cada (o detalhe está
+  no git e no ledger).
+- **O que foi publicado** (commit ou PR, e o endereço quando houver) vai na ficha.
+- Datas absolutas. Nada que o git ou o ledger já registrem.
+- O molde traz também `## Eventos`, `## Recomendações`, `## Veredito`, `## Setup`, `## Tarefas` e
+  `## Ship`: preencha a que tiver o que dizer e apague a que ficar vazia; nenhuma é obrigatória, mas
+  nenhuma fica com o texto do molde entre chaves.
 
-### 4. Preencher a ficha
+### 3. Gerar o prompt da nova sessão
 
-Usar [assets/HANDOFF_TEMPLATE.md](assets/HANDOFF_TEMPLATE.md). A ficha do topo é o estado agregado da feature:
+Bloco de código pronto para colar, seguindo o **Prompt de retomada** do template:
 
-- **Objetivo** — estável entre etapas; o que a feature entrega quando estiver pronta.
-- **Status** — 🔨 em andamento · ✅ completa · ⏸️ pausada.
-- **Feito** / **Falta** — o que já saiu e o que resta.
-- **Pronto quando** — critério verificável de conclusão (§ 6 do protocolo). Só marcar ✅ completa quando ele estiver objetivamente satisfeito.
+- manda ler `sdd/handoffs/HANDOFF_{F}.md` primeiro, depois DEFINE e DESIGN;
+- resume em 2–3 linhas onde paramos;
+- setup antes de código (branch, pasta, `git fetch`/rebase se atrasada);
+- **tarefas numeradas** com IDs e comandos **colados**, não referenciados;
+- alertas (o que não quebrar) e fora de escopo;
+- estado do Verify Gate, se o projeto tiver um gate por comando (o comando e o que ele saiu em <data>);
+- fluxo de publicação (`/sdd-release` no fim).
 
-Etapa nova entra como seção **no topo** das etapas anteriores. Etapas antigas já fechadas podem ser resumidas em poucas linhas.
+Regra de ouro: sem `«placeholder»` sobrando. Linha sem valor concreto: ou você busca o valor
+agora, ou apaga a linha. O prompt tem de funcionar **sozinho**, mesmo se a ficha sumir.
 
-Mudança de escopo, pausa ou replanejamento → **linha nova em `## Eventos`**, com data e motivo. Nunca reescrever "Falta" em silêncio.
+### 3b. Conferir a ficha
 
-### 5. Classificar as pendências
+Releia a ficha antes de entregar: Objetivo e Status preenchidos, prompt de retomada em bloco
+de código (só a ficha ✅ sem continuação o dispensa), slice datado no histórico, nenhum placeholder, nenhum
+"como discutimos". Faltou algo ⇒ corrija antes de entregar.
 
-Separar sempre em duas listas: **🐛 bug fix** (quebrado, parcial, comportamento errado) e **✨ feature improvement** (incremento, melhoria, próxima etapa). Categoria sem itens recebe "nenhuma" — a ausência declarada também é informação.
+### 4. Oferecer limpeza
 
-**Registrar mesmo quando não há pendência alguma.** Um handoff de "etapa fechada, nada pendente" continua documentando o que foi feito. Não perguntar se vale a pena registrar: registrar é incondicional.
+Feature já publicada e sessão dentro de branch/worktree descartável → oferecer o comando de
+remoção (rodado fora dele). Ficha ✅ completa → oferecer arquivar os artefatos em
+`sdd/archive/{F}/` com 1 OK. Nunca apagar sem confirmação.
 
-Risco que foi conscientemente aceito — algo que se decidiu ignorar por ora — entra como pendência com o motivo. Risco conhecido não pode evaporar entre sessões.
+## Sem terminal (sem acesso aos arquivos do projeto)
 
-### 6. Checklist de fechamento (somente no modo *entregar*)
+Na web (claude.ai, ChatGPT) ou em qualquer agente que não lê nem grava os arquivos do projeto, a ficha e o prompt
+são os mesmos; mudam a entrega e o que se confere:
 
-Percorrer as quatro perguntas com o usuário e registrar o que foi conferido:
+- **Dois modos, inferidos e confirmados em 1 linha** (sem menu): **continuar** (o trabalho segue noutra sessão:
+  ficha + prompt de retomada) e **entregar** (a etapa terminou: o mesmo, mais o checklist de fechamento — o código
+  roda? os critérios de aceite passam? as mudanças estão salvas? o que quebrou está anotado? —, que **não bloqueia**:
+  item não confirmado vira pendência). Sem sinal claro, assuma *continuar* e diga que assumiu.
+- **Pendências em duas listas, sempre:** 🐛 bug fix (quebrado, parcial, errado) e ✨ melhoria (próxima etapa). Lista
+  vazia leva "nenhuma" escrito: a ausência declarada também é informação.
+- **Entregue no chat** o documento inteiro e feche com 3 informações, nesta ordem: que ele **não foi gravado**; o nome
+  sugerido (`HANDOFF_{FEATURE}.md`); o que fazer com ele (salvar junto do projeto e mandar no começo da próxima
+  sessão). Nunca dê a entender que gravou.
+- **Sem comando para conferir:** projeto sem gate por comando não tem linha Verify Gate na ficha nem estado do gate
+  no prompt; a conferência da ficha (passo 3b) é a releitura do checklist acima, item a item.
+- **Pressa ("só me dá o prompt"):** entregue o prompt primeiro e a ficha logo depois, sem negociar.
 
-1. O código roda?
-2. Os critérios de aceite combinados passam?
-3. As mudanças estão salvas onde deveriam?
-4. O que quebrou está anotado?
+## Checklist
 
-**Este checklist não bloqueia a entrega.** Item não confirmado vira pendência e o handoff sai do mesmo jeito. Apresentar como inventário do que foi conferido — sem ✅/❌ pareados, sem contagem que se leia como nota, sem vermelho, sem a palavra "reprovado". Ver [references/handoff-protocol.md](references/handoff-protocol.md) § 7.
-
-### 7. Entregar o documento
-
-**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
-
-Se houver filesystem de projeto gravável, salvar como `sdd/HANDOFF_{FEATURE}.md` (ou `.claude/sdd/HANDOFF_{FEATURE}.md` quando essa pasta já existir), sem sobrescrever silenciosamente um arquivo existente — quando já existir handoff da mesma feature, atualizar seu conteúdo (passo 2).
-
-Se **não** houver filesystem acessível, entregar o Markdown completo no chat e fechar com estas três informações, nesta ordem:
-
-1. que o documento **não foi gravado**;
-2. o **nome de arquivo sugerido** (`HANDOFF_{FEATURE}.md`);
-3. **o que fazer com ele** — salvar junto do projeto e reenviar no início da próxima sessão.
-
-Nunca falhar em silêncio nem dar a entender que gravou.
-
-### 8. Gerar o prompt de retomada
-
-Usar [assets/SESSION_PROMPT_TEMPLATE.md](assets/SESSION_PROMPT_TEMPLATE.md), entregue em bloco pronto para copiar.
-
-**Regra de ouro: nada de "como discutimos".** Todo identificador, caminho, comando e dado vai **colado** no prompt. Se uma linha não tem valor concreto, ou você busca o valor agora, ou apaga a linha.
-
-O prompt precisa funcionar **sozinho**: mesmo que o arquivo de handoff se perca, os dados nele devem bastar para continuar.
-
-Quando a feature estiver ✅ completa e não houver continuação, o prompt de retomada pode ser omitido — basta registrar o fechamento.
-
-## Validações e checklist de qualidade
-
-Antes de declarar o handoff concluído, verificar:
-
-- [ ] Modo inferido e confirmado em uma linha, sem menu.
-- [ ] Família resolvida: atualizou o handoff existente, ou é feature genuinamente nova.
-- [ ] Ficha preenchida: Objetivo · Status · Feito · Falta · Pronto quando.
-- [ ] "Pronto quando" é verificável, não uma opinião.
-- [ ] As seis seções da etapa preenchidas.
-- [ ] Todo caso citado tem o dado concreto junto, não só o apelido.
-- [ ] Pendências separadas em 🐛 e ✨, com "nenhuma" declarado quando for o caso.
-- [ ] Mudança de escopo registrada em `## Eventos`.
-- [ ] Próximos passos ordenados, cada um com critério de pronto.
-- [ ] Modo *entregar*: checklist percorrido e apresentado como inventário, sem reprovação.
-- [ ] Documento gravado — ou, sem filesystem, entregue no chat com as três informações.
-- [ ] Prompt de retomada se sustenta sozinho.
-- [ ] Nenhum `{placeholder}` sobrou no resultado final.
-- [ ] Nenhuma frase do tipo "como discutimos" ou "continue de onde paramos".
-
-Quando houver filesystem, o script [scripts/validate_handoff.py](scripts/validate_handoff.py) confere mecanicamente parte disso:
-
-```
-python3 scripts/validate_handoff.py HANDOFF_{FEATURE}.md
+```text
+[ ] Família resolvida: ficha existente atualizada OU família nova justificada
+[ ] Cabeçalho: Objetivo · Status · Feito (com SHAs) · Falta · DoD
+[ ] WAIVED com registro completo (se houver)
+[ ] Sem "s<n> de s<m>"; mudança de escopo em ## Eventos
+[ ] Todo caso tem ID concreto, não nome solto
+[ ] Prompt autossuficiente, sem placeholders, com comandos colados
+[ ] Comando de limpeza incluído (se aplicável)
 ```
 
-Saída `PASS` com código 0; problemas listados com código 2.
+## Anti-padrões
 
-## Tratamento de exceções
-
-- **Usuário com pressa ("só me dá o prompt"):** entregar o prompt primeiro, e registrar a ficha logo em seguida — sem transformar isso em negociação. Documentar é incondicional.
-- **Não há handoff anterior mas a feature parece antiga:** perguntar antes de criar, mostrando o que procurou.
-- **Trabalho de várias features na mesma conversa:** um handoff por feature. Perguntar qual documentar, ou documentar cada uma em seu arquivo.
-- **Sem filesystem:** entregar no chat com as três informações do passo 7. Nunca fingir que gravou.
-- **Nada foi concluído na sessão:** ainda assim registrar — o que foi tentado, o que não funcionou e por quê é informação valiosa para a próxima sessão.
-- **Feature terminou de vez:** marcar ✅ completa somente com o "Pronto quando" satisfeito; o prompt de retomada pode ser omitido.
-- **Usuário não sabe dizer o critério de pronto:** ajudar a formular a partir do que ele quer conseguir fazer no fim, em vez de deixar o campo vago.
-
-## Examples
-
-**Contexto acabando**
-`Estou no limite do contexto, documenta pra eu continuar em outra sessão.`
-
-Modo *continuar*. Registrar o estado, gerar o prompt com todos os dados colados.
-
-**Etapa concluída**
-`Terminei essa parte, quero fechar.`
-
-Modo *entregar*. Registrar o estado, percorrer o checklist de fechamento como inventário e gerar o prompt caso ainda reste trabalho.
-
-**Continuação de feature existente**
-`Vamos parar por hoje — isso aqui é continuação do controle de honorários da semana passada.`
-
-Localizar o handoff existente, acrescentar a etapa nova no topo, atualizar a ficha agregada.
-
-**Sem filesystem**
-`(no chat da web, sem projeto acessível) Passa o bastão.`
-
-Entregar o documento completo no chat, dizendo que não foi gravado, sugerindo o nome do arquivo e explicando que ele deve ser salvo e reenviado na próxima sessão.
-
-## Next Step
-
-Fluxo SDD concluído. Guarde o arquivo de handoff junto do projeto e comece a próxima sessão com o prompt de retomada.
+- ❌ `HANDOFF_{F}_s3.md` — slice nunca vira arquivo novo.
+- ❌ "Continue de onde paramos" sem dizer onde foi.
+- ❌ Entidade por nome sem ID.
+- ❌ Comando ou caminho que a próxima sessão vai "descobrir".
+- ❌ Documentar só o sucesso e omitir o que ficou quebrado.
+- ❌ Sobrescrever "Falta" sem linha em ## Eventos.
 
 ---
 
 Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

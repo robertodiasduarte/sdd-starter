@@ -12,7 +12,7 @@ Get the SDD skills into your agent and run your first flow.
 npx skills add robertodiasduarte/sdd-starter -a claude-code -y
 ```
 
-Installs the 15 skills into the project's `.claude/skills/`. Add `-g` to install once into `~/.claude/skills/` and have them everywhere.
+Installs the 18 skills into the project's `.claude/skills/`. Add `-g` to install once into `~/.claude/skills/` and have them everywhere.
 
 ### Codex
 
@@ -28,7 +28,7 @@ Same command, different engine: installs into the project's `.agents/skills/` â€
 npx skills add robertodiasduarte/sdd-starter -a claude-code,codex -y
 ```
 
-The documents the skills produce live in `sdd/`, a single folder both engines can see. If the project already has `.claude/sdd/`, the skills keep using it.
+The documents the skills produce live in `sdd/`, a single folder both engines can see: Brainstorm in `sdd/features/`, Handoff in `sdd/handoffs/`, governance reviews in `sdd/reviews/`; until the next generation, `sdd-define`, `sdd-design` and `sdd-build` save directly in `sdd/` and take the previous document from the path you give them. If the project already has `.claude/sdd/`, the skills keep using it. On the web there is no folder: each document comes out in the chat.
 
 ### Other agents, or no Node.js
 
@@ -36,7 +36,7 @@ The same command serves Cursor, Kimi, Gemini CLI and 70+ agents: change the name
 
 **To update:** `npx skills update`.
 
-For other agents, copy the skill folders (`sdd-brainstorm`, `sdd-define`, `sdd-design`, `sdd-build`, `sdd-handoff`, `sdd-kb`) into whatever directory your agent reads skills/instructions from, keeping each folder intact.
+For other agents, copy every skill folder under `skills/` (all 18) into whatever directory your agent reads skills/instructions from, keeping each folder intact.
 
 ### claude.ai (web)
 

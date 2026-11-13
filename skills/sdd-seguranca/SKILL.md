@@ -5,7 +5,7 @@ compatibility: "Funciona em qualquer agente, inclusive na web sem terminal: cada
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.1"
+  version: "1.0.2"
   updated: "2026-11"
   fase: "Seg"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # sdd-seguranca — segurança do app, da ideia à publicação
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-seguranca v1.0.1 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-seguranca v1.0.2 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 A IA constrói o caminho feliz e esquece a tranca. Esta skill lembra a tranca na fase em que ela custa menos:
 pergunta no Define, decide no Design, previne no Build e confere antes de publicar. A fonte de tudo é
@@ -140,7 +140,7 @@ evidência, dimensionar, corrigir a causa, comunicar e registrar.
 [ ] Recusados e adiados com motivo em ### Segurança; linha Segurança no Technical Context
 [ ] Checklist: cada item marcado (cumprido · não cumprido · não se aplica), nunca ✅ sem conferência
 [ ] Incidente: porta fechada antes de qualquer outra coisa
-[ ] Resposta fechada com o resumo de etapa (fragments/RESUMO_ETAPA.md)
+[ ] Resposta fechada com o resumo de etapa (`<pasta desta skill>/references/RESUMO_ETAPA.md`)
 ```
 
 ## Por que cada regra existe

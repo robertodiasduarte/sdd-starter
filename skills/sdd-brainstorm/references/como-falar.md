@@ -6,13 +6,13 @@ com o aluno" do `SKILL.md` dá o formato; este arquivo dá as palavras e um exem
 ## Glossário (explique na primeira vez em que o termo aparecer)
 
 - brainstorm — "a conversa em que a gente entende o problema antes de decidir como resolver";
-- abordagem — "um jeito de resolver o problema; eu mostro dois ou três e recomendo um";
+- abordagem — "um jeito de resolver o problema; eu mostro duas ou três e recomendo uma";
 - amostra — "um exemplo real do que entra e do que deve sair: uma planilha, um e-mail, um relatório";
-- ground truth / dado verificado — "um exemplo em que já se sabe a resposta certa, para conferir depois";
+- dado verificado — "um exemplo em que já se sabe a resposta certa, para conferir depois";
 - YAGNI — "a regra de deixar de fora o que não é necessário agora; a gente anota para depois";
-- checkpoint — "uma parada para você confirmar que entendi certo antes de eu seguir";
+- validação incremental — "uma parada para você confirmar que entendi certo antes de eu seguir";
 - requisito — "uma frase que diz o que o sistema precisa fazer; é o que a próxima fase (Define) escreve";
-- fase — "cada etapa do método: brainstorm, define, design, build, handoff".
+- fase — "cada etapa do método: brainstorm, define, design, build, release".
 
 Não fale em MVP, stakeholder, trade-off ou escopo sem traduzir: "o mínimo que resolve", "quem é
 afetado", "o que se ganha e o que se perde", "o que entra e o que fica de fora".
@@ -21,34 +21,28 @@ afetado", "o que se ganha e o que se perde", "o que entra e o que fica de fora".
 
 `Brainstorm: ✅ 1 Entender · ✅ 2 Perguntas · ✅ 3 Amostras · ▶️ 4 Abordagens · ⬜ 5 Validar · ⬜ 6 Gravar`
 
-## Exemplo de resposta completa
+## Exemplo — resposta completa, com decisão (etapa 4 — Abordagens)
 
-Situação: um contador quer "automatizar a conferência das notas fiscais"; já respondeu três perguntas e
-disse que tem um mês de notas em PDF como amostra. É a hora de escolher a abordagem.
+Situação: o aluno quer conferir as notas fiscais recebidas por e-mail contra a planilha de pagamentos.
+Já respondeu 3 perguntas e mandou 2 amostras (um XML de nota e a planilha de outubro).
 
 **Status** — `Brainstorm: ✅ 1 Entender · ✅ 2 Perguntas · ✅ 3 Amostras · ▶️ 4 Abordagens · ⬜ 5 Validar · ⬜ 6 Gravar`
-(no Status: "Amostras" são exemplos reais do que entra e do que deve sair; "Abordagens" são jeitos de
-resolver o problema; "Validar" são as paradas para você confirmar que entendi certo.)
+(no Status: "Abordagens" é o momento em que eu mostro os jeitos possíveis de resolver; "Validar" é a
+parada para você confirmar que entendi certo.)
 
-**O que foi feito** — Você respondeu que a conferência é feita hoje à mão, por uma pessoa, duas vezes por
-mês, e que o erro mais comum é nota lançada em duplicidade. Você disse que tem um mês de notas em PDF
-como amostra (um exemplo real do que entra); eu li dez delas e todas têm o número da nota e o CNPJ no
-mesmo lugar.
+**O que foi feito** — Li as 2 amostras: o XML tem número, CNPJ do emitente e valor; a planilha tem as
+mesmas três colunas com outros nomes. Nenhum arquivo foi criado ainda.
 
-**Agora: etapa 4 — Abordagens** — Com o problema entendido, eu mostro jeitos diferentes de resolver
-(abordagens) e recomendo um. Nenhum deles é construído agora: esta etapa só escolhe o caminho. O que
-fica de fora por enquanto, eu anoto para depois (é a regra de não construir o que não é necessário
-agora).
+**Agora: etapa 4 — Abordagens** — Há três jeitos de resolver. Recomendo começar pelo mais simples, porque
+as duas amostras já trazem os três campos que precisam bater.
 
-**Sua decisão** — **Qual abordagem seguimos?**
-- **1 — planilha de conferência gerada a partir dos PDFs** (recomendada): um programa lê os PDFs e monta
-  a planilha com as duplicidades marcadas; você confere na planilha, como já faz. Menos mudança na sua
-  rotina; funciona com a amostra que você tem.
-- **2 — sistema com tela própria**: além de ler os PDFs, mostra as notas numa tela e pede a sua
-  aprovação uma a uma. Mais completo, mas leva mais tempo e exige decidir mais coisas antes.
-- **3 — só o alerta de duplicidade por e-mail**: o programa avisa quando encontra duas notas iguais e
-  nada mais. Mais rápido de fazer, mas não resolve o resto da conferência.
-- **não sei** — eu explico a diferença com um exemplo das suas notas.
+**Sua decisão** — [D2 · muda o produto] **Qual abordagem seguimos?**
+- **planilha de conferência** (recomendado) — um script lê os XMLs de uma pasta e marca na planilha o que
+  bateu; você baixa os anexos à mão. Menos peças, pronto em 1 fase de build.
+- **leitura direta do e-mail** — o sistema busca os anexos sozinho; exige dar acesso à caixa de e-mail.
+- **painel na web** — uma página para conferir; o triplo de trabalho, para o mesmo resultado.
+- **não sei** — explico a diferença com a nota da amostra como exemplo.
 
-**Próximo passo** — Com a sua escolha, eu apresento o primeiro checkpoint (a parada para você confirmar
-que entendi certo) antes de gravar o documento.
+**Próximo passo** — Com a abordagem escolhida, separo o que fica para depois (YAGNI).
+
+Formato completo de pergunta e de parada: `<pasta desta skill>/references/PERGUNTA_DECISAO.md`.

@@ -1,0 +1,3 @@
+# GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
+29797b9a419cc51e01ad868c0dde20f0c16d9b078b5e9ae2ea7c72ceee78ce48  SKILL.md
+b302be9d3f6ab178a74c6bda5281b11be9ea8ffd8cafb6b8e48a2d89d2ff9145  agents/openai.yaml

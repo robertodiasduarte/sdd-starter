@@ -1,3 +1,4 @@
 interface:
   display_name: "SDD Brainstorm"
   short_description: "Explora uma ideia e prepara o BRAINSTORM para o SDD Define by RDD."
+  default_prompt: "Use a skill sdd-brainstorm para explorar a minha ideia antes de ela virar requisito: uma pergunta por vez, e no fim o documento do brainstorm."

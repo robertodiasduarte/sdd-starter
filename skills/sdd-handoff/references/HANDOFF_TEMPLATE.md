@@ -1,0 +1,110 @@
+# HANDOFF: {Feature Name}
+
+> Ficha da feature — **1 arquivo por feature**, slices como subseções (mais recente no topo).
+> Vive no repositório (`sdd/handoffs/HANDOFF_{FEATURE}.md`), não na memória de nenhum agente:
+> viaja com o projeto e qualquer agente, em qualquer máquina, retoma daqui.
+
+## Ficha
+
+| Attribute | Value |
+|-----------|-------|
+| **Feature** | {FEATURE_NAME} |
+| **Objetivo** | {1 frase: o que muda para quem usa} |
+| **Status** | {🔨 em andamento · 🚢 publicado · ✅ DoD fechado · ⏸ pausado} |
+| **Última sessão** | {YYYY-MM-DD} |
+| **Branch / pasta** | `{branch}` · `{caminho}` |
+| **Artefatos** | `DEFINE_{F}.md` · `DESIGN_{F}.md` · `BUILD_REPORT_{F}.md` (onde o projeto os guarda) |
+
+## Feito
+
+- {o que está pronto, com o comando ou arquivo que PROVA — nunca "acho que funciona"}
+
+## Falta
+
+- {o que falta, em ordem, cada item começando por verbo}
+
+## Definition of Done
+
+- [ ] {critério verificável 1}
+- [ ] {critério verificável 2}
+
+## ⛔ Landmines desta feature
+
+- {armadilha que mordeu ou quase mordeu, com o "faça isto em vez disso"}
+
+## Casos e testes em aberto
+
+- {caso não coberto · teste que falha · smoke pendente}
+
+## Eventos
+
+> Toda mudança de escopo, pausa ou replanejamento entra aqui como **linha nova**, com a data. Nunca
+> reescreva "Falta" sem registrar o porquê aqui: senão a decisão desaparece.
+
+- {YYYY-MM-DD} — {o que mudou e quem decidiu}
+
+## Recomendações
+
+> O que você faria diferente, ou primeiro, se continuasse agora. Opinião de quem acabou de fazer; a
+> decisão é de quem retoma.
+
+- {recomendação, com o motivo em 1 frase}
+
+## Veredito
+
+> O veredito da última release desta feature. `WAIVED` exige o registro completo.
+
+- {🟢 PASS · 🟡 CONCERNS com a lista · ⚪ WAIVED · classe= · finding= · motivo= · por= · data=}
+
+## Setup
+
+> Como deixar a pasta pronta para retomar: de onde a branch nasce, se precisa atualizar a base, o que
+> instalar. Quem lê não viu a sessão anterior.
+
+1. {comando para abrir ou atualizar a frente, com o resultado esperado}
+2. {comando de preparação: dependências, arquivos locais}
+
+## Tarefas
+
+> Numeradas, em ordem, cada uma com o critério de pronto.
+
+1. **{tarefa, começando por verbo}** — Pronto quando: {critério verificável, com o comando}
+2. **{tarefa}** — Pronto quando: {critério}
+
+## Ship
+
+> O que publicar e o que limpar depois: a frente só fecha quando os dois estão feitos.
+
+- **Publicar:** {o que sobe e por qual comando ou skill}
+- **Limpar:** {worktree e branch a remover, artefatos a arquivar, com o comando}
+
+---
+
+## Prompt de retomada
+
+> Cole este bloco inteiro numa sessão nova do seu agente. Ele tem de ser autossuficiente:
+> caminhos absolutos, IDs, comandos exatos. Quem lê não viu a sessão anterior.
+
+```text
+Retomar a feature {FEATURE_NAME}.
+
+Contexto: {2-3 frases — o que é, por que existe, em que fase está}.
+Pasta: {caminho absoluto} · branch {branch}.
+Leia primeiro: sdd/handoffs/HANDOFF_{F}.md, depois sdd/features/DEFINE_{F}.md e DESIGN_{F}.md.
+
+Próxima ação: {1 ação concreta, com o comando}.
+Não faça: {o que NÃO mexer e por quê}.
+Landmines: {1 linha por armadilha}.
+```
+
+---
+
+## Histórico de slices
+
+### {slice/sessão mais recente} — {YYYY-MM-DD}
+
+- {o que aconteceu nesta sessão, em 3-6 linhas}
+
+### {slice anterior} — {YYYY-MM-DD}
+
+- {…}
