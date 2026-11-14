@@ -4,7 +4,7 @@ license: MIT
 description: "Põe no git e num GitHub privado um projeto que ainda não usa git, sem levar junto dado de cliente: confere a pasta (fora de iCloud/OneDrive/Dropbox/Google Drive), lista o que entraria no git sinalizando senha (.env), certificado A1 (.pfx), planilha e arquivo grande, propõe o .gitignore, oferece o alarme de commit da sdd-higiene-dado antes do primeiro commit e só commita e publica com o OK explícito de cada etapa. Fala com quem nunca usou git: uma etapa por vez, com o que foi feito, o que vem agora e as opções de cada decisão. Retoma de onde parou (git sem commit, commit sem GitHub, envio que falhou). Use quando o usuário disser 'pôr no git', 'criar o repositório', 'subir para o GitHub', 'este projeto não tem git', ou quando a sdd-new-session ou a sdd-checar-ambiente disserem que o projeto ainda não usa git. Não limpa histórico que já vazou, não faz login no GitHub pelo usuário e não automatiza outro host (GitLab etc.), só entrega os comandos."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.2.0"
+  version: "1.2.1"
   updated: "2026-11"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
@@ -13,7 +13,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # Iniciar repositório (iniciar-repo)
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-iniciar-repo v1.2.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-iniciar-repo v1.2.1 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Um projeto que ainda não usa git sai daqui com a primeira versão salva e um repositório **privado** no
 GitHub, sem levar planilha de cliente, `.env` ou certificado junto. Quatro decisões do aluno no caminho:
