@@ -1,0 +1,8 @@
+# GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
+307b8c4d0d25d06e292ba83078ef2eec80564a2675b348f03f228bd68a98ba87  SKILL.md
+8378c9412842eaf6f16101da77f8e2fb655d88f81cee88158f482fc1de3d6c62  agents/openai.yaml
+4f53a843597f7b737e6b84e9d6a1b99e555168d90fda13ee119ebd7a15dc5cfd  assets/DESIGN_TEMPLATE.md
+90e3ddb30c37fc9b21190e954e8e740dab7832639f3d2635b9cc727920626fa0  references/advisor-review.md
+6aa34a4cb448916097ee4e4c471e32bac2bddd91b041e5b3c38cc384f48dc1db  references/como-falar.md
+4180e6509d7cf97ca7ae56aa1323d398d888c5c1e300b7857321925fb04d9f1b  references/design-protocol.md
+492282ea9f0f84bd25120f7ea0786c7f8f30304239831fadfe36743428cabb23  references/llm-prompts.md

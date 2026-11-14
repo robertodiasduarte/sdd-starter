@@ -164,7 +164,7 @@ Marcar `Ready for Build` somente quando:
 - decisões bloqueantes estão fechadas;
 - manifest está completo;
 - cross-check passa;
-- lint estrutural passa;
+- a releitura contra o checklist de qualidade passou;
 - não há placeholders/TBD;
 - handoff final está correto.
 

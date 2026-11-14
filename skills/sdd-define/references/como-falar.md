@@ -43,8 +43,8 @@ um teste de aceitação — uma frase "quando acontece X, o sistema faz Y" que v
 sistema faz: o que acontece quando um PDF vem ilegível (escaneado torto, protegido por senha). Nada é
 gravado ainda; esta etapa só fecha as dúvidas.
 
-**Sua decisão** — **Quando um PDF não puder ser lido, o que o sistema faz?**
-- **pula e lista no fim** (recomendada): a planilha sai com as notas legíveis e uma aba "não lidas" com
+**Sua decisão** — [D2 · muda o produto] **Quando um PDF não puder ser lido, o que o sistema faz?**
+- **pula e lista no fim** (recomendado): a planilha sai com as notas legíveis e uma aba "não lidas" com
   o nome de cada arquivo; você confere essas à mão.
 - **para tudo e avisa**: nenhuma planilha sai até você resolver o arquivo; mais seguro, mas um único PDF
   ruim trava a conferência do mês.

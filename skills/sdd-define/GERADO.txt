@@ -1,0 +1,10 @@
+# GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
+9cba28757b5abf9b7b90a7adf3ad4e98aacfdaebae0a53672ebea119e6b769bd  SKILL.md
+ee0f04b9b789fe72ef1d921611a026091ffeb308c2235a281795b863d32cab4c  agents/openai.yaml
+0627a38e75120366a4633c28a461447baf2d7906ba554a5af1dfb59672bfbbe9  assets/DEFINE_EXEMPLO.md
+4b7071663c2650680062862d5ae3121066607d63fb4c44446928ba4f10983c56  assets/DEFINE_TEMPLATE.md
+84a39008df86c3f4209130290a57c2ea18cf6b9271b6069783aefa56e213e71b  references/CLARIFY.md
+8d53c7ef2cc7042574f5740babcb87bd5a1f560f2fab06ea0772884061bb0b14  references/EARS.md
+f594e637e80539d8632f651f006521d5884d885c75cd2ae080ac00b34c449079  references/VERIFY_GATE.md
+aaeb2e4c0263060b67825010fa182ebdb9e2a661f43d0f450feddac192ea8354  references/como-falar.md
+4af889797078f777e031d96278b80e11ff5f21ec4f9dcee88bd86dab007abc90  references/define-protocol.md

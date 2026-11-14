@@ -12,7 +12,6 @@ com o aluno" do `SKILL.md` dá o formato; este arquivo dá as palavras e um exem
 - File Manifest / manifest — "a lista dos arquivos que vão ser criados ou alterados, em ordem";
 - fluxo de dados — "o caminho que a informação percorre, do que entra até o que sai";
 - integração — "uma conversa do sistema com outro sistema (um banco, um serviço na internet)";
-- lint — "uma conferência automática do documento, que reprova o que está incompleto";
 - DESIGN — "o documento desta fase; a próxima (Build) constrói a partir dele".
 
 Não fale em stack, endpoint, idempotência, observabilidade ou schema sem traduzir: "as ferramentas
@@ -41,8 +40,8 @@ as escolhas que mudam o desenho. Sobrou uma que é sua, porque depende de como v
 planilha pronta fica guardada. Cada escolha fica registrada com o motivo, para ninguém refazer a
 discussão depois.
 
-**Sua decisão** — **Onde a planilha de conferência fica guardada?**
-- **na pasta do projeto, uma por mês** (recomendada): simples, funciona sem internet, e o histórico fica
+**Sua decisão** — [D2 · muda o produto] **Onde a planilha de conferência fica guardada?**
+- **na pasta do projeto, uma por mês** (recomendado): simples, funciona sem internet, e o histórico fica
   no próprio computador; você abre no Excel como hoje.
 - **no Google Drive da empresa**: outras pessoas veem na hora, mas o sistema passa a depender de login
   e de internet — entra uma integração a mais para construir e testar.

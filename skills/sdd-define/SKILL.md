@@ -1,17 +1,21 @@
 ---
 name: sdd-define
-license: MIT
 description: "Conduz a fase Define de um fluxo SDD/AgentSpec a partir do arquivo Markdown gerado pelo Brainstorm e de interações de clarificação com o usuário. Extrai e estrutura problema, usuários, objetivos, métricas, escopo, restrições e contexto técnico; escreve testes de aceitação em EARS, resolve ambiguidades, calcula Clarity Score e define um Verify Gate objetivo. Use após o SDD Brainstorm by RDD para gerar um DEFINE_{FEATURE_NAME}.md pronto para o gate seguinte."
+compatibility: "Funciona na web (claude.ai, ChatGPT), onde o documento sai no chat, e em qualquer agente com acesso ao projeto, sem o init do SDD Open."
+license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "1.2.0"
-  updated: "2026-10"
+  version: "2.7.0"
+  updated: "2026-11"
+  fase: "1"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
 # SDD Define
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-define v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-define v2.7.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -103,7 +107,7 @@ pergunta aberta: pergunta em negrito + como responder, com a saída "não sei"; 
 
 ### 1. Ler e classificar o Brainstorm
 
-Ler o documento inteiro antes de perguntar qualquer coisa.
+Ler o documento inteiro antes de perguntar qualquer coisa. **Documento de uma fase anterior** (projeto começado antes desta versão): leia de onde estiver — `sdd/features/`, `sdd/` ou `.claude/sdd/` —, grave o novo na pasta desta versão e não pergunte onde está.
 
 Extrair:
 - Raw Input / ideia inicial;
@@ -292,13 +296,10 @@ Antes de concluir:
 - permitir apenas questões realmente não bloqueantes para Design;
 - se não houver nenhuma, usar `None - ready for Design.`
 
-### 11. Validar o documento
+### 11. Conferir o documento
 
-Executar, quando houver filesystem e Python disponível:
-
-`python scripts/validate_define.py <caminho-do-DEFINE.md>`
-
-Consumir a saída do script como lint estrutural. O script não substitui julgamento semântico.
+Releia o DEFINE inteiro contra o checklist de qualidade desta skill (seções, EARS, Clarity Score, um Verify Gate completo, `LLM Prompts` literal, Next Step exato). A releitura não
+substitui o julgamento semântico.
 
 Corrigir falhas antes de declarar o documento pronto.
 
@@ -307,11 +308,11 @@ Corrigir falhas antes de declarar o documento pronto.
 Nome preferencial:
 `DEFINE_{FEATURE_NAME}.md`
 
-**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
+**Onde salvar.** Grave em `sdd/features/` na raiz do projeto — pasta visível, igual em qualquer agente. Cada documento tem a sua pasta: BRAINSTORM, DEFINE e DESIGN em `sdd/features/`, BUILD_REPORT em `sdd/reports/`, revisões em `sdd/reviews/`, fichas em `sdd/handoffs/`.
 
-Se houver filesystem gravável, salvar como `sdd/DEFINE_{FEATURE_NAME}.md` (ou `.claude/sdd/DEFINE_{FEATURE_NAME}.md` quando essa pasta já existir).
+Se houver filesystem gravável, salvar como `sdd/features/DEFINE_{FEATURE_NAME}.md`.
 
-Se não houver filesystem, entregar o Markdown completo como arquivo `.md` para download quando a plataforma permitir.
+Se não houver filesystem, entregar o Markdown completo como arquivo `.md` para download quando a plataforma permitir (ou no chat), dizendo que ele não foi gravado; nunca dê a entender que gravou.
 
 Não declarar `Ready for Design` se:
 - Clarity Score < 12/15;
@@ -353,9 +354,11 @@ Antes de considerar o DEFINE concluído:
 - [ ] Constraints estão separadas de assumptions.
 - [ ] Technical Context inclui `LLM Prompts: true` ou `false` com justificativa.
 - [ ] Existe exatamente um Verify Gate válido.
+- [ ] `manual-ux` tem `cmd: "N/A (manual-ux)"` e o checklist humano no `manual_fallback`; `eval` tem limiar numérico.
+- [ ] Todas as seções do asset de template estão presentes, na ordem dele.
 - [ ] O Verify Gate não contém comando inventado.
 - [ ] Open Questions não contém questão bloqueante.
-- [ ] O lint `scripts/validate_define.py`, quando executável, passa.
+- [ ] A releitura do documento contra este checklist foi feita.
 - [ ] O arquivo final se chama `DEFINE_{FEATURE_NAME}.md`.
 - [ ] `Next Step` contém somente `Execute o **SDD Design by RDD**.`
 
@@ -405,3 +408,11 @@ Execute o **SDD Design by RDD**.
 ---
 
 Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

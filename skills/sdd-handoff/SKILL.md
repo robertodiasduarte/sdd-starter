@@ -5,7 +5,7 @@ compatibility: Funciona na web (claude.ai, ChatGPT), onde a ficha sai no chat, e
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.2.0"
+  version: "2.2.1"
   updated: "2026-11"
   fase: "transversal"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # sdd-handoff — ficha da feature + passar o bastão
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-handoff v2.2.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-handoff v2.2.1 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Duas responsabilidades, sempre nesta ordem:
 
@@ -96,7 +96,8 @@ sessão não terá como.
 
 ### 2. Persistir a ficha
 
-Use `<pasta desta skill>/references/HANDOFF_TEMPLATE.md`. Regras:
+Use `<pasta desta skill>/references/HANDOFF_TEMPLATE.md`; o `assets/HANDOFF_EXAMPLE.md` desta skill é uma ficha preenchida
+(dados fictícios) que mostra o nível de detalhe esperado. Regras:
 
 - **Slice novo = subseção nova no topo** do histórico; a ficha do cabeçalho reflete o agregado.
 - **Sem total autoritativo de slices** ("s2 de s3" ❌): escopo muda. Mudança de escopo ou

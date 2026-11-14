@@ -66,14 +66,8 @@ Nesta ordem, anotando o que encontrou:
   não para a resposta do aluno: sem religar, a prévia e o push iriam para o projeto antigo mesmo com a
   confirmação feita para o novo. Vínculo diferente da ref aprovada ⇒ pare.
 
-**Registro** — grave o que descobriu em `sdd/ambiente.md` do checkout principal (mesmo arquivo e
-formato das skills `sdd-new-session`/`sdd-release`, uma chave por linha):
-
-```markdown
-- banco: supabase · ferramenta: cli 2.x (supabase no PATH) · projeto: Curso RDD10 (abcdefghijklmnopqrst) · tipo: remoto único ⇒ produção · aplicar: supabase db push --linked (dry-run antes) · provar: supabase migration list --linked + select em information_schema
-```
-
-Projeto sem banco ⇒ `- banco: nenhum`. A `sdd-release` lê esta chave na Fase 1.
+**Registro** — o que descobriu (banco, ferramenta, projeto nome · ref, tipo, como aplicar e provar) vai para a
+seção `## Migrations aplicadas` do BUILD_REPORT (seção 6 abaixo); a `sdd-release` lê essa seção na Fase 1.
 
 ## 2. Já está aplicada?
 
@@ -172,15 +166,16 @@ select policyname  from pg_policies where tablename = 'cliente';
 
 - **Função com lógica** (PL/pgSQL): o banco só valida nomes de coluna na **primeira execução**. Uma
   chamada de teste dentro de transação, desfeita em seguida:
-  `begin; select fn_cliente_valida_cnpj('00.000.000/0001-91'); rollback;`
+  `begin; select fn_cliente_valida_cnpj('<um CNPJ de teste>'); rollback;` (valor de teste, nunca o documento
+  de um cliente real)
 
 Só CLI, sem MCP ⇒ (a) é obrigatório e (b) vai como `select` pronto para o SQL Editor; escreva isso na
 célula de prova.
 
 ## 6. Registrar
 
-No BUILD_REPORT, a seção `## Migrations aplicadas` (o template a traz como condicional; o
-`validate_build_report.py` a exige quando *Files Changed* lista `.sql` ou `migrations/`):
+No BUILD_REPORT, a seção `## Migrations aplicadas` (o template a traz como condicional; ela é obrigatória
+quando *Files Changed* lista `.sql` ou `migrations/`):
 
 ```markdown
 | Arquivo | Projeto (nome · ref) | Aplicada em | Prova por leitura |
@@ -191,5 +186,6 @@ No BUILD_REPORT, a seção `## Migrations aplicadas` (o template a traz como con
 Já estava aplicada ⇒ `Aplicada em` = "já aplicada em <data>". Prova (b) entregue para o aluno rodar ⇒
 "(b) entregue para o SQL Editor" na célula.
 
-Depois disto — e só depois — o Verify Gate (seção 12 da skill). Se ele sair 2 ou 3, a primeira hipótese é
+Depois disto — e só depois — o Verify Gate (seção 12 da skill). Se ele não sair verde (qualquer código diferente de 0, ou
+inconclusivo), a primeira hipótese é
 "migration não aplicada ou aplicada em outro projeto": repita a seção 5 antes de mexer em código.

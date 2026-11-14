@@ -1,17 +1,21 @@
 ---
 name: sdd-build
+description: "Executar a fase Build de um fluxo SDD/AgentSpec a partir dos arquivos Markdown de Brainstorm, Define e Design e de interações com o usuário. Usar quando o usuário quiser implementar uma feature já especificada: ler os três artefatos, extrair e ordenar o File Manifest, recomendar e confirmar o modo de execução, alterar somente o código previsto, verificar incrementalmente, tratar drift e prompts LLM, aplicar no banco a migration que o manifest trouxer (com confirmação do projeto por nome e ref e prova por leitura), executar o Verify Gate bloqueante do Define e gerar BUILD_REPORT_{FEATURE}.md com evidências. Requer acesso gravável ao projeto/código e deve terminar com o fluxo SDD concluído e o BUILD_REPORT conferido."
+compatibility: "Requer um agente com acesso gravável ao projeto; não precisa do init do SDD Open: o Verify Gate se confere lendo a saída do comando."
 license: MIT
-description: "Executar a fase Build de um fluxo SDD/AgentSpec a partir dos arquivos Markdown de Brainstorm, Define e Design e de interações com o usuário. Usar quando o usuário quiser implementar uma feature já especificada: ler os três artefatos, extrair e ordenar o File Manifest, recomendar e confirmar o modo de execução, alterar somente o código previsto, verificar incrementalmente, tratar drift e prompts LLM, aplicar no banco a migration que o manifest trouxer (com confirmação do projeto por nome e ref e prova por leitura), executar o Verify Gate bloqueante do Define e gerar BUILD_REPORT_{FEATURE}.md com evidências. Requer acesso gravável ao projeto/código e deve terminar com o fluxo SDD concluído e o BUILD_REPORT validado."
 metadata:
   author: Roberto Dias Duarte
-  version: "1.2.0"
-  updated: "2026-10"
+  version: "2.10.0"
+  updated: "2026-11"
+  fase: "3"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
 # SDD Build
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-build v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-build v2.10.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Executar implementação real. Não tratar Build como geração de um documento isolado.
 
@@ -32,7 +36,7 @@ Executar implementação real. Não tratar Build como geração de um documento 
 13. Executar verificações complementares configuradas no projeto.
 14. Perguntar sobre revisão externa pós-build quando o caso justificar e a capacidade existir.
 15. Gerar o BUILD_REPORT usando [assets/BUILD_REPORT_TEMPLATE.md](assets/BUILD_REPORT_TEMPLATE.md).
-16. Validar o relatório com `python scripts/validate_build_report.py <BUILD_REPORT.md>`.
+16. Reler o relatório contra o checklist de conclusão desta skill.
 17. Encerrar um build completo somente com `Execute o **SDD Handoff by RDD**.`
 
 Ler [references/build-protocol.md](references/build-protocol.md) no início da execução.
@@ -53,7 +57,7 @@ Quem usa esta skill, em geral, nunca usou git nem terminal.
 |---|---|---|
 | 1 | Plano | 1 a 3 |
 | 2 | Modo | 4 e 5 |
-| 3 | Tarefas N/M | 6 a 11 (o contador no Status; uma frase antes de cada tarefa) |
+| 3 | Tarefas N/M | 6 a 11 (o contador no Status conta as tarefas feitas; uma frase antes de cada tarefa) |
 | 4 | Verify Gate | 12 a 14 |
 | 5 | Relatório | 15 a 17 |
 
@@ -83,14 +87,17 @@ Exigir:
 - `DESIGN_{FEATURE}.md`;
 - projeto/código gravável correspondente à feature.
 
-Ler os três documentos integralmente antes de editar código.
+Ler os três documentos integralmente antes de editar código. **Documento de uma fase anterior** (projeto começado antes desta versão): leia de onde estiver — `sdd/features/`, `sdd/` ou `.claude/sdd/` —, grave o novo na pasta desta versão e não pergunte onde está.
 
-Se o projeto não estiver acessível, pedir ao usuário para fornecê-lo/conectá-lo. Não fingir um Build completo somente a partir dos arquivos de especificação.
+Se o projeto não estiver acessível (na web, ou sem ferramenta que grave arquivos), parar antes da primeira tarefa e
+**recomendar** abrir o projeto num agente que grave arquivos (Claude Code, Codex, Cursor e outros), com os três
+documentos. Se o usuário disser que só tem o chat ("você só tem o chat, então…", sem dizer que ele escolheu), ou pedir,
+escrever o código no chat para ele salvar: nunca tomar "ok" ou resposta vaga como escolha nem como autorização para
+começar uma tarefa, nenhuma tarefa feita nem conferência afirmada sem o relato dele, e o relatório diz que quem salvou e conferiu foi ele. Nunca fingir um Build feito só a partir dos documentos, nem dizer que há onde gravar.
 
 Entradas opcionais:
-- `UX_REVIEW_{FEATURE}.md`;
+- `UX_REVIEW_{FEATURE}.md` (com acesso ao projeto, em `sdd/reviews/`);
 - orientação do projeto (`README`, guidance, conventions, config);
-- `sdd.config.yaml`;
 - comandos reais de lint/test/typecheck/build;
 - ferramentas de agentes/subagentes;
 - ferramenta de revisão externa;
@@ -98,17 +105,9 @@ Entradas opcionais:
 
 ## Hierarquia de autoridade
 
-Para comportamento e aceite:
-1. resposta explícita mais recente do usuário;
-2. DEFINE;
-3. DESIGN;
-4. Brainstorm.
+Para comportamento e aceite: (1) resposta explícita mais recente do usuário; (2) DEFINE; (3) DESIGN; (4) Brainstorm.
 
-Para implementação técnica:
-1. DESIGN;
-2. código e padrões reais do projeto;
-3. DEFINE;
-4. Brainstorm.
+Para implementação técnica: (1) DESIGN; (2) código e padrões reais do projeto; (3) DEFINE; (4) Brainstorm.
 
 Usar Brainstorm como proteção contra drift de intenção e contra reintrodução de itens cortados por YAGNI.
 
@@ -256,7 +255,7 @@ Para cada item:
 8. marcar tarefa completa somente com evidência.
 
 Antes de cada tarefa, uma frase ao aluno — qual tarefa (N de M), o que vai rodar e que não precisa
-responder — com o contador no Status.
+responder — com o contador no Status, que só sobe quando a tarefa termina (no caminho do chat, com o relato do usuário).
 
 Não deixar TODO/FIXME como substituto de requisito.
 
@@ -339,8 +338,8 @@ regras, em resumo:
 4. **Aplicar antes do Verify Gate** — um passo por vez: aplicar, ler o resultado, provar, e só então o gate.
 5. **Provar por leitura** (`information_schema`, `pg_proc`, `pg_policies`, `migration list`); exit 0 do
    comando não é prova. Migration já aplicada não é reaplicada — é registrada como "já aplicada em <data>".
-6. **Registrar:** chave `- banco:` em `sdd/ambiente.md` e a seção `## Migrations aplicadas` do
-   BUILD_REPORT (o validador a exige quando *Files Changed* lista `.sql`/`migrations/`).
+6. **Registrar:** a seção `## Migrations aplicadas` do BUILD_REPORT (obrigatória quando *Files Changed*
+   lista `.sql`/`migrations/`).
 
 Nunca reescrever a migration para escapar de uma confirmação do servidor (`declined`); nunca aplicar SQL
 que o aluno não viu.
@@ -419,7 +418,7 @@ Incluir:
 
 Se o Build estiver bloqueado:
 - usar `Status: Blocked`;
-- não inserir o handoff de Release como se estivesse completo;
+- não inserir o handoff de conclusão (`Execute o **SDD Handoff by RDD**.`) como se estivesse completo;
 - indicar a ação necessária para desbloqueio.
 
 Se completo:
@@ -427,13 +426,11 @@ Se completo:
 - Final Status `COMPLETE`;
 - inserir a seção final padrão.
 
-## 16. Validar BUILD_REPORT
+## 16. Conferir o BUILD_REPORT
 
-Executar:
+Releia o relatório inteiro contra o checklist de conclusão desta skill (seções do asset, Verify Gate, migration registrada quando houver, Next Step só em build completo).
 
-`python scripts/validate_build_report.py <caminho-do-BUILD_REPORT.md>`
-
-O script valida estrutura e coerência básica do relatório.
+A releitura confere estrutura e coerência básica do relatório.
 
 Corrigir falhas antes de entregar.
 
@@ -444,10 +441,9 @@ Código:
 
 Relatório:
 
-**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
+**Onde salvar.** Grave em `sdd/reports/` na raiz do projeto — pasta visível, igual em qualquer agente. Cada documento tem a sua pasta: BRAINSTORM, DEFINE e DESIGN em `sdd/features/`, BUILD_REPORT em `sdd/reports/`, revisões em `sdd/reviews/`, fichas em `sdd/handoffs/`.
 
-- gravar como `sdd/BUILD_REPORT_{FEATURE}.md`;
-- quando o projeto já usar `.claude/sdd/` (inclusive com `reports/`), seguir a estrutura existente.
+- gravar como `sdd/reports/BUILD_REPORT_{FEATURE}.md`.
 
 Não sobrescrever artefato histórico sem informar o usuário.
 
@@ -458,7 +454,7 @@ Antes de declarar Build completo:
 - [ ] Brainstorm lido.
 - [ ] DEFINE lido.
 - [ ] DESIGN lido.
-- [ ] Projeto real acessível e alterado.
+- [ ] Projeto real acessível e alterado (ou, no caminho do chat, salvo e conferido pelo usuário, com o relato dele).
 - [ ] Modo escolhido pelo usuário e registrado.
 - [ ] Todos os itens do File Manifest tratados.
 - [ ] Nenhuma alteração fora do manifest sem decisão explícita.
@@ -469,14 +465,13 @@ Antes de declarar Build completo:
 - [ ] Itens de segurança não foram delegados a worker barato.
 - [ ] Manifest com migration: projeto confirmado pelo aluno (nome e ref) e migration aplicada — ou registrada como já aplicada.
 - [ ] Manifest com migration: prova por leitura e seção `## Migrations aplicadas` no relatório.
-- [ ] Manifest com migration: chave `- banco:` gravada em `sdd/ambiente.md`.
 - [ ] Verify Gate green (`0`), ou manual-ux com receipt humano.
 - [ ] Checks complementares aplicáveis passam.
 - [ ] Acceptance Tests têm evidência.
 - [ ] Advisor findings, quando existentes, têm APPLIED/REBUTTED.
 - [ ] Não há TODO/FIXME usado como implementação pendente.
-- [ ] BUILD_REPORT foi gerado pelo asset.
-- [ ] `validate_build_report.py` passa.
+- [ ] BUILD_REPORT foi gerado pelo asset, com Mode Selection (recomendação e decisão do usuário) e a tabela do Verify Gate.
+- [ ] A releitura do relatório contra este checklist foi feita.
 - [ ] Next Step completo contém somente `Execute o **SDD Handoff by RDD**.`
 
 ## Handoff de Build completo
@@ -494,3 +489,11 @@ Não acrescentar slash command, caminho, instrução de upload, menção a GPT/S
 ---
 
 Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

@@ -15,7 +15,7 @@ Converter um Brainstorm pré-validado em um DEFINE verificável, fazendo apenas 
 → `VERIFY_GATE`
 → `QUALITY_GATE`
 → `SAVE_DEFINE`
-→ `HANDOFF_TO_UX_REVIEW`
+→ `HANDOFF_TO_DESIGN`
 
 Voltar a estados anteriores sempre que uma resposta do usuário invalidar uma decisão já registrada.
 
@@ -105,7 +105,7 @@ Escolher exatamente um kind:
 
 Nunca inventar um `cmd` específico do projeto.
 
-Quando o comando não estiver disponível, abrir clarificação com a pergunta da caixa "Se é a sua primeira vez" de `VERIFY_GATE.md`: existe um comando que devolve 0 quando funciona? `manual-ux` é válido quando a natureza do valor é humana/visual ou quando o aluno responde que não existe comando — nunca sem fazer a pergunta.
+Quando o comando não estiver disponível, abrir clarificação com a pergunta da caixa "Se é a sua primeira vez" de `VERIFY_GATE.md`: existe um comando que devolve 0 quando funciona? `manual-ux` é válido quando a natureza do valor é humana/visual ou quando o aluno responde que não existe comando — nunca sem fazer a pergunta, salvo na UX pura (aparência, que nenhum comando julga).
 
 ## Completion gate
 
@@ -117,7 +117,7 @@ O DEFINE está pronto somente quando:
 - LLM Prompts é literal true/false;
 - Verify Gate está completo;
 - Out of Scope está explícito;
-- lint estrutural passa, quando executável.
+- a releitura contra o checklist de qualidade passou.
 
 ## Final handoff
 

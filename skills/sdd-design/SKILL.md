@@ -1,17 +1,21 @@
 ---
 name: sdd-design
-license: MIT
 description: "Elaborar a fase Design de um fluxo SDD/AgentSpec a partir do arquivo Markdown do Brainstorm, do arquivo DEFINE e de interações de clarificação técnica com o usuário. Transformar requisitos validados em arquitetura, componentes, ADRs inline, file manifest, padrões de código, fluxo de dados, integrações, estratégia de testes, tratamento de erros, configuração, segurança e observabilidade. Usar após o SDD Define by RDD, especialmente quando o usuário fornecer BRAINSTORM_*.md e DEFINE_*.md e quiser gerar um DESIGN_*.md pronto para o SDD Build by RDD."
+compatibility: "Funciona na web (claude.ai, ChatGPT), onde o documento sai no chat, e em qualquer agente com acesso ao projeto, sem o init do SDD Open."
+license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "1.1.0"
-  updated: "2026-10"
+  version: "2.7.0"
+  updated: "2026-11"
+  fase: "2"
 ---
+<!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
+aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
 # SDD Design
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-design v1.1.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-design v2.7.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 
@@ -27,7 +31,7 @@ Transformar Brainstorm + DEFINE em um DESIGN técnico implementável.
 8. Criar File Manifest completo, padrões de código, fluxo de dados, integrações e estratégia de testes.
 9. Aplicar a regra condicional de LLM Prompts de [references/llm-prompts.md](references/llm-prompts.md).
 10. Preencher obrigatoriamente [assets/DESIGN_TEMPLATE.md](assets/DESIGN_TEMPLATE.md).
-11. Executar `python scripts/validate_design.py <DESIGN.md>` quando houver filesystem e Python.
+11. Reler o DESIGN contra o checklist de qualidade desta skill.
 12. Salvar ou entregar `DESIGN_{FEATURE_NAME}.md`.
 13. Encerrar o documento somente com `Execute o **SDD Build by RDD**.`
 
@@ -40,11 +44,11 @@ Consultar [references/design-protocol.md](references/design-protocol.md) durante
 - arquivo Markdown do Brainstorm, preferencialmente `BRAINSTORM_{FEATURE_NAME}.md`;
 - arquivo Markdown do Define, preferencialmente `DEFINE_{FEATURE_NAME}.md`.
 
-Ler ambos antes de formular perguntas.
+Ler ambos antes de formular perguntas. **Documento de uma fase anterior** (projeto começado antes desta versão): leia de onde estiver — `sdd/features/`, `sdd/` ou `.claude/sdd/` —, grave o novo na pasta desta versão e não pergunte onde está.
 
 ### Opcionais
 
-- `UX_REVIEW_{FEATURE_NAME}.md`, quando existir;
+- `UX_REVIEW_{FEATURE_NAME}.md`, quando existir (com acesso ao projeto, em `sdd/reviews/`; a `ux-review` grava ali);
 - árvore de diretórios ou arquivos relevantes do projeto;
 - convenções técnicas do repositório;
 - documentação de APIs, schemas, filas, banco ou infraestrutura;
@@ -102,7 +106,7 @@ pergunta aberta: pergunta em negrito + como responder, com a saída "não sei"; 
 - Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
 - Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
   esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
-  continuo daqui." (O lint reprovar não é ação do aluno: diga o que vai ajustar e siga.)
+  continuo daqui." (A releitura achar falha não é ação do aluno: diga o que vai ajustar e siga.)
 
 ## Procedimento
 
@@ -382,29 +386,27 @@ Adicionar `## LLM Prompts` somente na condição definida.
 
 Remover placeholders. Não deixar `TBD`, `{placeholder}` ou `[NEEDS CLARIFICATION]` em um DESIGN marcado `Ready for Build`.
 
-### 18. Executar lint determinístico
+### 18. Conferir o documento
 
-Quando houver filesystem e Python:
-
-`python scripts/validate_design.py <caminho-do-DESIGN.md>`
+Releia o DESIGN inteiro contra o checklist de qualidade desta skill (seções, File Manifest, consistência cruzada, nenhum placeholder, Next Step exato).
 
 Corrigir todas as falhas estruturais antes de entregar a versão final.
 
-O script valida estrutura e consistência básica; não substitui revisão arquitetural.
+A releitura confere estrutura e consistência básica; não substitui revisão arquitetural.
 
 ### 19. Salvar e entregar
 
 Nome padrão:
 `DESIGN_{FEATURE_NAME}.md`
 
-**Onde salvar.** Grave em `sdd/` na raiz do projeto — pasta visível, igual em qualquer agente. Se o projeto já tiver `.claude/sdd/`, continue nela. Os documentos das cinco fases ficam lado a lado, sem subpastas.
+**Onde salvar.** Grave em `sdd/features/` na raiz do projeto — pasta visível, igual em qualquer agente. Cada documento tem a sua pasta: BRAINSTORM, DEFINE e DESIGN em `sdd/features/`, BUILD_REPORT em `sdd/reports/`, revisões em `sdd/reviews/`, fichas em `sdd/handoffs/`.
 
 Se houver filesystem do projeto:
-- salvar como `sdd/DESIGN_{FEATURE_NAME}.md` (ou `.claude/sdd/DESIGN_{FEATURE_NAME}.md` quando essa pasta já existir);
+- salvar como `sdd/features/DESIGN_{FEATURE_NAME}.md`;
 - não sobrescrever silenciosamente arquivo existente.
 
 Se não houver:
-- entregar o `.md` para download quando a plataforma permitir.
+- entregar o `.md` para download quando a plataforma permitir (ou no chat), dizendo que ele não foi gravado; nunca dê a entender que gravou.
 
 ### 20. Encerrar com o handoff padrão
 
@@ -427,13 +429,15 @@ Antes de marcar `Ready for Build`:
 - [ ] UX Review incorporado quando fornecido.
 - [ ] Requisitos autoritativos preservados.
 - [ ] Contexto técnico observado ou explicitamente confirmado.
-- [ ] Architecture Overview claro.
+- [ ] Architecture Overview claro, com o diagrama num bloco ```` ```text ````.
 - [ ] Components coerentes com o diagrama.
 - [ ] Decisões significativas documentadas com racional.
 - [ ] Alternatives Rejected e Consequences registradas nas decisões relevantes.
 - [ ] File Manifest completo, com testes/configuração quando aplicável.
 - [ ] Paths não foram falsamente apresentados como observados.
-- [ ] Dependências do File Manifest não são circulares.
+- [ ] Dependências do File Manifest não são circulares; `Total Files` é igual ao número de linhas do manifest.
+- [ ] Toda decisão tem os rótulos do asset (Status, Context, Choice, Rationale, Alternatives Rejected, Consequences).
+- [ ] Requirements Traceability liga cada AT e cada MUST a um componente ou arquivo.
 - [ ] Code Patterns são copy-paste ready e compatíveis com a stack.
 - [ ] LLM Prompts segue a regra condicional.
 - [ ] Data Flow é coerente com arquitetura.
@@ -445,7 +449,7 @@ Antes de marcar `Ready for Build`:
 - [ ] Observability define sinais úteis.
 - [ ] Não há item Out of Scope planejado para implementação.
 - [ ] Não há placeholder, TBD ou clarificação bloqueante.
-- [ ] `scripts/validate_design.py` passa quando executável.
+- [ ] A releitura do documento contra este checklist foi feita.
 - [ ] Documento final se chama `DESIGN_{FEATURE_NAME}.md`.
 - [ ] Next Step contém somente `Execute o **SDD Build by RDD**.`
 
@@ -465,3 +469,11 @@ Antes de marcar `Ready for Build`:
 ---
 
 Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
+
+## Quando migrar para o SDD Open
+
+Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
+método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
+e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
+e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
+continua valendo lá.

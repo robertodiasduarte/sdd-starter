@@ -34,7 +34,7 @@ O escritório cadastra clientes com CPF digitado à mão e grava CPF com dígito
 | Priority | Goal |
 |---|---|
 | **MUST** | Recusar CPF com dígito verificador inválido antes de gravar o cliente |
-| **MUST** | Aceitar CPF com ou sem pontuação (`111.444.777-35` e a mesma sequência sem pontos e traço) |
+| **MUST** | Aceitar CPF com ou sem pontuação (o mesmo CPF válido de teste com e sem pontos e traço) |
 | **SHOULD** | Mostrar ao usuário qual é o problema do CPF, em português |
 | **COULD** | Avisar quando o CPF já está cadastrado em outro cliente |
 
@@ -52,9 +52,9 @@ O escritório cadastra clientes com CPF digitado à mão e grava CPF com dígito
 
 | ID | Pattern | Criterion (EARS) | Gate (`kind`) |
 |---|---|---|---|
-| AT-001 | Event-driven | **When** o usuário salva um cliente com CPF válido (`111.444.777-35`), o sistema **shall** gravar o cliente com o CPF sem pontuação | test |
-| AT-002 | Unwanted | **If** o CPF tem dígito verificador inválido (`111.444.777-36`), **then** o sistema **shall** recusar o cadastro e mostrar "CPF inválido: confira os dois últimos dígitos" | test |
-| AT-003 | Unwanted | **If** o CPF tem todos os dígitos iguais (`111.111.111-11`), **then** o sistema **shall** recusar o cadastro | test |
+| AT-001 | Event-driven | **When** o usuário salva um cliente com um CPF válido de teste, o sistema **shall** gravar o cliente com o CPF sem pontuação | test |
+| AT-002 | Unwanted | **If** o CPF tem dígito verificador inválido (o CPF válido de teste com o último dígito trocado), **then** o sistema **shall** recusar o cadastro e mostrar "CPF inválido: confira os dois últimos dígitos" | test |
+| AT-003 | Unwanted | **If** o CPF tem todos os dígitos iguais (onze vezes o 1), **then** o sistema **shall** recusar o cadastro | test |
 | AT-004 | Event-driven | **When** o usuário digita o CPF sem pontos e traço, o sistema **shall** aceitar o CPF como se tivesse pontuação | test |
 
 ---
@@ -88,7 +88,7 @@ verify_gate:
   cmd: "N/A (manual-ux)"
   pass_when: "checklist signed"
   threshold: "—"
-  manual_fallback: "Eu abri o cadastro, salvei um cliente com o CPF 111.444.777-35 e vi o cliente na lista. Eu abri o cadastro, digitei o CPF 111.444.777-36 e vi a mensagem 'CPF inválido: confira os dois últimos dígitos'. Eu abri o cadastro, digitei 111.111.111-11 e vi o cadastro ser recusado. Eu abri a lista de clientes depois das recusas e vi que nenhum cliente novo foi gravado."
+  manual_fallback: "Eu abri o cadastro, salvei um cliente com um CPF válido de teste e vi o cliente na lista. Eu abri o cadastro, digitei o mesmo CPF com o último dígito trocado e vi a mensagem 'CPF inválido: confira os dois últimos dígitos'. Eu abri o cadastro, digitei um CPF com os onze dígitos iguais e vi o cadastro ser recusado. Eu abri a lista de clientes depois das recusas e vi que nenhum cliente novo foi gravado."
 ```
 
 ---
