@@ -5,7 +5,7 @@ description: "Instala, com o OK explícito de quem usa o computador, um alarme d
 metadata:
   author: Roberto Dias Duarte
   methodology: Metodologia de Roberto Dias Duarte
-  version: "1.2.0"
+  version: "1.2.1"
   updated: "2026-10"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
@@ -14,7 +14,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # Higiene de dado
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-higiene-dado v1.2.0 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-higiene-dado v1.2.1 · out/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Um alarme que roda a cada `git commit` no computador de quem trabalha com dado de cliente. Ele
 não impede o trabalho: recusa o commit suspeito, explica, e deixa a pessoa decidir.

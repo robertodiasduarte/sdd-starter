@@ -22,8 +22,11 @@ achado() { ACHADOS="${ACHADOS}  $1"$'\n'; }
 # ── 1. pelo nome do arquivo ──────────────────────────────────────────────────
 # --no-renames: arquivo renomeado aparece como novo (A), então é conferido de novo.
 while IFS= read -r -d '' status && IFS= read -r -d '' arq; do
-  base="$(basename "${arq}" | tr '[:upper:]' '[:lower:]')"
+  # F16W2: nome sem basename/tr (2 processos por arquivo pesam no Git Bash); a caixa, pelo nocasematch do case
+  base="${arq##*/}"
+  while [ "${base%$'\n'}" != "${base}" ]; do base="${base%$'\n'}"; done   # o \n do fim sai, como no $(basename)
   motivo=""
+  shopt -s nocasematch
   case "${base}" in
     .env.example|.env.sample) ;;
     .env|.env.*) motivo="arquivo de senhas (.env)" ;;
@@ -31,6 +34,7 @@ while IFS= read -r -d '' status && IFS= read -r -d '' arq; do
     *.pem) git show ":${arq}" 2>/dev/null | grep -q "PRIVATE KEY" && motivo="chave privada (.pem com PRIVATE KEY)" ;;
     *.xlsx|*.xls|*.ods|*.csv) [ "${status}" = "A" ] && motivo="planilha nova (pode conter dado de cliente)" ;;
   esac
+  shopt -u nocasematch
   if [ -n "${motivo}" ]; then
     achado "${arq}: ${motivo}"
     NOMES="${NOMES}${arq}"$'\n'
@@ -103,7 +107,7 @@ if [ -n "$(git config --get core.hooksPath 2>/dev/null || true)" ]; then
   DESINSTALAR='Para desinstalar o alarme: bash <pasta da skill sdd-higiene-dado>/scripts/alarme.sh desinstalar'
 else
   COMMON="$(git rev-parse --git-common-dir 2>/dev/null)"
-  case "${COMMON}" in /*) ;; *) COMMON="$(git rev-parse --show-toplevel)/${COMMON}" ;; esac
+  case "${COMMON}" in /*|[A-Za-z]:[\\/]*) ;; *) COMMON="$(git rev-parse --show-toplevel)/${COMMON}" ;; esac
   DESINSTALAR="Para desinstalar o alarme: rm \"${COMMON}/hooks/pre-commit\""
 fi
 {

@@ -295,11 +295,13 @@ def check_normativo(root, concepts, patterns, strict):
             if impl and not teste:
                 ok = fail(f"{name}: implementacao {impl!r} has no teste — --strict requires the test the Verify Gate runs (RULE_TEMPLATE.md)") and ok
             elif teste:
-                arquivo = teste.split(":", 1)[0].strip()
+                # F16W2: "C:\\x\\t.py:caso" é absoluto do Windows; o 1º ":" é o do drive, não o do caso
+                drive = re.match(r"^[A-Za-z]:[\\/]", teste)
+                arquivo = (teste[:2] + teste[2:].split(":", 1)[0]).strip() if drive else teste.split(":", 1)[0].strip()
                 # Contido pela forma do caminho (normpath), não pelo destino: um teste do projeto que é
                 # link simbólico para fora continua dentro da árvore.
                 alvo = Path(os.path.normpath(str(projeto / arquivo)))
-                if Path(arquivo).is_absolute() or Path(os.path.normpath(str(projeto))) not in alvo.parents:
+                if drive or Path(arquivo).is_absolute() or Path(os.path.normpath(str(projeto))) not in alvo.parents:
                     ok = fail(f"{name}: teste {teste!r}: {arquivo} is outside the project root {projeto} — use a path relative to it") and ok
                 elif not alvo.is_file():
                     ok = fail(f"{name}: teste {teste!r}: {arquivo} not found from the project root {projeto}") and ok
@@ -494,4 +496,11 @@ def main():
 
 
 if __name__ == "__main__":
+    # F16W2: no Windows, o stdout num pipe (o Git Bash do aluno) é cp1252 e o print troca \n por \r\n: o ✅ e o "ç"
+    # quebrariam o script, e o bash que captura a saída veria um \r a mais. Saída em UTF-8 e \n, sempre.
+    for _canal in (sys.stdout, sys.stderr):
+        try:
+            _canal.reconfigure(encoding="utf-8", errors="replace", newline="\n")
+        except (AttributeError, ValueError):
+            pass
     raise SystemExit(main())

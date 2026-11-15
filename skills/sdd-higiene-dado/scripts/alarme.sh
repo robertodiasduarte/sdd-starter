@@ -35,7 +35,7 @@ HOOKS_PATH="$(git config --get core.hooksPath 2>/dev/null || true)"
 # `git rev-parse --git-path hooks/pre-commit`: ele segue o core.hooksPath e, com o dispatcher do sdd-open
 # ligado, apontaria para o próprio dispatcher — um `rm` apagaria os hooks do projeto.
 COMMON="$(git rev-parse --git-common-dir 2>/dev/null)"
-case "${COMMON}" in /*) ;; *) COMMON="${ROOT}/${COMMON}" ;; esac
+case "${COMMON}" in /*|[A-Za-z]:[\\/]*) ;; *) COMMON="${ROOT}/${COMMON}" ;; esac   # C:/… do git no Windows (F16W2)
 HOOK="${COMMON}/hooks/pre-commit"
 VERSAO="$(versao_skill)"
 
@@ -44,7 +44,9 @@ VERSAO="$(versao_skill)"
 hooks_path_e_nosso() {
   local hp="${1%/}"; hp="${hp#./}"   # o git aceita sdd/hooks/ e ./sdd/hooks: são o mesmo lugar
   [ "${hp}" = "sdd/hooks" ] && return 0
-  case "${hp}" in /*) [ -d "${hp}" ] && [ "$(cd "${hp}" 2>/dev/null && pwd -P)" = "$(cd "${ROOT}/sdd/hooks" 2>/dev/null && pwd -P)" ] ;; *) return 1 ;; esac
+  # F16W2: absoluto também na forma do Windows (C:\… ou C:/…); -ef compara a pasta pelo sistema de arquivos (link,
+  # /tmp do macOS, /c/… × C:/… e o nome curto RUNNER~1 do Windows dão a mesma pasta)
+  case "${hp}" in /*|[A-Za-z]:[\\/]*) [ -d "${hp}" ] && [ "${hp}" -ef "${ROOT}/sdd/hooks" ] ;; *) return 1 ;; esac
 }
 MODO="arquivo"
 if [ -n "${HOOKS_PATH}" ]; then
