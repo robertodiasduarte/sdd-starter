@@ -1,5 +1,5 @@
 # GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
-a458ea6c8ba50fc3f6c4f37511d31ebf2b53ea25dd5621d1d03023f6b46c95ef  SKILL.md
+cbbc223a590768762b71e219bed505f17f847472fd89f01293263f1cf30471b7  SKILL.md
 5ef76f7e38cbbcea110c81b7624f105c14107693fc92aca806a96ea74c8c4e87  agents/openai.yaml
 c3d9a6ea6afad972b0d116494475b46432a24aacd6a6cb95f300a86f1a9e9139  assets/BUILD_REPORT_TEMPLATE.md
 23476a03f9b7eb478916672fe8ded9d0026d4cb644aecf333087a6b1958a694e  assets/PROGRESS_TEMPLATE.md
