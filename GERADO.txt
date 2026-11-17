@@ -1,9 +1,9 @@
-# GENERATED pelo sdd-open v2.20.0 (commit 017f09a39deb) com scripts/gerar-starter.py — não edite aqui.
+# GENERATED pelo sdd-open v2.22.0 (commit 304e60aea8ff) com scripts/gerar-starter.py — não edite aqui.
 2ea343c763d7df2ea9cd2f5e594276cadd4c1e87ad4c8bd625973f3c39081211  .gitattributes
 2daedd6577388ac28b837629fc119d8092276f6f97093ce95eb745073e167c7c  .github/workflows/auto-release.yml
 78ad7cc8d954748ec624aef164a7b190275b3fb010d91d954b9f405fffff27e8  .github/workflows/ci.yml
 d4893ffd7a59a9118a1fa92acbec64885394d408c07e23075d6325bb1014782b  .github/workflows/release.yml
-7ca509048373b6a535c5b5e4b65abb2700e5c97300499ea4c6984c81c5b5c023  README.md
+1d0cf74f2c50cbbbdac55ef4a7a3f527a4c281152757f7e05c4081903a9e1776  README.md
 d17ee232656ec827082b5f7d5a733cca58911d29e00efa4e3df47704eafcb1b6  docs/quickstart.md
 de9ecf1f8950b7022044e4769fd8d9bef7371ce3139396851baba6b7a969f91d  docs/quickstart.pt-BR.md
 12ff4e0cbbdd3a7b5a8f6e7054fba4dff4417e46536c08a14bf5ffda9c07c225  docs/workflow.md
@@ -19,8 +19,8 @@ dd7c450b2aa5f0f61dec84425624bde3e1979b96d98b0bbd6ac3293e2b519a40  scripts/check-
 6561e974f6787bd75286babe685f49cf887383039d28daa38bef40df6f904beb  scripts/publish-check.sh
 77e183bc3832ce6476bcd0ec5213b25c573ef1cf577434d144eb97d7a993b62b  skills/sdd-auditoria-harness/GERADO.txt
 7fd81ee6415060919573a33f86e68211df0e824d15cbaeecfdfcc0a090aca641  skills/sdd-brainstorm/GERADO.txt
-ccbcbfa61106f5e09074186a5d7fb6298d6b289a50dd4de294ca6e551fce60dc  skills/sdd-build/GERADO.txt
-2e7bad7a28b86195e973a3c5b106bb9fd35148384c7947f8520de258627b0653  skills/sdd-checar-ambiente/GERADO.txt
+ab917f0bcde65a6018a169139fb657f8c354693250138d1d7e09dabe9e444d6d  skills/sdd-build/GERADO.txt
+1002e61d0541874fe81ad34a1ca473d36963877ebe64fe6aca7c824d0f8fdf26  skills/sdd-checar-ambiente/GERADO.txt
 1a3b9102c62ee7694363b74e64c8d95add54725aba80abaeb535dceeef159cb7  skills/sdd-define/GERADO.txt
 95351d626e3b41fc3ba52229c75e2f32f2866efaf34095e363ba96f66cb0b110  skills/sdd-design/GERADO.txt
 62fa45317a6d896c303876d83f099a4b24741cfde3148e253216fc254c340f7c  skills/sdd-engenharia-reversa-saas/GERADO.txt
