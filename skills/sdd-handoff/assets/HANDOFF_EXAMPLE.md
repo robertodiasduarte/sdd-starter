@@ -15,10 +15,14 @@
 | **Artefatos** | `sdd/features/DEFINE_CONTROLE_HONORARIOS.md` · `sdd/features/DESIGN_CONTROLE_HONORARIOS.md` · `sdd/reports/BUILD_REPORT_CONTROLE_HONORARIOS.md` |
 
 
+## Publicado
+
+- 2026-03-04 · etapa 1 · cadastro de clientes e lançamentos mensais · commit 3f9a1c2
+
 ## Feito
 
-- Etapa 1 (2026-03-04): cadastro de clientes e lançamentos mensais, com valor, vencimento e situação; em uso com os
-  dados reais do escritório desde 2026-03-06.
+- Etapa 1: cadastro de clientes e lançamentos mensais, com valor, vencimento e situação; em uso com os dados reais
+  do escritório desde 2026-03-06 (a publicação está em Publicado).
 - Etapa 2, 70% (2026-03-11): a tela de inadimplência lista os vencidos do mais antigo para o mais recente, com o total
   em aberto por cliente no topo da linha. Prova: os 6 clientes fictícios da base de teste aparecem na ordem certa.
 

@@ -5,7 +5,7 @@ compatibility: Funciona na web (claude.ai, ChatGPT), onde a ficha sai no chat, e
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.2.1"
+  version: "2.3.0"
   updated: "2026-11"
   fase: "transversal"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # sdd-handoff — ficha da feature + passar o bastão
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-handoff v2.2.1 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-handoff v2.3.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Duas responsabilidades, sempre nesta ordem:
 
@@ -108,6 +108,9 @@ Use `<pasta desta skill>/references/HANDOFF_TEMPLATE.md`; o `assets/HANDOFF_EXAM
   no git e no ledger).
 - **O que foi publicado** (commit ou PR, e o endereço quando houver) vai na ficha.
 - Datas absolutas. Nada que o git ou o ledger já registrem.
+- **O que foi publicado vai uma vez só,** na seção `## Publicado`: uma linha por publicação, a mais recente no topo
+  (data, o que subiu, o commit ou PR). Nada dessa linha se repete em "Feito" nem em "Histórico de slices"; o resto da
+  ficha diz o que a publicação não diz: o que falta e os alertas.
 - O molde traz também `## Eventos`, `## Recomendações`, `## Veredito`, `## Setup`, `## Tarefas` e
   `## Ship`: preencha a que tiver o que dizer e apague a que ficar vazia; nenhuma é obrigatória, mas
   nenhuma fica com o texto do molde entre chaves.
@@ -137,7 +140,9 @@ de código (só a ficha ✅ sem continuação o dispensa), slice datado no hist�
 
 Feature já publicada e sessão dentro de branch/worktree descartável → oferecer o comando de
 remoção (rodado fora dele). Ficha ✅ completa → oferecer arquivar os artefatos em
-`sdd/archive/{F}/` com 1 OK. Nunca apagar sem confirmação.
+`sdd/archive/{F}/` com 1 OK. Nunca apagar sem confirmação. **Chamada pela `sdd-release`, pule este passo:** lá o
+arquivamento (ledger `estado: shipado`) e a branch remota já integrada são padrão, com recibo e o comando que desfaz, e
+o comando de limpeza local vai no relatório final.
 
 ## Sem terminal (sem acesso aos arquivos do projeto)
 

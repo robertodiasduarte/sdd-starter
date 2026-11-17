@@ -15,9 +15,15 @@
 | **Branch / pasta** | `{branch}` · `{caminho}` |
 | **Artefatos** | `DEFINE_{F}.md` · `DESIGN_{F}.md` · `BUILD_REPORT_{F}.md` (onde o projeto os guarda) |
 
+## Publicado
+
+> Uma linha por publicação, a mais recente no topo; o que está aqui não se repete nas outras seções.
+
+- {data} · {o que subiu, em 1 frase} · {commit ou PR}
+
 ## Feito
 
-- {o que está pronto, com o comando ou arquivo que PROVA — nunca "acho que funciona"}
+- {o que está pronto e ainda não foi publicado, com o comando ou arquivo que PROVA — nunca "acho que funciona"}
 
 ## Falta
 
@@ -103,7 +109,7 @@ Landmines: {1 linha por armadilha}.
 
 ### {slice/sessão mais recente} — {YYYY-MM-DD}
 
-- {o que aconteceu nesta sessão, em 3-6 linhas}
+- {o que aconteceu nesta sessão e o ledger não diz, em 3-6 linhas}
 
 ### {slice anterior} — {YYYY-MM-DD}
 
