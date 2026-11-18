@@ -1,12 +1,12 @@
 ---
 name: sdd-engenharia-reversa-saas
-description: "Etapa opcional antes do Brainstorm: investiga funcionalmente um SaaS que já existe, informado pelo usuário, e produz ENGENHARIA_REVERSA_{SAAS}.md com cada achado classificado (observado, documentado, informado, inferido, nao_verificado) e com fonte. Depois orquestra as skills instaladas sdd-brainstorm e sdd-define para especificar uma solução própria e seu MVP, sem copiar o concorrente. Usa só fontes públicas, materiais do usuário e conta autorizada, em leitura; recusa acesso indevido, cópia de marca e código privado. Use quando o usuário disser que quer construir algo parecido com um sistema que já existe, pedir para estudar um concorrente ou um SaaS de referência, ou pedir /sdd-engenharia-reversa-saas. Não faz Design, Build nem Release."
+description: "SDD Starter — Etapa opcional antes do Brainstorm: investiga funcionalmente um SaaS que já existe, informado pelo usuário, e produz ENGENHARIA_REVERSA_{SAAS}.md com cada achado classificado (observado, documentado, informado, inferido, nao_verificado) e com fonte. Depois orquestra as skills instaladas sdd-brainstorm e sdd-define para especificar uma solução própria e seu MVP, sem copiar o concorrente. Usa só fontes públicas, materiais do usuário e conta autorizada, em leitura; recusa acesso indevido, cópia de marca e código privado. Use quando o usuário disser que quer construir algo parecido com um sistema que já existe, pedir para estudar um concorrente ou um SaaS de referência, ou pedir /sdd-engenharia-reversa-saas. Não faz Design, Build nem Release."
 compatibility: Requer as skills sdd-brainstorm e sdd-define instaladas; python3 >= 3.9 (só stdlib) para o lint do levantamento. Pesquisa na web e navegador são opcionais - sem eles o levantamento sai parcial.
 license: MIT
 metadata:
   author: Roberto Dias Duarte
   methodology: Metodologia de Roberto Dias Duarte
-  version: "1.2.0"
+  version: "1.2.1"
   updated: "2026-11"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # SDD Engenharia Reversa de SaaS
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-engenharia-reversa-saas v1.2.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-engenharia-reversa-saas v1.2.1 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 

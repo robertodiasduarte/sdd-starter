@@ -1,11 +1,11 @@
 ---
 name: sdd-design
-description: "Elaborar a fase Design de um fluxo SDD/AgentSpec a partir do arquivo Markdown do Brainstorm, do arquivo DEFINE e de interações de clarificação técnica com o usuário. Transformar requisitos validados em arquitetura, componentes, ADRs inline, file manifest, padrões de código, fluxo de dados, integrações, estratégia de testes, tratamento de erros, configuração, segurança e observabilidade. Usar após o SDD Define by RDD, especialmente quando o usuário fornecer BRAINSTORM_*.md e DEFINE_*.md e quiser gerar um DESIGN_*.md pronto para o SDD Build by RDD."
+description: "SDD Starter — Elaborar a fase Design de um fluxo SDD/AgentSpec a partir do arquivo Markdown do Brainstorm, do arquivo DEFINE e de interações de clarificação técnica com o usuário. Transformar requisitos validados em arquitetura, componentes, ADRs inline, file manifest, padrões de código, fluxo de dados, integrações, estratégia de testes, tratamento de erros, configuração, segurança e observabilidade. Usar após o SDD Define by RDD, especialmente quando o usuário fornecer BRAINSTORM_*.md e DEFINE_*.md e quiser gerar um DESIGN_*.md pronto para o SDD Build by RDD."
 compatibility: "Funciona na web (claude.ai, ChatGPT), onde o documento sai no chat, e em qualquer agente com acesso ao projeto, sem o init do SDD Open."
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.9.0"
+  version: "2.9.1"
   updated: "2026-11"
   fase: "2"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # SDD Design
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-design v2.9.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-design v2.9.1 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 

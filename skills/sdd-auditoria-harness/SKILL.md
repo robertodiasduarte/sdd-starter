@@ -1,10 +1,10 @@
 ---
 name: sdd-auditoria-harness
-description: "Audita read-only o harness SDD de um repositório para FAXINA E DERIVA: inventaria comandos, agentes, skills, hooks, settings e scripts, mede referências, recência, duplicação e deriva entre docs e código, e gera um único relatório AUDITORIA_SDD_<data>.md sem alterar nada. Invocar quando alguém disser \"o harness cresceu demais\", \"o que aqui ninguém usa\", \"os docs ainda batem com o código?\", ou pedir uma faxina do .claude/, do .agents/ ou do .codex/. ⚠️ Fronteira: esta skill pergunta O QUE SOBRA E O QUE DERIVOU (higiene). Ela não procura ameaça — easter egg, código malicioso, backdoor, exfiltração, unicode invisível em material de terceiro que você vai instalar pedem uma auditoria de segurança própria. Excesso não é ameaça; as duas se complementam."
+description: "SDD Starter — Audita read-only o harness SDD de um repositório para FAXINA E DERIVA: inventaria comandos, agentes, skills, hooks, settings e scripts, mede referências, recência, duplicação e deriva entre docs e código, e gera um único relatório AUDITORIA_SDD_<data>.md sem alterar nada. Invocar quando alguém disser \"o harness cresceu demais\", \"o que aqui ninguém usa\", \"os docs ainda batem com o código?\", ou pedir uma faxina do .claude/, do .agents/ ou do .codex/. ⚠️ Fronteira: esta skill pergunta O QUE SOBRA E O QUE DERIVOU (higiene). Ela não procura ameaça — easter egg, código malicioso, backdoor, exfiltração, unicode invisível em material de terceiro que você vai instalar pedem uma auditoria de segurança própria. Excesso não é ameaça; as duas se complementam."
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "1.2.3"
+  version: "1.2.4"
   updated: "2026-11"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
@@ -13,7 +13,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # Auditoria Read-Only do Harness SDD
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-auditoria-harness v1.2.3 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-auditoria-harness v1.2.4 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Como falar com o aluno
 

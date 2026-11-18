@@ -1,11 +1,11 @@
 ---
 name: sdd-seguranca
-description: "Segurança do app feito com IA, do SDD Open, a partir de um catálogo de 22 falhas comuns (tabela sem RLS, chave secreta no código, registro de outra pessoa pelo id, CORS aberto, HTML do usuário sem escapar, cabeçalhos ausentes, instrução escondida em documento, agente com poder demais e outras), cada uma com a regra que previne, o teste de aceitação, a decisão de design e a conferência à mão. Quatro modos: Define (o sdd-define chama; propõe testes de aceitação em EARS, um item por vez, e responde N.A. em uma linha sem login, rota pública, dado de terceiros, upload, banco nem IA paga), checklist antes de publicar, app publicado e incidente (chave vazou, tabela ficou aberta, cliente reclamou). Use quando o sdd-define chegar ao passo de segurança, quando o usuário pedir para conferir a segurança antes de publicar, quando disser /sdd-seguranca, ou quando algo já vazou."
+description: "Segurança do app feito com IA, do SDD Starter, a partir de um catálogo de 22 falhas comuns (tabela sem RLS, chave secreta no código, registro de outra pessoa pelo id, CORS aberto, HTML do usuário sem escapar, cabeçalhos ausentes, instrução escondida em documento, agente com poder demais e outras), cada uma com a regra que previne, o teste de aceitação, a decisão de design e a conferência à mão. Quatro modos: Define (o sdd-define chama; propõe testes de aceitação em EARS, um item por vez, e responde N.A. em uma linha sem login, rota pública, dado de terceiros, upload, banco nem IA paga), checklist antes de publicar, app publicado e incidente (chave vazou, tabela ficou aberta, cliente reclamou). Use quando o sdd-define chegar ao passo de segurança, quando o usuário pedir para conferir a segurança antes de publicar, quando disser /sdd-seguranca, ou quando algo já vazou."
 compatibility: "Funciona em qualquer agente, inclusive na web sem terminal: cada item tem a conferência à mão. No SDD Open, um script lê o mesmo catálogo e varre o repositório a cada publicação."
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.2"
+  version: "1.0.3"
   updated: "2026-11"
   fase: "Seg"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # sdd-seguranca — segurança do app, da ideia à publicação
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-seguranca v1.0.2 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-seguranca v1.0.3 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 A IA constrói o caminho feliz e esquece a tranca. Esta skill lembra a tranca na fase em que ela custa menos:
 pergunta no Define, decide no Design, previne no Build e confere antes de publicar. A fonte de tudo é

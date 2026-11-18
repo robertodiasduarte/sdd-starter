@@ -1,6 +1,6 @@
 # GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
 59701e6e7089201a3b4026fb0a11dee4395889b159d6dc24202c439639934b97  CHANGELOG.md
-f571dd8bf1d272b7003c226810bd720b5fa316c1e8101f42f4a5ccb04ba65ecb  SKILL.md
+2b919f2c787daa9b3b7bf5d9eaac42549f8be2501562e202621f5f79e9ddff5d  SKILL.md
 ab0ea3da00267b4da4e6d7261af309aca3b1098d9c353822a015c0385f512ce1  agents/openai.yaml
 8e8e4e324859cebf0b76e2798f42e61759482e67b258b9d41c83f6ef4f19dc7c  assets/CASO_TEMPLATE.json
 4b41c150bda7afcdb4e85d406456018c5ba012384ec4bfb803261447cce21523  assets/CATALOGO_FONTES_TEMPLATE.md

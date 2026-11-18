@@ -1,11 +1,11 @@
 ---
 name: sdd-brainstorm
-description: Fase 0 do SDD Open — explora uma ideia vaga por diálogo antes de virar requisito. Faz perguntas uma de cada vez, coleta amostras, propõe 2–3 abordagens com prós e contras, aplica YAGNI e grava sdd/features/BRAINSTORM_{FEATURE}.md. Use quando o usuário disser "quero fazer algo mas não sei bem o quê", trouxer notas soltas ou pedir /sdd-brainstorm.
+description: Fase 0 do SDD Starter — explora uma ideia vaga por diálogo antes de virar requisito. Faz perguntas uma de cada vez, coleta amostras, propõe 2–3 abordagens com prós e contras, aplica YAGNI e grava sdd/features/BRAINSTORM_{FEATURE}.md. Use quando o usuário disser "quero fazer algo mas não sei bem o quê", trouxer notas soltas ou pedir /sdd-brainstorm.
 compatibility: Funciona na web (claude.ai, ChatGPT), onde o documento sai no chat, e em qualquer agente com acesso ao projeto.
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.5.0"
+  version: "2.5.1"
   updated: "2026-11"
   fase: "0"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # sdd-brainstorm — Fase 0 (opcional)
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-brainstorm v2.5.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-brainstorm v2.5.1 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Explorar antes de especificar. O produto desta fase é **clareza**, não código: um documento
 que o `/sdd-define` consegue transformar em spec com pouca pergunta.

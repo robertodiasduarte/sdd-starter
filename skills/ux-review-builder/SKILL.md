@@ -1,11 +1,11 @@
 ---
 name: "ux-review-builder"
-description: "Conduz uma entrevista progressiva, sem exigir vocabulário de UX ou design, para criar ou evoluir o padrão canônico de UX de um projeto de software e gerar três artefatos coordenados: UX_STANDARD.md, uma skill ux-review personalizada e UX_REVIEW_TEMPLATE.md. Use quando quiser definir look and feel, público, princípios, design system, acessibilidade, responsividade, tom de voz, referências, interações, critérios de qualidade ou governança de UX antes de revisar features. A ux-review gerada vira a etapa do SDD entre o Define e o Design. Não executa a revisão de uma feature no lugar da skill gerada."
+description: "SDD Starter — Conduz uma entrevista progressiva, sem exigir vocabulário de UX ou design, para criar ou evoluir o padrão canônico de UX de um projeto de software e gerar três artefatos coordenados: UX_STANDARD.md, uma skill ux-review personalizada e UX_REVIEW_TEMPLATE.md. Use quando quiser definir look and feel, público, princípios, design system, acessibilidade, responsividade, tom de voz, referências, interações, critérios de qualidade ou governança de UX antes de revisar features. A ux-review gerada vira a etapa do SDD entre o Define e o Design. Não executa a revisão de uma feature no lugar da skill gerada."
 license: "MIT"
 metadata:
   author: "Roberto Dias Duarte"
   methodology: "Metodologia de Roberto Dias Duarte"
-  version: "1.6.1"
+  version: "1.6.2"
   updated: "2026-11"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
@@ -14,7 +14,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # UX Review Builder
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`ux-review-builder v1.6.1 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`ux-review-builder v1.6.2 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 

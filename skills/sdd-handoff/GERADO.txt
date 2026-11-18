@@ -1,5 +1,5 @@
 # GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
-b7fc585dc385d973b550483ed20fb9f276c6909da585cf2942264135eba55c13  SKILL.md
+2ab5c90bbc73adeea6f5941609348c486f0743d9a80888adeeb798132d0bb273  SKILL.md
 ec21cea349b8985722613bb4762ff879a84d7272e51799542adbf88fee12d2b7  agents/openai.yaml
 54691aabcdd3bcddde5a8335b324866ea37fe1d586738a4924264d6c5ffd9fd6  assets/HANDOFF_EXAMPLE.md
 438d4618a1abfe085a7111aad1e2d1481380dbcefe2d64a39c78adbdf7730fc8  references/HANDOFF_TEMPLATE.md

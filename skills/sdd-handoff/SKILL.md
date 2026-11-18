@@ -1,11 +1,11 @@
 ---
 name: sdd-handoff
-description: Passa o bastão para uma sessão nova e mantém a FICHA DA FEATURE do SDD Open — um arquivo por feature em sdd/handoffs/HANDOFF_{FEATURE}.md, com estado agregado, pendências, alertas e um prompt de retomada autossuficiente (IDs, caminhos e comandos colados). Use quando o usuário disser "estou no limite de contexto", "documenta pra continuar depois", "passa o bastão", /sdd-handoff, quando a fase Release rodar, ou quando o agente perceber que o contexto está acabando no meio de um trabalho longo.
+description: SDD Starter — Passa o bastão para uma sessão nova e mantém a FICHA DA FEATURE do SDD Starter — um arquivo por feature em sdd/handoffs/HANDOFF_{FEATURE}.md, com estado agregado, pendências, alertas e um prompt de retomada autossuficiente (IDs, caminhos e comandos colados). Use quando o usuário disser "estou no limite de contexto", "documenta pra continuar depois", "passa o bastão", /sdd-handoff, quando a fase Release rodar, ou quando o agente perceber que o contexto está acabando no meio de um trabalho longo.
 compatibility: Funciona na web (claude.ai, ChatGPT), onde a ficha sai no chat, e em qualquer agente com acesso ao projeto. Não depende de memória proprietária de nenhum agente.
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.3.0"
+  version: "2.3.1"
   updated: "2026-11"
   fase: "transversal"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # sdd-handoff — ficha da feature + passar o bastão
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-handoff v2.3.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-handoff v2.3.1 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Duas responsabilidades, sempre nesta ordem:
 

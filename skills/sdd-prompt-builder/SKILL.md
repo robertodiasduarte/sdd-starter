@@ -1,11 +1,11 @@
 ---
 name: sdd-prompt-builder
-description: "Gera, refina e otimiza prompts de produção para LLMs com contrato de saída explícito, critérios de completude, tratamento de contexto ausente e verificação concisa. Usar quando o usuário pedir para criar ou melhorar prompts destinados a runtime, ou quando a fase Build de um fluxo SDD criar ou alterar system prompts, passes de pipeline, classificadores, sintetizadores, prompts em edge/worker/runtime, arquivos **/prompts/**, system prompts inline ou templates em _shared. Não usar para documentação humana, prompts internos de orquestração SDD, emails, notificações ou copy transacional de UI."
+description: "SDD Starter — Gera, refina e otimiza prompts de produção para LLMs com contrato de saída explícito, critérios de completude, tratamento de contexto ausente e verificação concisa. Usar quando o usuário pedir para criar ou melhorar prompts destinados a runtime, ou quando a fase Build de um fluxo SDD criar ou alterar system prompts, passes de pipeline, classificadores, sintetizadores, prompts em edge/worker/runtime, arquivos **/prompts/**, system prompts inline ou templates em _shared. Não usar para documentação humana, prompts internos de orquestração SDD, emails, notificações ou copy transacional de UI."
 compatibility: Skill de documento — nao requer ferramenta externa. Consumida pela fase Build quando o DESIGN inventaria prompts de producao.
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.2.0"
+  version: "2.2.1"
   updated: "2026-11"
   fase: "3-apoio"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # Prompt Builder
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-prompt-builder v2.2.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-prompt-builder v2.2.1 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Produzir um único prompt operacional pronto para uso em runtime. Priorizar o menor prompt que preserve clareza, controle de saída, recuperabilidade e fidelidade ao contexto fornecido.
 

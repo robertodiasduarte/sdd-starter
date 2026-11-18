@@ -1,11 +1,11 @@
 ---
 name: sdd-loop-builder
-description: "Especifica, refina e confere processos de produção em que a resposta de um modelo decide o passo seguinte: avaliadores em várias passadas, pipelines com verificador, retry com julgamento, gerador + avaliador. Devolve uma LOOP_SPEC v2 com perfil por risco, estado de controle, verificador independente, regras de parada, orçamento por estágio e a tabela de estágios LLM × código. Usar quando a fase Build encontrar `Tipo=loop` no inventário de prompts, quando o usuário pedir para desenhar ou consertar um laço, ou diante de um laço que repete o mesmo erro, gasta sem controle ou declara pronto sem verificar. Não usar para prompt de chamada única (use a skill de prompt), laço só de código, orquestração interna do método ou documentação."
+description: "SDD Starter — Especifica, refina e confere processos de produção em que a resposta de um modelo decide o passo seguinte: avaliadores em várias passadas, pipelines com verificador, retry com julgamento, gerador + avaliador. Devolve uma LOOP_SPEC v2 com perfil por risco, estado de controle, verificador independente, regras de parada, orçamento por estágio e a tabela de estágios LLM × código. Usar quando a fase Build encontrar `Tipo=loop` no inventário de prompts, quando o usuário pedir para desenhar ou consertar um laço, ou diante de um laço que repete o mesmo erro, gasta sem controle ou declara pronto sem verificar. Não usar para prompt de chamada única (use a skill de prompt), laço só de código, orquestração interna do método ou documentação."
 compatibility: Skill de documento — não requer ferramenta externa. Consumida pela fase Build quando o DESIGN inventaria um processo em laço.
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "1.0.0"
+  version: "1.0.1"
   updated: "2026-11"
   fase: "3-apoio"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # Loop Builder
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-loop-builder v1.0.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-loop-builder v1.0.1 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Especificar o sistema que decide o que perguntar ao modelo, como conferir e quando parar. A `sdd-prompt-builder` entrega
 o contrato de **uma** saída; esta skill entrega o contrato do **processo**. Os prompts de cada estágio nascem depois,

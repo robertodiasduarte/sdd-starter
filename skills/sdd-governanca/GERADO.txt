@@ -1,5 +1,5 @@
 # GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
-04f114a18b66d4e72ed998bac31173fda8b29a24e90240eee9ef115da613116b  SKILL.md
+f9e098a6a1352d4886da0852a7072e8efd6da29a045c83e946a89fdca5bf151c  SKILL.md
 357fe574cabaeb28ba39448fb0ccaf65fb2dc9c13a85a6f7830b91c595a29012  agents/openai.yaml
 bc933c14475ea93ffe7f5d7b3e4587d741b3473950c9911e9e65a7e7c007d837  assets/GOVERNANCA_PADRAO_TEMPLATE.md
 408f04627e95e36487d959c69ef1f79eaa5b7357d04d79556d95cd2ed8e6f7e1  assets/GOVERNANCA_REVIEW_TEMPLATE.md

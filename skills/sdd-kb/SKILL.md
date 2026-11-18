@@ -1,11 +1,11 @@
 ---
 name: sdd-kb
-description: "Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Grava em sdd/kb/, cria o índice do projeto na primeira vez e registra cada domínio novo. Para legislação e normas (perfil normativo), registra a vigência de cada regra, a fonte com SHA-256, os conflitos entre fontes e o mapa regra → fonte → teste. Recomendada antes de iniciar um fluxo SDD. A revisão do conteúdo é sempre do profissional: a IA organiza e redige, quem tem a responsabilidade técnica responde pelo que fica registrado. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
+description: "SDD Starter — Constrói uma base de conhecimento (KB) que a IA consegue consultar de verdade: organiza o que você sabe sobre um domínio em conceitos (para entender) e receitas (para fazer), com porta de entrada, consulta rápida e limites de tamanho que mantêm o material utilizável. Grava em sdd/kb/, cria o índice do projeto na primeira vez e registra cada domínio novo. Para legislação e normas (perfil normativo), registra a vigência de cada regra, a fonte com SHA-256, os conflitos entre fontes e o mapa regra → fonte → teste. Recomendada antes de iniciar um fluxo SDD. A revisão do conteúdo é sempre do profissional: a IA organiza e redige, quem tem a responsabilidade técnica responde pelo que fica registrado. Use quando o usuário quiser ensinar seu contexto à IA, catalogar leis, normas, manuais ou políticas internas, documentar um processo, ou reclamar que precisa reexplicar as mesmas coisas em toda conversa."
 compatibility: Requer python3 >= 3.9 (só stdlib) para o validador e bash >= 3.2 para o gate; sem filesystem, entrega os arquivos no chat.
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.2.3"
+  version: "2.2.4"
   updated: "2026-11"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
@@ -14,7 +14,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # SDD KB
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-kb v2.2.3 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-kb v2.2.4 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 ## Quick start
 

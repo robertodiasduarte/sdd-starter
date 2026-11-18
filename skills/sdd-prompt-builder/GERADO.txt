@@ -1,5 +1,5 @@
 # GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
-be92219ec4c5441d47e7b1e683ea7bec9eb93c9bb99f7e24ef1c78cf6286d0d2  SKILL.md
+5b2ace64da1b05941f338d7a9db5d90fb15a345cc04bd07f8b6263d24da156c4  SKILL.md
 009eb2a1d6f20a2605d2e1423342a24183a89bc86dd5a41a8ba8406cfa7e35f5  agents/openai.yaml
 e4640e2f1561ccf394097a037e618fbc7dc79702166f7b7f52c85108f27a332d  references/LLM_PROMPTS_BUILD_REPORT.md
 0ce103297640edf9fb45af87b64402397e56f12eeb2a57d2bfe14d16737ebd08  references/LLM_PROMPTS_DESIGN.md

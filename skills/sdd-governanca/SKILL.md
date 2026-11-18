@@ -1,11 +1,11 @@
 ---
 name: sdd-governanca
-description: "Revisão de governança do SDD Open, depois do Define e antes da UX Review, para DEFINE que trata dinheiro, saldo, lançamento, nota fiscal, tributo, folha ou dado pessoal. Compara o DEFINE com um catálogo curado (lançamento que não se apaga, partidas dobradas, fechamento de período, trilha de auditoria, segregação de funções, aritmética exata, importação idempotente e outros) e recomenda requisitos novos em EARS com teste negativo, uma decisão por item; grava sdd/reviews/GOVERNANCA_REVIEW_{FEATURE}.md. Use quando o DEFINE tiver um desses gatilhos ou quando o usuário disser /sdd-governanca. Sem gatilho, responde N.A. em uma linha."
+description: "Revisão de governança do SDD Starter, depois do Define e antes da UX Review, para DEFINE que trata dinheiro, saldo, lançamento, nota fiscal, tributo, folha ou dado pessoal. Compara o DEFINE com um catálogo curado (lançamento que não se apaga, partidas dobradas, fechamento de período, trilha de auditoria, segregação de funções, aritmética exata, importação idempotente e outros) e recomenda requisitos novos em EARS com teste negativo, uma decisão por item; grava sdd/reviews/GOVERNANCA_REVIEW_{FEATURE}.md. Use quando o DEFINE tiver um desses gatilhos ou quando o usuário disser /sdd-governanca. Sem gatilho, responde N.A. em uma linha."
 compatibility: "Funciona na web (claude.ai, ChatGPT), onde o relatório sai no chat, e em qualquer agente com acesso ao projeto. Não executa nada no banco do projeto."
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.5.0"
+  version: "2.5.1"
   updated: "2026-11"
   fase: "Gov"
 ---
@@ -15,7 +15,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # sdd-governanca — revisão de governança
 
 Na primeira resposta desta skill, comece com esta linha, uma vez só, antes do Status:
-`sdd-governanca v2.5.0 · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+`sdd-governanca v2.5.1 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
 
 Num sistema financeiro, contábil ou fiscal, governança responde uma pergunta: **daqui a cinco anos,
 um fiscal, um auditor ou um perito reconstrói o que aconteceu, quem fez e por quê — com prova de que
