@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Desempenho do Banco by RDD"
+  short_description: "Lembra índice, política e paginação antes do banco ficar lento, e olha o banco no ar sem mexer nele."
+  default_prompt: "Use a skill sdd-desempenho-banco para conferir o desempenho do banco do meu app (Supabase ou Postgres): o que vale para esta feature e, se eu pedir, um diagnóstico do banco no ar só de leitura, com o meu OK antes."
