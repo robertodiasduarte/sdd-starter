@@ -1,7 +1,7 @@
 # GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
-3a197416c90118d9e03ec6cad8aba6b910c57bc33364126e6f7228cf8dea7332  SKILL.md
+c8c9b0c449f0c8c17bd509248e0fe824686f1aeb5ad129dec2572709a3c8d168  SKILL.md
 742938b5b9ae79c54e9aa1b19b2bba5a8385d4ede5282398e5e24aa9afba81ef  agents/openai.yaml
 840bd0dc39391e089de589adbb86665c8b53a46e14f1a9e23a0f90b9c52ab010  references/PERGUNTA_DECISAO.md
 9e3a0eb710291cafc955603b680ec7c2de76a2f39d569695d17ccba69386e046  references/como-falar.md
-4237feaea4a83808e03d18aa03cca0c3448c933ce881c057dd5b24b7d7705d9e  scripts/checar.sh
+a50e29c5eb1c6a51cbca23f14429fe39a929d89b0a460c2eda273708b058fef4  scripts/checar.sh
 88fb56ab269327cf6fc17fef562e33dfd50475668f360f5f7ccfb7011ce69437  scripts/duplicadas.sh

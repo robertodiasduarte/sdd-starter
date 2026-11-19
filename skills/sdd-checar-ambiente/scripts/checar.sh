@@ -734,6 +734,8 @@ if [ -f "${DIR_SKILL}/scripts/duplicadas.sh" ]; then
   dup_diagnostico add_arrumar_dup "${CMD_CHECAR} --duplicadas"
 fi
 
+# (No starter não há revisão adversarial: o aviso dos revisores é só do SDD Open.)
+
 # ── resumo ───────────────────────────────────────────────────────────────────
 case "${FRENTES}" in
   0) TXT_FRENTES="nenhuma frente aberta" ;;
