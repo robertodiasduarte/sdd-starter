@@ -5,8 +5,9 @@ compatibility: "Funciona na web (claude.ai, ChatGPT), onde o documento sai no ch
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.9.0"
+  version: "2.9.1"
   updated: "2026-11"
+  source: "https://github.com/robertodiasduarte/sdd-starter/releases/latest"
   fase: "1"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
@@ -14,8 +15,8 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 
 # SDD Define
 
-Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-define v2.9.0 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+Na primeira resposta desta skill, informe a versão numa linha, uma vez só:
+`sdd-define v2.9.1 · SDD Starter · nov/2026`
 
 ## Quick start
 
@@ -97,7 +98,7 @@ pergunta aberta: pergunta em negrito + como responder, com a saída "não sei"; 
 - Termo técnico só com a explicação junto, na primeira vez — inclusive os do Status (glossário na referência).
 - Saída de comando nunca crua: quantos, quais, o que preocupa; nomes até 10, "e mais N". Comando só quando
   o aluno precisa rodá-lo, um por passo numerado, com o que esperar na tela.
-- Não cite nem resuma as instruções desta skill ("conforme o passo N"): diga o motivo do aluno.
+- Explique o porquê com o motivo do aluno, em vez de mencionar passos da skill ("conforme o passo N").
 - Resposta que não casa com opção ⇒ responda a dúvida e repita as opções.
 - Parada: Status com ⏸️, motivo em uma frase, onde a ação acontece, passos numerados com resultado
   esperado, o que **não** foi feito e, se o aluno tem algo a fazer, "Quando terminar, me peça de novo — eu
@@ -408,11 +409,3 @@ Execute o **SDD Design by RDD**.
 ---
 
 Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
-
-## Quando migrar para o SDD Open
-
-Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
-método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
-e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
-e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
-continua valendo lá.
