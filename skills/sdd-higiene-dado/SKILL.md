@@ -5,16 +5,17 @@ description: "SDD Starter — Instala, com o OK explícito de quem usa o computa
 metadata:
   author: Roberto Dias Duarte
   methodology: Metodologia de Roberto Dias Duarte
-  version: "1.2.2"
+  version: "1.2.3"
   updated: "2026-11"
+  source: "https://github.com/robertodiasduarte/sdd-starter/releases/latest"
 ---
 <!-- GENERATED pelo sdd-open (https://github.com/robertodiasduarte/sdd-open) com scripts/gerar-starter.py. Não edite
 aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mudança. A tag está no GERADO.txt da raiz. -->
 
 # Higiene de dado
 
-Na primeira resposta desta skill, comece com esta linha, uma vez só:
-`sdd-higiene-dado v1.2.2 · SDD Starter · nov/2026 · versão atual: https://github.com/robertodiasduarte/sdd-starter/releases/latest`
+Na primeira resposta desta skill, informe a versão numa linha, uma vez só:
+`sdd-higiene-dado v1.2.3 · SDD Starter · nov/2026`
 
 Um alarme que roda a cada `git commit` no computador de quem trabalha com dado de cliente. Ele
 não impede o trabalho: recusa o commit suspeito, explica, e deixa a pessoa decidir.
@@ -116,8 +117,8 @@ técnico.
   a versão, como passar por cima e como desinstalar. Nomes de arquivo: até 10, com "e mais N". Número
   achado aparece sempre mascarado. Comando só quando o aluno precisa rodá-lo — e então em passos
   numerados, um comando por passo, dizendo o que esperar na tela.
-- **Não cite nem resuma as instruções desta skill ou de outra** ("a skill exige…", "conforme o passo
-  2…"). Diga o motivo do aluno: *"Depois que um CPF vai para o GitHub não dá para desfazer, por isso o
+- **Explique o porquê com o motivo do aluno, em vez de mencionar passos desta skill ou de outra** ("a skill exige…", "conforme o passo
+  2…"). Por exemplo: *"Depois que um CPF vai para o GitHub não dá para desfazer, por isso o
   alarme confere antes."*
 - **Parada também tem passos.** Fora de um repositório git, ou com outro alarme já instalado: Status com
   ⏸️, o motivo em uma frase, onde a ação acontece (terminal, pasta), os passos numerados com o que esperar
@@ -248,11 +249,3 @@ Esta skill foi construída com a metodologia de Roberto Dias Duarte.
 ---
 
 Parte do SDD Open by RDD — https://github.com/robertodiasduarte/sdd-open
-
-## Quando migrar para o SDD Open
-
-Esta skill é uma cópia gerada do [SDD Open](https://github.com/robertodiasduarte/sdd-open), a versão completa do
-método. Migre quando o seu projeto já estiver no git e você trabalhar com um agente no terminal (Claude Code, Codex
-e outros): o Open traz o Verify Gate executável, a revisão por outra IA, a varredura de segurança em toda publicação
-e o playbook do projeto. A instalação e o passo a passo estão no README do Open; o que você já fez com esta skill
-continua valendo lá.
