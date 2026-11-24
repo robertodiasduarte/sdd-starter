@@ -1,4 +1,4 @@
-# GENERATED pelo sdd-open v2.25.1 (commit 89a0ecb8dfa1) com scripts/gerar-starter.py — não edite aqui.
+# GENERATED pelo sdd-open v2.26.0 (commit c4fa53ce493d) com scripts/gerar-starter.py — não edite aqui.
 2ea343c763d7df2ea9cd2f5e594276cadd4c1e87ad4c8bd625973f3c39081211  .gitattributes
 2daedd6577388ac28b837629fc119d8092276f6f97093ce95eb745073e167c7c  .github/workflows/auto-release.yml
 78ad7cc8d954748ec624aef164a7b190275b3fb010d91d954b9f405fffff27e8  .github/workflows/ci.yml
@@ -19,8 +19,8 @@ eb8458cdb7f97c4daebb906c69a18304649c87c8a57e1fa5b6fa54e3ab53cd3d  scripts/check-
 6561e974f6787bd75286babe685f49cf887383039d28daa38bef40df6f904beb  scripts/publish-check.sh
 3bbfb3f7f1d75157983d4083316f32cdd19b2a03f1ef0e383487fd8eff53b961  skills/sdd-auditoria-harness/GERADO.txt
 681c7cd696a8927a9c69fb4098d9a9a1a1dd9f7a0380fe727422726052fb8a4c  skills/sdd-brainstorm/GERADO.txt
-0922bc0b7b8e7dcd47381164b60580d30edab9ce440a2906139ae5bba1524f94  skills/sdd-build/GERADO.txt
-959b1fc7d2eb0433ca7afa9aab99879de09f560782e74ca86509da92de4af1f7  skills/sdd-checar-ambiente/GERADO.txt
+1d18cd1e90437c1a1fbdc8107b2fe0e54bec32c97d2215b27d895db3fd635286  skills/sdd-build/GERADO.txt
+675c0c41628cfead8f410138652043afb82ca67d974e09b19bd40bda5e5f6214  skills/sdd-checar-ambiente/GERADO.txt
 ba6f313a193ef526e7e25ea4a71a75f3909485a577c5116c37330861dd91047d  skills/sdd-define/GERADO.txt
 756bba72d9a4dc8a325f29c21bd80df4d7f3bc83981ba2662f4511b343e87b79  skills/sdd-desempenho-banco/GERADO.txt
 6dd16632f94ad03f7076213b5fe31834daa33dae3ed14f00a95c0eb546de4e6b  skills/sdd-design/GERADO.txt
@@ -31,7 +31,7 @@ ff9c3f5fd81b32b0d61b0a09d999b50798b4e3c7f6b82af9c71961994e853328  skills/sdd-hig
 88c8cb93e2cc578d5cc2dc4fb948e31e575192e287b36ccf77e7827838c77216  skills/sdd-iniciar-repo/GERADO.txt
 516be588f35f93646edbbb2e21d2f2ce5f8b6e3b50ef674bf618aaa1ca60b670  skills/sdd-kb/GERADO.txt
 617b1222cf8a275f84a5cb98b8e45f3c3273610058ff52f80102430365015b85  skills/sdd-loop-builder/GERADO.txt
-61809f0acecdf9c6d8030a3bb2230236584d053df5ff810f469631c63c4dfa2b  skills/sdd-new-session/GERADO.txt
+1c6d8a7680cd577b336ad7185f5ad2fbb1df586e5d86f89b41d2e847a346fe7a  skills/sdd-new-session/GERADO.txt
 e56ea338ea2278566c15225a87271115272c705c41c10e5ad19cec6e13bd98f3  skills/sdd-prompt-builder/GERADO.txt
 225bd5ba9c78da4489462ed447771f377fe3e1c8fdfaab627cb60428a11d970d  skills/sdd-release/GERADO.txt
 e936a17072941a1f6c36155a25320a661f6e1ebd3dcbfbee4da48870ead2182c  skills/sdd-seguranca/GERADO.txt
