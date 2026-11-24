@@ -5,7 +5,7 @@ compatibility: "Funciona na web (claude.ai, ChatGPT), onde o documento sai no ch
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.11.1"
+  version: "2.12.0"
   updated: "2026-11"
   source: "https://github.com/robertodiasduarte/sdd-starter/releases/latest"
   fase: "2"
@@ -16,7 +16,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # SDD Design
 
 Na primeira resposta desta skill, informe a versão numa linha, uma vez só:
-`sdd-design v2.11.1 · SDD Starter · nov/2026`
+`sdd-design v2.12.0 · SDD Starter · nov/2026`
 
 ## Quick start
 
