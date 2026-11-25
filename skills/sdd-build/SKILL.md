@@ -5,7 +5,7 @@ compatibility: "Requer um agente com acesso gravável ao projeto; não precisa d
 license: MIT
 metadata:
   author: Roberto Dias Duarte
-  version: "2.16.0"
+  version: "2.17.0"
   updated: "2026-11"
   source: "https://github.com/robertodiasduarte/sdd-starter/releases/latest"
   fase: "3"
@@ -16,7 +16,7 @@ aqui: edite no sdd-open e gere de novo; o check-gerado.py do starter recusa a mu
 # SDD Build
 
 Na primeira resposta desta skill, informe a versão numa linha, uma vez só:
-`sdd-build v2.16.0 · SDD Starter · nov/2026`
+`sdd-build v2.17.0 · SDD Starter · nov/2026`
 
 Executar implementação real. Não tratar Build como geração de um documento isolado.
 
@@ -382,6 +382,7 @@ Depois do gate, executar quando configurado:
 - test suite relevante;
 - build/compile;
 - smoke não coberto pelo gate.
+- complexidade e duplicação do código novo, só aviso ([references/metricas-do-diff.md](references/metricas-do-diff.md)).
 
 Esses checks complementam; não substituem o Verify Gate.
 
