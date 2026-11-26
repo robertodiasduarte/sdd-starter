@@ -1,5 +1,5 @@
 # GENERATED pelo sdd-open com scripts/gerar-starter.py — não edite aqui: edite no sdd-open e gere de novo.
-23697aa8ea8c196e26592eecce911ff915b867c0529f2e5c2acbba424ea9891b  SKILL.md
+0d6f630762809bf483b55d8faebf6aee14621e5e3ebbd3c0be2c02c4bfebfddd  SKILL.md
 5ef76f7e38cbbcea110c81b7624f105c14107693fc92aca806a96ea74c8c4e87  agents/openai.yaml
 15193bd1b2d9096271622caeefe680cc77250f453339b38d2f7260ca1a4b634d  assets/BUILD_REPORT_TEMPLATE.md
 23476a03f9b7eb478916672fe8ded9d0026d4cb644aecf333087a6b1958a694e  assets/PROGRESS_TEMPLATE.md
@@ -8,7 +8,7 @@
 4e8bbb1c9418765cb1f21b3f4637d2eb6166155feedb731b96455ad502dd8062  references/aplicar-migration.md
 6e9815dad50c323a99281d258d69ae8c0d235ae8911051c912c620da4aecb99a  references/build-protocol.md
 4632ebc666186d47480345e3a4fd8b3e10aa5f464462cd731eedc3104caa19da  references/como-falar.md
-ce3f2d578014e9a978755029240154074b3b9163f57cfa02d473472bf61487ca  references/disciplina-de-teste.md
+91ac336c0509644b8fba1d5c3bf6f0d5e5a25ef9df5ff0215ec70e32f9181454  references/disciplina-de-teste.md
 50670d8974684837ae94b6005c1b813d91e81fdb965d1fe6243806b9fea06503  references/execution-modes.md
 e9008f89911c1b345d2388318cf3a4c59faf9bde14b0d8ef79b19ad22defe23e  references/llm-prompt-gate.md
 a44cd47d220fc0da7b5d7688cf5958fed6a69964c53a660eea90e91ec06dc2dd  references/metricas-do-diff.md

@@ -1,4 +1,4 @@
-# GENERATED pelo sdd-open v2.28.0 (commit 33b58318ab97) com scripts/gerar-starter.py — não edite aqui.
+# GENERATED pelo sdd-open v2.29.0 (commit 1fd9bb1bdaca) com scripts/gerar-starter.py — não edite aqui.
 2ea343c763d7df2ea9cd2f5e594276cadd4c1e87ad4c8bd625973f3c39081211  .gitattributes
 2daedd6577388ac28b837629fc119d8092276f6f97093ce95eb745073e167c7c  .github/workflows/auto-release.yml
 78ad7cc8d954748ec624aef164a7b190275b3fb010d91d954b9f405fffff27e8  .github/workflows/ci.yml
@@ -19,9 +19,9 @@ eb8458cdb7f97c4daebb906c69a18304649c87c8a57e1fa5b6fa54e3ab53cd3d  scripts/check-
 6561e974f6787bd75286babe685f49cf887383039d28daa38bef40df6f904beb  scripts/publish-check.sh
 3bbfb3f7f1d75157983d4083316f32cdd19b2a03f1ef0e383487fd8eff53b961  skills/sdd-auditoria-harness/GERADO.txt
 681c7cd696a8927a9c69fb4098d9a9a1a1dd9f7a0380fe727422726052fb8a4c  skills/sdd-brainstorm/GERADO.txt
-51e3ddf3250e0d6aca951e470ac6a4bf81b90066079b63614d011d70cbb532cc  skills/sdd-build/GERADO.txt
+db3d2a0bf16fdc75b9864927251190fec893f79b0bcb8ea6b5460e3a89a13471  skills/sdd-build/GERADO.txt
 675c0c41628cfead8f410138652043afb82ca67d974e09b19bd40bda5e5f6214  skills/sdd-checar-ambiente/GERADO.txt
-ba6f313a193ef526e7e25ea4a71a75f3909485a577c5116c37330861dd91047d  skills/sdd-define/GERADO.txt
+25033fa8c87335665652592fa6eb953b73507e5215cd03c961abb2be9a948d60  skills/sdd-define/GERADO.txt
 756bba72d9a4dc8a325f29c21bd80df4d7f3bc83981ba2662f4511b343e87b79  skills/sdd-desempenho-banco/GERADO.txt
 ef5ebdd893bfc6b00cb9ae7768c9f673ff1fd0b5fc99da3ef5615cdf853013f5  skills/sdd-design/GERADO.txt
 38bb945913adb0cd3e3db5c346116a585726725b8ddbf6bc2fdf6942cd9c4f31  skills/sdd-engenharia-reversa-saas/GERADO.txt
